@@ -1,2 +1,2 @@
-<%= ui_data_table(items: DoorCheck::Credential.where(person: person), columns: [ { label: "Method" }, { last_used: "Last used" } ],
+<%= ui_data_table(items: DoorCheck::Credential.where(person: person), columns: [ { label: "Method" }, { last_used: "Last used" }, { accepted_by: "Accepted by" } ],
                   empty_message: "No sign-in methods set up yet.") %>

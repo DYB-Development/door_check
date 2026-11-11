@@ -22,6 +22,15 @@ module DoorCheck
       assert_select "td", text: /November 01, 2026/
     end
 
+    test "the section names the person's accounts that accept each method" do
+      Account.create!(name: "Acme")
+      Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_select "td", text: /Acme/
+    end
+
     private
 
     def render_section
