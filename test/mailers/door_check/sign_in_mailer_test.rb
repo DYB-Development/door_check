@@ -15,5 +15,11 @@ module DoorCheck
 
       assert_match "/door_check/email_link/#{@challenge.token}", mail.text_part.body.to_s
     end
+
+    test "the sign-in email is sent with the host app's own mail settings" do
+      mail = SignInMailer.code_and_link(@challenge, to: "ada@example.com")
+
+      assert_equal [ "hello@dummy-app.example" ], mail.from
+    end
   end
 end

@@ -1,5 +1,5 @@
 module DoorCheck
-  class SignInMailer < ApplicationMailer
+  class SignInMailer < DoorCheck.configuration.parent_mailer.constantize
     def code_and_link(challenge, to:)
       @code = challenge.code
       @link = email_link_url(token: challenge.token)
