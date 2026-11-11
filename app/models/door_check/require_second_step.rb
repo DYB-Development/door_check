@@ -7,7 +7,7 @@ module DoorCheck
     end
 
     def call
-      AccountRule.for(@account).update!(second_step_required: @values[:second_step_required] == "1")
+      AccountRule.for(@account).update!(second_step_required: @values[:second_step_required] == "1", accepted_methods: @values[:accepted_methods])
       Result.new(ok: true)
     end
   end

@@ -9,5 +9,13 @@ module DoorCheck
 
       assert AccountRule.for(account).second_step_required
     end
+
+    test "saving the section keeps the methods the admin picked" do
+      account = Account.create!(name: "Acme")
+
+      RequireSecondStep.new(person: nil, account: account, values: { accepted_methods: %w[authenticator_app] }).call
+
+      assert_equal %w[authenticator_app], AccountRule.for(account).accepted_methods
+    end
   end
 end
