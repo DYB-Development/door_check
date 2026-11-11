@@ -26,4 +26,10 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/email_code/new"
   end
+
+  test "the sign-in screen asks for an email address" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "form[action='/door_check/email_sign_in'] input[name=email]"
+  end
 end

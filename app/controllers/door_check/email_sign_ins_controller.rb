@@ -2,6 +2,9 @@ module DoorCheck
   class EmailSignInsController < ApplicationController
     CHALLENGE_KEY = :door_check_challenge_id
 
+    def new
+    end
+
     def create
       email = params[:email].to_s.strip
       person = DoorCheck.configuration.find_person_by_email.call(email)
