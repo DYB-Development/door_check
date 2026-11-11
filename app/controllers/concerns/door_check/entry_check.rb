@@ -16,8 +16,14 @@ module DoorCheck
       return true if person.nil?
 
       proved = door_check_proved_by.map(&:first)
+      proved += [ :trusted_device ] if door_check_trusted_browser?(person)
       account = door_check_account
       PersonRule.for(person).met_by?(proved) && (account.nil? || AccountRule.for(account).met_by?(proved))
+    end
+
+    def door_check_trusted_browser?(person)
+      token = cookies.signed[TrustedDevice::COOKIE]
+      token.present? && TrustedDevice.recognise(person, token).present?
     end
   end
 end

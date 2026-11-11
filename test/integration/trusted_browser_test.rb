@@ -14,4 +14,22 @@ class TrustedBrowserTest < ActionDispatch::IntegrationTest
 
     assert DoorCheck::TrustedDevice.exists?(person: @user)
   end
+
+  test "a trusted browser is not asked for a second step on a later sign-in" do
+    trust_this_browser
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_response :ok
+  end
+
+  private
+
+  def trust_this_browser
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post "/door_check/second_step", params: { code: "123456", trust_browser: "1" }
+    delete sign_out_path
+  end
 end
