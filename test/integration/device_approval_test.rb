@@ -58,6 +58,14 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the request list listens for new requests" do
+    signed_in = signed_in_device
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "turbo-cable-stream-source"
+  end
+
   private
 
   def signed_in_device
