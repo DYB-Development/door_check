@@ -65,7 +65,22 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/"
   end
 
+  test "opening the emailed link signs that browser in with an email link" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+    link = emailed_link
+    reset!
+
+    get link
+    get "/proofs"
+
+    assert_equal [ "email_link" ], response.parsed_body
+  end
+
   private
+
+  def emailed_link
+    URI(ActionMailer::Base.deliveries.last.text_part.body.to_s[%r{http\S+/email_link/\S+}]).path
+  end
 
   def emailed_code
     ActionMailer::Base.deliveries.last.text_part.body.to_s[/code is (\d{6})/, 1]
