@@ -4,15 +4,12 @@ module DoorCheck
 
     belongs_to :person, polymorphic: true
 
-    attr_reader :code, :token
+    attr_accessor :code, :token
 
     def self.issue(person)
       code = format("%06d", SecureRandom.random_number(1_000_000))
       token = SecureRandom.urlsafe_base64(32)
-      create!(person: person, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now).tap do |challenge|
-        challenge.instance_variable_set(:@code, code)
-        challenge.instance_variable_set(:@token, token)
-      end
+      create!(person: person, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
     end
 
     def self.digest(value)
@@ -20,7 +17,13 @@ module DoorCheck
     end
 
     def redeem_code(code)
-      ActiveSupport::SecurityUtils.secure_compare(code_digest, self.class.digest(code))
+      ActiveSupport::SecurityUtils.secure_compare(code_digest, self.class.digest(code)) && use
+    end
+
+    private
+
+    def use
+      self.class.where(id: id, used_at: nil).update_all(used_at: Time.current) == 1
     end
   end
 end

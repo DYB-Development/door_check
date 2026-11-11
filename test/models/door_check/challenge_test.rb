@@ -9,5 +9,12 @@ module DoorCheck
 
       assert Challenge.find(challenge.id).redeem_code(challenge.code)
     end
+
+    test "a code already used is refused" do
+      challenge = Challenge.issue(@user)
+      challenge.redeem_code(challenge.code)
+
+      assert_not challenge.reload.redeem_code(challenge.code)
+    end
   end
 end
