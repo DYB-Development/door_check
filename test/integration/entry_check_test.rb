@@ -83,4 +83,13 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/second_step/new"
   end
+
+  test "an account with no rule asks for nothing beyond the sign-in" do
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_response :ok
+  end
 end
