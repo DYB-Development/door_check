@@ -89,6 +89,14 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}']"
     end
 
+    test "the section lists each session the person is signed in on with its device" do
+      SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_select "td", text: /Firefox on Linux/
+    end
+
     private
 
     def render_section

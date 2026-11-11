@@ -5,6 +5,9 @@
     <%= ui_button(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch, variant: :secondary, size: :sm) %>
   <% end %>
 <% end %>
+<%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
+                  columns: [ { device: "Signed in on" }, { last_used: "Last used" } ],
+                  empty_message: "No signed-in sessions.") %>
 <% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
   <%= ui_data_table(items: DoorCheck::TrustedDevice.where(person: person).where("expires_at > ?", Time.current),
                     columns: [ { device: "Trusted browser" }, { trusted_until: "Trusted until" } ],

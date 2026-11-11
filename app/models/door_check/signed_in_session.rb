@@ -7,6 +7,8 @@ module DoorCheck
       proofs.create!(method_name: method_name, proved_at: Time.current)
     end
 
+    def last_used = last_used_at&.to_fs(:long)
+
     def note_use
       update_column(:last_used_at, Time.current) if last_used_at.nil? || last_used_at < 5.minutes.ago
     end
