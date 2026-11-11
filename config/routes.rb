@@ -8,5 +8,6 @@ DoorCheck::Engine.routes.draw do
   resource :passkey_sign_in, only: %i[new create]
   resource :email_sign_in, only: %i[new create]
   resource :email_code, only: %i[new create]
+  resource :approval_request, only: %i[new create show]
   get "email_link/:token", to: "email_links#show", as: :email_link
 end

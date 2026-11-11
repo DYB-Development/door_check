@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rotp", ">= 6.0"
   spec.add_dependency "rqrcode", ">= 2.0"
   spec.add_dependency "webauthn", ">= 3.0"
+  spec.add_dependency "turbo-rails", ">= 2.0"
 end

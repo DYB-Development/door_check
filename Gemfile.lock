@@ -6,6 +6,7 @@ PATH
       rails (>= 7.1)
       rotp (>= 6.0)
       rqrcode (>= 2.0)
+      turbo-rails (>= 2.0)
       webauthn (>= 3.0)
 
 GEM
@@ -293,6 +294,9 @@ GEM
       openssl (> 2.0)
       openssl-signature_algorithm (~> 1.0)
     tsort (0.2.0)
+    turbo-rails (2.0.23)
+      actionpack (>= 7.1.0)
+      railties (>= 7.1.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.3.0)

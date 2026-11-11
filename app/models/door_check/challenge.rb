@@ -1,6 +1,7 @@
 module DoorCheck
   class Challenge < ApplicationRecord
     LIFETIME = 15.minutes
+    APPROVAL_LIFETIME = 5.minutes
 
     belongs_to :person, polymorphic: true
 
@@ -10,6 +11,11 @@ module DoorCheck
       code = format("%06d", SecureRandom.random_number(1_000_000))
       token = SecureRandom.urlsafe_base64(32)
       create!(person: person, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
+    end
+
+    def self.request_approval(person, device:, ip_address:)
+      create!(person: person, number: format("%02d", SecureRandom.random_number(10..99)), device: device, ip_address: ip_address,
+              expires_at: APPROVAL_LIFETIME.from_now)
     end
 
     def self.digest(value) = KeyedDigest.of(value)
