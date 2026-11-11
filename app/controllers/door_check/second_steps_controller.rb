@@ -25,6 +25,8 @@ module DoorCheck
     def verify_code(code)
       return :authenticator_app if Credential.where(person: @person, method_name: "authenticator_app").any? { |credential| credential.verify(code) }
 
+      return :backup_codes if BackupCodes.use(@person, code)
+
       @authenticator&.verify(@person, code)
     end
 

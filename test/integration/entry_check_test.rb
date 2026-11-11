@@ -135,4 +135,17 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href='/door_check/authenticator/new']", count: 0
   end
+
+  test "a backup code made in the gem proves the second step" do
+    @user.update!(authenticator_code: nil, backup_codes: nil)
+    codes = DoorCheck::BackupCodes.create_for(@user)
+    DoorCheck::AccountRule.create!(account: @account, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+    get dashboard_path
+
+    post "/door_check/second_step", params: { code: codes.first }
+
+    assert_redirected_to "/dashboard"
+  end
 end
