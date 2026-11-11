@@ -1,4 +1,5 @@
 require "keystone_ui"
+require "rotp"
 require "door_check/version"
 require "door_check/configuration"
 require "door_check/engine"
