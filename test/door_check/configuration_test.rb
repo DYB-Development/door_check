@@ -8,4 +8,12 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
 
     assert_equal %i[password authenticator_app], configuration.offered_methods
   end
+
+  test "listing a method the gem does not know is refused with its name" do
+    error = assert_raises(DoorCheck::UnknownMethod) do
+      DoorCheck::Configuration.new.offered_methods = %i[password carrier_pigeon]
+    end
+
+    assert_includes error.message, "carrier_pigeon"
+  end
 end
