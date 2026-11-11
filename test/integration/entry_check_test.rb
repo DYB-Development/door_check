@@ -84,6 +84,16 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/door_check/second_step/new"
   end
 
+  test "a password sign-in entering an account that accepts only an authenticator app is asked for it" do
+    DoorCheck::AccountRule.create!(account: @account, accepted_methods: %w[authenticator_app])
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
+
   test "an account with no rule asks for nothing beyond the sign-in" do
     post sign_in_path, params: { user_id: @user.id, method_name: "password" }
     post switch_account_path(@account)
