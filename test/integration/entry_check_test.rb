@@ -148,4 +148,14 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/dashboard"
   end
+
+  test "a person whose only second step is a set of backup codes is asked for a code" do
+    @user.update!(authenticator_code: nil, backup_codes: nil)
+    DoorCheck::BackupCodes.create_for(@user)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+
+    get "/door_check/second_step/new"
+
+    assert_select "input[name=code]"
+  end
 end
