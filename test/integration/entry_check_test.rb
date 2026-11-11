@@ -60,4 +60,14 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_select "div", text: /That code is not right/
   end
+
+  test "a sign-in that already gave a second step enters the account without being asked" do
+    DoorCheck::AccountRule.create!(account: @account, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "authenticator_app" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_response :ok
+  end
 end
