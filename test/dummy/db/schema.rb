@@ -10,7 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_11_005436) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_010741) do
+  create_table "accounts", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "door_check_account_rules", force: :cascade do |t|
+    t.string "account_type", null: false
+    t.integer "account_id", null: false
+    t.boolean "second_step_required", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_type", "account_id"], name: "index_door_check_account_rules_on_account", unique: true
+  end
+
   create_table "door_check_proofs", force: :cascade do |t|
     t.integer "signed_in_session_id", null: false
     t.string "method_name", null: false
