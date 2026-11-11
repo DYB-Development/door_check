@@ -3,6 +3,9 @@ module DoorCheck
     REQUEST_KEY = :door_check_approval_request_id
     NUMBER_KEY = :door_check_approval_number
 
+    def new
+    end
+
     def create
       person = DoorCheck.configuration.find_person_by_email.call(params[:email].to_s.strip)
       challenge = person && Challenge.request_approval(person, device: request.user_agent.to_s.truncate(255), ip_address: request.remote_ip)

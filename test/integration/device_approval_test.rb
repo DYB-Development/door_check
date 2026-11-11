@@ -155,6 +155,12 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     assert_select "p strong", text: /\A\d{2}\z/
   end
 
+  test "the approval screen asks for an email address" do
+    get "/door_check/approval_request/new"
+
+    assert_select "form[action='/door_check/approval_request'] input[name=email]"
+  end
+
   private
 
   def signed_in_device
