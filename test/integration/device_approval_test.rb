@@ -77,6 +77,16 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     assert_equal [ "device_approval" ], response.parsed_body
   end
 
+  test "approving the request refreshes the screen that asked" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+    challenge = DoorCheck::Challenge.last
+
+    assert_turbo_stream_broadcasts challenge do
+      signed_in.post "/door_check/approvals/#{challenge.id}/approve"
+    end
+  end
+
   private
 
   def signed_in_device
