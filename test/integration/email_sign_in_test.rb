@@ -48,6 +48,14 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_select "form[action='/door_check/email_code'] input[name=code]"
   end
 
+  test "a wrong code is refused on the screen that asked" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    post "/door_check/email_code", params: { code: "000000" }
+
+    assert_select "div", text: /That code is not right/
+  end
+
   private
 
   def emailed_code
