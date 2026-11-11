@@ -13,8 +13,14 @@ module DoorCheck
     end
 
     def self.use(person, code)
-      credential = Credential.find_by(person: person, method_name: METHOD_NAME)
-      credential.present? && JSON.parse(credential.secret).include?(KeyedDigest.of(code.to_s.strip.downcase))
+      Credential.transaction do
+        credential = Credential.lock.find_by(person: person, method_name: METHOD_NAME)
+        digests = credential ? JSON.parse(credential.secret) : []
+        digest = KeyedDigest.of(code.to_s.strip.downcase)
+        next false unless digests.include?(digest)
+
+        credential.update!(secret: (digests - [ digest ]).to_json, last_used_at: Time.current)
+      end
     end
   end
 end

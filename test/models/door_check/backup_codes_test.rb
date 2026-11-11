@@ -13,5 +13,12 @@ module DoorCheck
 
       assert BackupCodes.use(@user, codes.first)
     end
+
+    test "a code already used is refused" do
+      codes = BackupCodes.create_for(@user)
+      BackupCodes.use(@user, codes.first)
+
+      assert_not BackupCodes.use(@user, codes.first)
+    end
   end
 end
