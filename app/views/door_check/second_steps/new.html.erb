@@ -7,6 +7,13 @@
                         autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
       <%= ui_button(label: "Verify") %>
     <% end %>
+    <% if @passkey_options %>
+      <%= ui_form(action: door_check.passkey_second_step_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "get",
+                                                                      door_check_passkey_options_value: @passkey_options.to_json, action: "submit->door-check-passkey#run" }) do %>
+        <input type="hidden" name="credential" data-door-check-passkey-target="credential">
+        <%= ui_button(label: "Use a passkey or key", variant: :secondary) %>
+      <% end %>
+    <% end %>
   <% else %>
     <%= ui_page_header(title: "Set up a second step", subtitle: "A second step is required here, and you have none set up yet.") %>
     <% @setups.each do |method_name, setup_page| %>

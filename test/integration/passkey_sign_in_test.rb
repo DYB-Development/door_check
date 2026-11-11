@@ -57,6 +57,19 @@ class PasskeySignInTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.offered_methods = offered
   end
 
+  test "a hardware key gives the second step after a password sign-in" do
+    account = Account.create!(name: "Acme")
+    DoorCheck::AccountRule.create!(account: account, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post "/accounts/#{account.id}/switch"
+    get "/dashboard"
+    get "/door_check/second_step/new"
+
+    post "/door_check/second_step/passkey", params: { credential: @client.get(challenge: session[:door_check_passkey_challenge], user_verified: false).to_json }
+
+    assert_redirected_to "/dashboard"
+  end
+
   private
 
   def add_passkey

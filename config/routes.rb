@@ -1,5 +1,7 @@
 DoorCheck::Engine.routes.draw do
-  resource :second_step, only: %i[new create]
+  resource :second_step, only: %i[new create] do
+    post :passkey
+  end
   resource :authenticator, only: %i[new create]
   resource :backup_codes, only: :create
   resources :passkeys, only: %i[new create]
