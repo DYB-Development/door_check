@@ -148,6 +148,13 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     assert_enqueued_with job: DoorCheck::ApprovalExpiryJob, at: DoorCheck::Challenge.last.expires_at
   end
 
+  test "an address with no person leads to the same waiting screen" do
+    post "/door_check/approval_request", params: { email: "nobody@example.com" }
+    follow_redirect!
+
+    assert_select "p strong", text: /\A\d{2}\z/
+  end
+
   private
 
   def signed_in_device
