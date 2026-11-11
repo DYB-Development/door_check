@@ -24,5 +24,11 @@ module DoorCheck
         assert_not challenge.redeem_code(challenge.code)
       end
     end
+
+    test "a link's token finds the challenge it was issued with" do
+      challenge = Challenge.issue(@user)
+
+      assert_equal challenge, Challenge.redeem_token(challenge.token)
+    end
   end
 end

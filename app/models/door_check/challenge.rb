@@ -16,6 +16,11 @@ module DoorCheck
       OpenSSL::HMAC.hexdigest("SHA256", Rails.application.secret_key_base, value.to_s)
     end
 
+    def self.redeem_token(token)
+      challenge = find_by(token_digest: digest(token))
+      challenge if challenge&.send(:use)
+    end
+
     def redeem_code(code)
       ActiveSupport::SecurityUtils.secure_compare(code_digest, self.class.digest(code)) && use
     end
