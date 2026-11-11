@@ -3,11 +3,21 @@ module DoorCheck
     RETURN_KEY = :door_check_return_to
 
     def door_check_check_entry
-      account = door_check_account
-      return if account.nil? || AccountRule.for(account).met_by?(door_check_proved_by.map(&:first))
+      return if door_check_entry_met?
 
       session[RETURN_KEY] = request.fullpath
       redirect_to door_check.new_second_step_path
+    end
+
+    private
+
+    def door_check_entry_met?
+      person = door_check_person
+      return true if person.nil?
+
+      proved = door_check_proved_by.map(&:first)
+      account = door_check_account
+      PersonRule.for(person).met_by?(proved) && (account.nil? || AccountRule.for(account).met_by?(proved))
     end
   end
 end

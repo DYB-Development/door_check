@@ -115,4 +115,13 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/dashboard"
   end
+
+  test "a person who requires a second step of their own is asked for it with no account involved" do
+    DoorCheck::PersonRule.create!(person: @user, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
 end
