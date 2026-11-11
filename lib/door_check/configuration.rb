@@ -5,7 +5,11 @@ module DoorCheck
 
   class Configuration
     attr_reader :offered_methods
-    attr_accessor :person_method, :account_method
+    attr_accessor :person_method, :account_method, :parent_controller
+
+    def initialize
+      @parent_controller = "::ApplicationController"
+    end
 
     def offered_methods=(names)
       unknown = names - Methods.names

@@ -1,0 +1,8 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "Confirm it's you", subtitle: "Enter the code from your authenticator app or one of your backup codes.") %>
+  <%= ui_form(action: door_check.second_step_path) do %>
+    <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
+                      autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
+    <%= ui_button(label: "Verify") %>
+  <% end %>
+<% end %>
