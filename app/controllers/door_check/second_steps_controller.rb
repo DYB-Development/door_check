@@ -18,6 +18,8 @@ module DoorCheck
     def find_authenticator
       @person = door_check_person
       @authenticator = DoorCheck.configuration.authenticator
+      @second_step_set_up = SecondStep.set_up?(@person)
+      @setups = SecondStep.offered_setups(door_check_account)
     end
 
     def verify_code(code)

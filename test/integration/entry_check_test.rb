@@ -43,13 +43,13 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
     assert_select "div", text: /That code is not right/
   end
 
-  test "a person with no authenticator is told how to set one up" do
+  test "a person with no second step set up is offered the authenticator app setup" do
     @user.update!(authenticator_code: nil)
     post sign_in_path, params: { user_id: @user.id, method_name: "password" }
 
     get "/door_check/second_step/new"
 
-    assert_select "a[href='/authenticator/setup']"
+    assert_select "a[href='/door_check/authenticator/new']"
   end
 
   test "a backup code used once is refused the second time" do
