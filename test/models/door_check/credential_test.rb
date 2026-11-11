@@ -24,5 +24,13 @@ module DoorCheck
 
       assert credential.reload.last_used_at
     end
+
+    test "a code already used once is refused the second time" do
+      credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+      code = ROTP::TOTP.new(credential.secret).now
+      credential.verify(code)
+
+      assert_not credential.verify(code)
+    end
   end
 end
