@@ -1,5 +1,7 @@
 module DoorCheck
   class EmailLinksController < ApplicationController
+    before_action { head :not_found unless DoorCheck.configuration.offered_methods.include?(:email_link) }
+
     def show
       challenge = Challenge.redeem_token(params[:token])
       return render(:expired, status: :not_found) unless challenge
