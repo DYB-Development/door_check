@@ -12,9 +12,7 @@ module DoorCheck
       create!(person: person, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
     end
 
-    def self.digest(value)
-      OpenSSL::HMAC.hexdigest("SHA256", Rails.application.secret_key_base, value.to_s)
-    end
+    def self.digest(value) = KeyedDigest.of(value)
 
     def self.redeem_token(token)
       challenge = find_by(token_digest: digest(token))

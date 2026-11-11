@@ -61,6 +61,26 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/own_second_step'] input[type=checkbox][name=second_step_required]"
     end
 
+    test "the section has a button to make a new set of backup codes" do
+      render_section
+
+      assert_select "form[action='/door_check/backup_codes']"
+    end
+
+    test "the section links to adding a passkey or hardware key" do
+      render_section
+
+      assert_select "a[href='/door_check/passkeys/new']"
+    end
+
+    test "a passkey is listed by the name the person gave it" do
+      Credential.create!(person: @user, method_name: "passkey", name: "Work laptop", external_id: "abc", public_key: "key", sign_count: 0)
+
+      render_section
+
+      assert_select "td", text: /Work laptop/
+    end
+
     private
 
     def render_section
