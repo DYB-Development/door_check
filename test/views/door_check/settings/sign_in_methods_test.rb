@@ -14,6 +14,14 @@ module DoorCheck
       assert_select "td", text: /Authenticator app/
     end
 
+    test "the section shows when each method was last used" do
+      Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random, last_used_at: Time.zone.parse("2026-11-01 09:00"))
+
+      render_section
+
+      assert_select "td", text: /November 01, 2026/
+    end
+
     private
 
     def render_section

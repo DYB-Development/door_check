@@ -6,6 +6,8 @@ module DoorCheck
 
     def label = method_name.humanize
 
+    def last_used = last_used_at&.to_fs(:long) || "Not used yet"
+
     def verify(code)
       used_at = ROTP::TOTP.new(secret).verify(code, drift_behind: 15, after: last_used_at)
       return false unless used_at
