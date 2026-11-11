@@ -20,5 +20,12 @@ module DoorCheck
 
       assert_not BackupCodes.use(@user, codes.first)
     end
+
+    test "a code from a replaced set is refused" do
+      old_codes = BackupCodes.create_for(@user)
+      BackupCodes.create_for(@user)
+
+      assert_not BackupCodes.use(@user, old_codes.first)
+    end
   end
 end
