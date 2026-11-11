@@ -37,5 +37,13 @@ module DoorCheck
 
       assert_nil Challenge.redeem_token(challenge.token)
     end
+
+    test "a link is refused once fifteen minutes have passed" do
+      challenge = Challenge.issue(@user)
+
+      travel 16.minutes do
+        assert_nil Challenge.redeem_token(challenge.token)
+      end
+    end
   end
 end
