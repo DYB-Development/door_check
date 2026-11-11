@@ -76,6 +76,17 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_equal [ "email_link" ], response.parsed_body
   end
 
+  test "a link opened a second time says it no longer works" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+    link = emailed_link
+    get link
+    reset!
+
+    get link
+
+    assert_select "div", text: /no longer works/
+  end
+
   private
 
   def emailed_link

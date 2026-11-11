@@ -2,6 +2,7 @@ module DoorCheck
   class EmailLinksController < ApplicationController
     def show
       challenge = Challenge.redeem_token(params[:token])
+      return render(:expired, status: :not_found) unless challenge
 
       DoorCheck.configuration.sign_in_person.call(self, challenge.person)
       door_check_signed_in(challenge.person, method_name: :email_link)
