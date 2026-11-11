@@ -11,5 +11,10 @@ module DoorCheck
       end
       codes
     end
+
+    def self.use(person, code)
+      credential = Credential.find_by(person: person, method_name: METHOD_NAME)
+      credential.present? && JSON.parse(credential.secret).include?(KeyedDigest.of(code.to_s.strip.downcase))
+    end
   end
 end
