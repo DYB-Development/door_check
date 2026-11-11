@@ -40,6 +40,15 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.locate_ip = nil
   end
 
+  test "without a lookup the request shows the asking device's network address" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }, headers: { "REMOTE_ADDR" => "203.0.113.7" }
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "p", text: /203\.0\.113\.7/
+  end
+
   private
 
   def signed_in_device
