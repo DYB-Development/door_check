@@ -8,7 +8,7 @@ module DoorCheck
       challenge = Challenge.issue(person)
       session[CHALLENGE_KEY] = challenge.id
       SignInMailer.code_and_link(challenge, to: email).deliver_now
-      head :ok
+      redirect_to door_check.new_email_code_path
     end
   end
 end

@@ -8,4 +8,10 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
       post "/door_check/email_sign_in", params: { email: "ada@example.com" }
     end
   end
+
+  test "asking for a code leads to the screen where it is typed" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    assert_redirected_to "/door_check/email_code/new"
+  end
 end
