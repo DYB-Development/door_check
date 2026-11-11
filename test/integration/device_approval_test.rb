@@ -66,6 +66,17 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     signed_in.assert_select "turbo-cable-stream-source"
   end
 
+  test "approving the request on another device signs in the screen that asked" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+    signed_in.post "/door_check/approvals/#{DoorCheck::Challenge.last.id}/approve"
+
+    get "/door_check/approval_request"
+    get "/proofs"
+
+    assert_equal [ "device_approval" ], response.parsed_body
+  end
+
   private
 
   def signed_in_device

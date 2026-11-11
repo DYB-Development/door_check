@@ -11,6 +11,16 @@ module DoorCheck
 
     def show
       @challenge = Challenge.find_by(id: session[REQUEST_KEY])
+      sign_in_approved if @challenge&.approved? && @challenge.use
+    end
+
+    private
+
+    def sign_in_approved
+      session.delete(REQUEST_KEY)
+      DoorCheck.configuration.sign_in_person.call(self, @challenge.person)
+      door_check_signed_in(@challenge.person, method_name: :device_approval)
+      redirect_to "/"
     end
   end
 end

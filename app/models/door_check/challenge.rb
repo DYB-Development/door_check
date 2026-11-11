@@ -27,6 +27,13 @@ module DoorCheck
       challenge if challenge&.use
     end
 
+    def approve
+      update!(approved_at: Time.current)
+      Turbo::StreamsChannel.broadcast_refresh_to(self)
+    end
+
+    def approved? = approved_at.present?
+
     def location
       lookup = DoorCheck.configuration.locate_ip
       lookup ? lookup.call(ip_address) : ip_address
