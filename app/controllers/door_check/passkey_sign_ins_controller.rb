@@ -7,9 +7,10 @@ module DoorCheck
     end
 
     def create
-      _, credential = passkey_relying_party.verify_authentication(submitted_passkey, take_passkey_challenge, user_verification: true) do |passkey|
-        Credential.find_by!(method_name: "passkey", external_id: passkey.id)
+      passkey, credential = passkey_relying_party.verify_authentication(submitted_passkey, take_passkey_challenge, user_verification: true) do |answer|
+        Credential.find_by!(method_name: "passkey", external_id: answer.id)
       end
+      credential.update!(sign_count: passkey.sign_count, last_used_at: Time.current)
       DoorCheck.configuration.sign_in_person.call(self, credential.person)
       door_check_signed_in(credential.person, method_name: :passkey)
       redirect_to "/"

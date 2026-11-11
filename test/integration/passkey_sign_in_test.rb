@@ -26,6 +26,14 @@ class PasskeySignInTest < ActionDispatch::IntegrationTest
     assert_select "div", text: /could not sign you in/
   end
 
+  test "signing in with a passkey records when it was last used" do
+    get "/door_check/passkey_sign_in/new"
+
+    post "/door_check/passkey_sign_in", params: { credential: @client.get(challenge: session[:door_check_passkey_challenge], user_verified: true).to_json }
+
+    assert DoorCheck::Credential.find_by(method_name: "passkey").last_used_at
+  end
+
   private
 
   def add_passkey
