@@ -1,0 +1,8 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "Sign in with another device", subtitle: "Enter your email address, then approve the request on a device where you are signed in.") %>
+  <%= ui_form(action: door_check.approval_request_path) do %>
+    <%= ui_form_field(attribute: "email", label: "Email", type: :email, required: true, autofocus: true,
+                      autocomplete: "email", autocapitalize: "none") %>
+    <%= ui_button(label: "Ask") %>
+  <% end %>
+<% end %>

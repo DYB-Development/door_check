@@ -1,0 +1,4 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "Sign-in requests") %>
+  <%= render "door_check/approvals/pending", person: @person %>
+<% end %>

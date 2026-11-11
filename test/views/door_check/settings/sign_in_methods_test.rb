@@ -81,11 +81,37 @@ module DoorCheck
       assert_select "td", text: /Work laptop/
     end
 
+    test "each trusted browser has a button to remove it" do
+      TrustedDevice.trust(@user, device: "Safari on iPhone")
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}']"
+    end
+
+    test "the section lists each session the person is signed in on with its device" do
+      SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_select "td", text: /Firefox on Linux/
+    end
+
+    test "each session has a button to sign it out" do
+      signed_in_session = SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}']"
+    end
+
     private
 
     def render_section
       render partial: "door_check/settings/sign_in_methods",
-             locals: { person: @user, account: nil, selection: {}, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step", remove: "/settings/sign_in_methods/remove" } }
+             locals: { person: @user, account: nil, selection: {}, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step", remove: "/settings/sign_in_methods/remove",
+                                                                   remove_trusted_browser: "/settings/sign_in_methods/remove_trusted_browser",
+                                                                   sign_out_session: "/settings/sign_in_methods/sign_out_session" } }
     end
   end
 end

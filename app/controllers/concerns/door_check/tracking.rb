@@ -3,7 +3,8 @@ module DoorCheck
     SESSION_KEY = :door_check_session_id
 
     def door_check_signed_in(person, method_name:)
-      signed_in_session = SignedInSession.create!(person: person)
+      signed_in_session = SignedInSession.create!(person: person, device: request.user_agent.to_s.truncate(255), ip_address: request.remote_ip,
+                                                  last_used_at: Time.current)
       signed_in_session.prove!(method_name)
       session[SESSION_KEY] = signed_in_session.id
     end
