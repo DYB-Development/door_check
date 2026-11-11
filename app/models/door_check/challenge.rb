@@ -17,7 +17,10 @@ module DoorCheck
 
     def self.request_approval(person, device:, ip_address:)
       create!(person: person, number: format("%02d", SecureRandom.random_number(10..99)), device: device, ip_address: ip_address,
-              expires_at: APPROVAL_LIFETIME.from_now).tap { Turbo::StreamsChannel.broadcast_refresh_to(person, :door_check_approvals) }
+              expires_at: APPROVAL_LIFETIME.from_now).tap do |challenge|
+        Turbo::StreamsChannel.broadcast_refresh_to(person, :door_check_approvals)
+        ApprovalExpiryJob.set(wait_until: challenge.expires_at).perform_later(challenge)
+      end
     end
 
     def self.digest(value) = KeyedDigest.of(value)

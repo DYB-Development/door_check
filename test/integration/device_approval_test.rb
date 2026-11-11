@@ -142,6 +142,12 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     signed_in.assert_select "form[action='/door_check/approvals/#{DoorCheck::Challenge.last.id}/decline']"
   end
 
+  test "asking for approval schedules a refresh of the screen for when the request expires" do
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    assert_enqueued_with job: DoorCheck::ApprovalExpiryJob, at: DoorCheck::Challenge.last.expires_at
+  end
+
   private
 
   def signed_in_device
