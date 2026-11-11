@@ -8,4 +8,8 @@ class DoorCheck::MethodsTest < ActiveSupport::TestCase
       passkey backup_codes trusted_device google apple sso
     ], DoorCheck::Methods.names
   end
+
+  test "a passkey is both a way to sign in and a second step" do
+    assert_equal %i[sign_in second_step], DoorCheck::Methods.roles(:passkey)
+  end
 end

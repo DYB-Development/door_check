@@ -16,5 +16,7 @@ module DoorCheck
     }.freeze
 
     def self.names = ROLES.keys
+
+    def self.roles(name) = ROLES.fetch(name)
   end
 end
