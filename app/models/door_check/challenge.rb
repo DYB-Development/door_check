@@ -7,6 +7,8 @@ module DoorCheck
 
     attr_accessor :code, :token
 
+    scope :awaiting_approval, -> { where.not(number: nil).where(approved_at: nil, declined_at: nil, used_at: nil).where("expires_at > ?", Time.current) }
+
     def self.issue(person)
       code = format("%06d", SecureRandom.random_number(1_000_000))
       token = SecureRandom.urlsafe_base64(32)

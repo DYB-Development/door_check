@@ -1,0 +1,5 @@
+<% DoorCheck::Challenge.awaiting_approval.where(person: person).each do |challenge| %>
+  <%= ui_panel do %>
+    <p>A device is asking to sign in as you. Approve it only if it shows <strong><%= challenge.number %></strong>.</p>
+  <% end %>
+<% end %>

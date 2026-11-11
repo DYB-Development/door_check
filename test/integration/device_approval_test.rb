@@ -9,4 +9,19 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
 
     assert_select "strong", text: DoorCheck::Challenge.last.number
   end
+
+  test "the person's other signed-in device shows the request with its number" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "strong", text: DoorCheck::Challenge.last.number
+  end
+
+  private
+
+  def signed_in_device
+    open_session.tap { |device| device.post sign_in_path, params: { user_id: @user.id, method_name: "password" } }
+  end
 end
