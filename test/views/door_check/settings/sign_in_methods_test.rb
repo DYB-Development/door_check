@@ -31,6 +31,16 @@ module DoorCheck
       assert_select "td", text: /Acme/
     end
 
+    test "an account that does not accept a method is left out of its list" do
+      strict = Account.create!(name: "Strict")
+      AccountRule.create!(account: strict, accepted_methods: %w[password])
+      Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_select "td", text: /Strict/, count: 0
+    end
+
     private
 
     def render_section
