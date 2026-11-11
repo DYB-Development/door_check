@@ -41,6 +41,8 @@ module DoorCheck
 
     def declined? = declined_at.present?
 
+    def expired? = expires_at <= Time.current
+
     def location
       lookup = DoorCheck.configuration.locate_ip
       lookup ? lookup.call(ip_address) : ip_address

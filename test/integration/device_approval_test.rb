@@ -124,6 +124,15 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     assert_select "div", text: /declined/
   end
 
+  test "a request left for five minutes tells the screen that asked it expired" do
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+    travel 6.minutes
+
+    get "/door_check/approval_request"
+
+    assert_select "div", text: /expired/
+  end
+
   private
 
   def signed_in_device

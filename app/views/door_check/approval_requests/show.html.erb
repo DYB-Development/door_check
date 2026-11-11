@@ -3,6 +3,8 @@
   <%= ui_page_header(title: "Approve on another device", subtitle: "Open the app on a device where you are signed in, and approve the request that shows this number.") %>
   <% if @challenge.declined? %>
     <%= ui_alert(message: "The request was declined, so you are not signed in.", type: :error) %>
+  <% elsif @challenge.expired? %>
+    <%= ui_alert(message: "The request expired after five minutes, so you are not signed in. Ask again to try once more.", type: :error) %>
   <% else %>
     <p class="text-center text-4xl"><strong><%= @challenge.number %></strong></p>
   <% end %>
