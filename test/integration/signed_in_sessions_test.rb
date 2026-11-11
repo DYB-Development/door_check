@@ -8,4 +8,13 @@ class SignedInSessionsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Safari on iPhone", DoorCheck::SignedInSession.last.device
   end
+
+  test "using the app records when the session was last used" do
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    travel 10.minutes
+
+    get "/proofs"
+
+    assert_in_delta Time.current, DoorCheck::SignedInSession.last.last_used_at, 1.second
+  end
 end

@@ -3,6 +3,7 @@ module DoorCheck
     RETURN_KEY = :door_check_return_to
 
     def door_check_check_entry
+      door_check_session&.note_use
       return if door_check_entry_met?
 
       session[RETURN_KEY] = request.fullpath
