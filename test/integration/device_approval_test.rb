@@ -104,6 +104,16 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     signed_in.assert_select "form[action='/door_check/approvals/#{DoorCheck::Challenge.last.id}/approve']"
   end
 
+  test "another person cannot approve the request" do
+    stranger = open_session
+    stranger.post sign_in_path, params: { user_id: User.create!(email: "grace@example.com").id, method_name: "password" }
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    stranger.post "/door_check/approvals/#{DoorCheck::Challenge.last.id}/approve"
+
+    assert_not DoorCheck::Challenge.last.approved?
+  end
+
   private
 
   def signed_in_device
