@@ -15,4 +15,12 @@ class PasskeySetupTest < ActionDispatch::IntegrationTest
 
     assert DoorCheck::Credential.exists?(person: @user, method_name: "passkey", name: "Work laptop")
   end
+
+  test "a passkey answer made for a different challenge is refused" do
+    get "/door_check/passkeys/new"
+
+    post "/door_check/passkeys", params: { name: "Work laptop", credential: @client.create.to_json }
+
+    assert_select "div", text: /could not be added/
+  end
 end
