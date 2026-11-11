@@ -11,7 +11,7 @@ module DoorCheck
     end
 
     def self.recognise(person, token)
-      find_by(person: person, token_digest: KeyedDigest.of(token))
+      where("expires_at > ?", Time.current).find_by(person: person, token_digest: KeyedDigest.of(token))
     end
   end
 end

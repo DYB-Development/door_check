@@ -9,5 +9,13 @@ module DoorCheck
 
       assert TrustedDevice.recognise(@user, token)
     end
+
+    test "a trusted browser is not recognised after thirty days" do
+      token = TrustedDevice.trust(@user, device: "Safari on iPhone")
+
+      travel 31.days do
+        assert_nil TrustedDevice.recognise(@user, token)
+      end
+    end
   end
 end
