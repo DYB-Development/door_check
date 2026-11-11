@@ -87,6 +87,14 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the screen that asked listens for the approval" do
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    get "/door_check/approval_request"
+
+    assert_select "turbo-cable-stream-source"
+  end
+
   private
 
   def signed_in_device
