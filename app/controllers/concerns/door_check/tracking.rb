@@ -12,6 +12,10 @@ module DoorCheck
       door_check_session&.proved_by || []
     end
 
+    def door_check_account
+      send(DoorCheck.configuration.account_method)
+    end
+
     private
 
     def door_check_session
