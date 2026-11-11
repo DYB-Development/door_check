@@ -73,6 +73,14 @@ module DoorCheck
       assert_select "a[href='/door_check/passkeys/new']"
     end
 
+    test "a passkey is listed by the name the person gave it" do
+      Credential.create!(person: @user, method_name: "passkey", name: "Work laptop", external_id: "abc", public_key: "key", sign_count: 0)
+
+      render_section
+
+      assert_select "td", text: /Work laptop/
+    end
+
     private
 
     def render_section

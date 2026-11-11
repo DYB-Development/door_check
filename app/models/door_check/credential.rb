@@ -4,7 +4,7 @@ module DoorCheck
 
     encrypts :secret
 
-    def label = method_name.humanize
+    def label = name.presence || method_name.humanize
 
     def last_used = last_used_at&.to_fs(:long) || "Not used yet"
 
