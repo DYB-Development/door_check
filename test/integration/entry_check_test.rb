@@ -34,4 +34,12 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/dashboard"
   end
+
+  test "a wrong code is refused and proves nothing" do
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+
+    post "/door_check/second_step", params: { code: "000000" }
+
+    assert_select "div", text: /That code is not right/
+  end
 end
