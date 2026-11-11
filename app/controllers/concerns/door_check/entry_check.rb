@@ -23,7 +23,7 @@ module DoorCheck
 
     def door_check_trusted_browser?(person)
       token = cookies.signed[TrustedDevice::COOKIE]
-      token.present? && TrustedDevice.recognise(person, token).present?
+      DoorCheck.configuration.offered_methods.include?(:trusted_device) && token.present? && TrustedDevice.recognise(person, token).present?
     end
   end
 end

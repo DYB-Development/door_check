@@ -44,6 +44,20 @@ class TrustedBrowserTest < ActionDispatch::IntegrationTest
     assert_select "input[type=checkbox][name=trust_browser]"
   end
 
+  test "a trusted browser is asked for a second step once the app stops offering trusted browsers" do
+    trust_this_browser
+    offered = DoorCheck.configuration.offered_methods
+    DoorCheck.configuration.offered_methods = %i[password authenticator_app]
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  ensure
+    DoorCheck.configuration.offered_methods = offered
+  end
+
   private
 
   def trust_this_browser
