@@ -5,6 +5,15 @@
     <%= ui_button(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch, variant: :secondary, size: :sm) %>
   <% end %>
 <% end %>
+<% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
+  <%= ui_data_table(items: DoorCheck::TrustedDevice.where(person: person).where("expires_at > ?", Time.current),
+                    columns: [ { device: "Trusted browser" }, { trusted_until: "Trusted until" } ],
+                    empty_message: "No trusted browsers.") do |table| %>
+    <% table.actions do |trusted_device| %>
+      <%= ui_button(label: "Remove", href: "#{submit_urls[:remove_trusted_browser]}?trusted_device_id=#{trusted_device.id}", method: :patch, variant: :secondary, size: :sm) %>
+    <% end %>
+  <% end %>
+<% end %>
 <% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
   <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
 <% end %>

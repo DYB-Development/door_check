@@ -11,6 +11,8 @@ module DoorCheck
       token
     end
 
+    def trusted_until = expires_at.to_fs(:long)
+
     def self.recognise(person, token)
       where("expires_at > ?", Time.current).find_by(person: person, token_digest: KeyedDigest.of(token))
     end
