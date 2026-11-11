@@ -5,6 +5,7 @@ module DoorCheck
 
   class Configuration
     attr_reader :offered_methods
+    attr_accessor :person_method
 
     def offered_methods=(names)
       unknown = names - Methods.names

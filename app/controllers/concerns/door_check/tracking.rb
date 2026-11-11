@@ -15,7 +15,12 @@ module DoorCheck
     private
 
     def door_check_session
-      SignedInSession.find_by(id: session[SESSION_KEY])
+      person = door_check_person
+      SignedInSession.find_by(id: session[SESSION_KEY], person: person) if person
+    end
+
+    def door_check_person
+      send(DoorCheck.configuration.person_method)
     end
   end
 end

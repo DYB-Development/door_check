@@ -6,6 +6,11 @@ class SessionsController < ApplicationController
     head :ok
   end
 
+  def destroy
+    session.delete(:user_id)
+    head :ok
+  end
+
   def proofs
     render json: door_check_proved_by.map(&:first)
   end
