@@ -34,6 +34,18 @@ class PasskeySignInTest < ActionDispatch::IntegrationTest
     assert DoorCheck::Credential.find_by(method_name: "passkey").last_used_at
   end
 
+  test "a passkey sign-in enters an account that requires a second step without being asked" do
+    account = Account.create!(name: "Acme")
+    DoorCheck::AccountRule.create!(account: account, second_step_required: true)
+    get "/door_check/passkey_sign_in/new"
+    post "/door_check/passkey_sign_in", params: { credential: @client.get(challenge: session[:door_check_passkey_challenge], user_verified: true).to_json }
+    post "/accounts/#{account.id}/switch"
+
+    get "/dashboard"
+
+    assert_response :ok
+  end
+
   private
 
   def add_passkey
