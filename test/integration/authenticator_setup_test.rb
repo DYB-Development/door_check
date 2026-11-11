@@ -42,4 +42,17 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/second_step/new"
   end
+
+  test "a person who sets up an authenticator app when an account asks enters that account" do
+    account = Account.create!(name: "Acme")
+    DoorCheck::AccountRule.create!(account: account, second_step_required: true)
+    post switch_account_path(account)
+    get dashboard_path
+    get "/door_check/authenticator/new"
+    post "/door_check/authenticator", params: { code: ROTP::TOTP.new(session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]).now }
+
+    get "/dashboard"
+
+    assert_response :ok
+  end
 end

@@ -14,6 +14,7 @@ module DoorCheck
       return refuse_code unless credential.verify(params[:code].to_s.strip)
 
       session.delete(PENDING_SECRET_KEY)
+      door_check_session&.prove!(:authenticator_app)
       redirect_to session.delete(EntryCheck::RETURN_KEY) || "/"
     end
 
