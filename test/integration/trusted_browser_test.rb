@@ -25,6 +25,17 @@ class TrustedBrowserTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test "an account that refuses trusted browsers asks for a second step even in one" do
+    trust_this_browser
+    DoorCheck::AccountRule.for(@account).update!(accepted_methods: %w[password authenticator_app])
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
+
   private
 
   def trust_this_browser
