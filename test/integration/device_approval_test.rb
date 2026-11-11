@@ -28,6 +28,18 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     signed_in.assert_select "p", text: /Chrome on Windows/
   end
 
+  test "the request shows where the asking device is, from the host app's lookup" do
+    DoorCheck.configuration.locate_ip = ->(_address) { "Toronto, Canada" }
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "p", text: /Toronto, Canada/
+  ensure
+    DoorCheck.configuration.locate_ip = nil
+  end
+
   private
 
   def signed_in_device

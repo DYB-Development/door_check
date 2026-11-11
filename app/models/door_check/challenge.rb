@@ -27,6 +27,11 @@ module DoorCheck
       challenge if challenge&.use
     end
 
+    def location
+      lookup = DoorCheck.configuration.locate_ip
+      lookup ? lookup.call(ip_address) : ip_address
+    end
+
     def redeem_code(code)
       ActiveSupport::SecurityUtils.secure_compare(code_digest, self.class.digest(code)) && use
     end
