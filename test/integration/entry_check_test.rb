@@ -43,13 +43,13 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
     assert_select "div", text: /That code is not right/
   end
 
-  test "a person with no authenticator is told how to set one up" do
+  test "a person with no second step set up is offered the authenticator app setup" do
     @user.update!(authenticator_code: nil)
     post sign_in_path, params: { user_id: @user.id, method_name: "password" }
 
     get "/door_check/second_step/new"
 
-    assert_select "a[href='/authenticator/setup']"
+    assert_select "a[href='/door_check/authenticator/new']"
   end
 
   test "a backup code used once is refused the second time" do
@@ -84,6 +84,16 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/door_check/second_step/new"
   end
 
+  test "a password sign-in entering an account that accepts only an authenticator app is asked for it" do
+    DoorCheck::AccountRule.create!(account: @account, accepted_methods: %w[authenticator_app])
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
+
   test "an account with no rule asks for nothing beyond the sign-in" do
     post sign_in_path, params: { user_id: @user.id, method_name: "password" }
     post switch_account_path(@account)
@@ -91,5 +101,38 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
     get dashboard_path
 
     assert_response :ok
+  end
+
+  test "a code from an authenticator app set up in the gem proves the second step" do
+    @user.update!(authenticator_code: nil)
+    credential = DoorCheck::Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+    DoorCheck::AccountRule.create!(account: @account, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+    get dashboard_path
+
+    post "/door_check/second_step", params: { code: ROTP::TOTP.new(credential.secret).now }
+
+    assert_redirected_to "/dashboard"
+  end
+
+  test "a person who requires a second step of their own is asked for it with no account involved" do
+    DoorCheck::PersonRule.create!(person: @user, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
+
+  test "an account that does not accept an authenticator app is not offered its setup" do
+    @user.update!(authenticator_code: nil)
+    DoorCheck::AccountRule.create!(account: @account, accepted_methods: %w[password], second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get "/door_check/second_step/new"
+
+    assert_select "a[href='/door_check/authenticator/new']", count: 0
   end
 end

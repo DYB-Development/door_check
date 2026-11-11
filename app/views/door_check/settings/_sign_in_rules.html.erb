@@ -1,5 +1,8 @@
 <% rule = DoorCheck::AccountRule.for(account) %>
 <%= ui_form(action: submit_url, method: :patch) do %>
+  <% DoorCheck.configuration.offered_methods.each do |method_name| %>
+    <%= ui_checkbox_row(name: "accepted_methods[]", value: method_name, label: method_name.to_s.humanize, checked: rule.accepts?(method_name)) %>
+  <% end %>
   <%= ui_form_field(attribute: "second_step_required", label: "Require a second step to enter this account",
                     type: :checkbox, value: (rule.second_step_required ? "1" : "0"),
                     hint: "Members who signed in with only a password are asked for their authenticator code when they enter.") %>

@@ -1,0 +1,15 @@
+<%= ui_data_table(items: DoorCheck::Credential.where(person: person),
+                  columns: [ { label: "Method" }, { last_used: "Last used" }, { accepted_by: "Accepted by" } ],
+                  empty_message: "No sign-in methods set up yet.") do |table| %>
+  <% table.actions do |credential| %>
+    <%= ui_button(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch, variant: :secondary, size: :sm) %>
+  <% end %>
+<% end %>
+<% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
+  <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
+<% end %>
+<%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
+  <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
+                    type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
+  <%= ui_button(label: "Save") %>
+<% end %>

@@ -6,7 +6,7 @@ module DoorCheck
     end
 
     def create
-      method_name = @authenticator.verify(@person, params[:code].to_s.strip)
+      method_name = verify_code(params[:code].to_s.strip)
       return refuse_code unless method_name
 
       door_check_session.prove!(method_name)
@@ -18,6 +18,14 @@ module DoorCheck
     def find_authenticator
       @person = door_check_person
       @authenticator = DoorCheck.configuration.authenticator
+      @second_step_set_up = SecondStep.set_up?(@person)
+      @setups = SecondStep.offered_setups(door_check_account)
+    end
+
+    def verify_code(code)
+      return :authenticator_app if Credential.where(person: @person, method_name: "authenticator_app").any? { |credential| credential.verify(code) }
+
+      @authenticator&.verify(@person, code)
     end
 
     def refuse_code

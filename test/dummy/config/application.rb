@@ -25,5 +25,9 @@ module Dummy
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    config.active_record.encryption.primary_key = "door-check-dummy-primary-key"
+    config.active_record.encryption.deterministic_key = "door-check-dummy-deterministic-key"
+    config.active_record.encryption.key_derivation_salt = "door-check-dummy-key-derivation-salt"
   end
 end

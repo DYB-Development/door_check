@@ -1,0 +1,10 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "Set up an authenticator app", subtitle: "Scan this code with your authenticator app, then enter the code it shows.") %>
+  <%= ui_alert(message: @error, type: :error) if @error %>
+  <div class="flex justify-center"><%= @qr_code.html_safe %></div>
+  <%= ui_form(action: door_check.authenticator_path) do %>
+    <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
+                      autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
+    <%= ui_button(label: "Save") %>
+  <% end %>
+<% end %>
