@@ -161,6 +161,17 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     assert_select "form[action='/door_check/approval_request'] input[name=email]"
   end
 
+  test "an app that does not offer device approval takes no requests" do
+    offered = DoorCheck.configuration.offered_methods
+    DoorCheck.configuration.offered_methods = %i[password]
+
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    assert_response :not_found
+  ensure
+    DoorCheck.configuration.offered_methods = offered
+  end
+
   private
 
   def signed_in_device

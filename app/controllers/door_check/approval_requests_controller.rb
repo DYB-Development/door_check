@@ -3,6 +3,8 @@ module DoorCheck
     REQUEST_KEY = :door_check_approval_request_id
     NUMBER_KEY = :door_check_approval_number
 
+    before_action { head :not_found unless DoorCheck.configuration.offered_methods.include?(:device_approval) }
+
     def new
     end
 

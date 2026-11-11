@@ -1,5 +1,5 @@
 DoorCheck.configure do |config|
-  config.offered_methods = %i[password authenticator_app backup_codes passkey trusted_device email_code email_link]
+  config.offered_methods = %i[password authenticator_app backup_codes passkey trusted_device device_approval email_code email_link]
   config.person_method = :current_user
   config.account_method = :current_account
   config.existing_authenticator = "StoredAuthenticator"
