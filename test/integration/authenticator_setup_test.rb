@@ -26,4 +26,12 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
 
     assert DoorCheck::Credential.exists?(person: @user, method_name: "authenticator_app")
   end
+
+  test "a wrong code is refused and saves nothing" do
+    get "/door_check/authenticator/new"
+
+    post "/door_check/authenticator", params: { code: "000000" }
+
+    assert_select "div", text: /That code is not right/
+  end
 end

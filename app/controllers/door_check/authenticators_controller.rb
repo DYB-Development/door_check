@@ -4,12 +4,12 @@ module DoorCheck
 
     def new
       session[PENDING_SECRET_KEY] = ROTP::Base32.random
-      @qr_code = RQRCode::QRCode.new(provisioning_uri).as_svg(module_size: 4, use_path: true)
+      draw_qr_code
     end
 
     def create
       credential = Credential.new(person: door_check_person, method_name: "authenticator_app", secret: session[PENDING_SECRET_KEY])
-      return unless credential.verify(params[:code].to_s.strip)
+      return refuse_code unless credential.verify(params[:code].to_s.strip)
 
       credential.save!
       session.delete(PENDING_SECRET_KEY)
@@ -17,6 +17,16 @@ module DoorCheck
     end
 
     private
+
+    def refuse_code
+      @error = "That code is not right. Check your authenticator app and try again."
+      draw_qr_code
+      render :new, status: :unprocessable_content
+    end
+
+    def draw_qr_code
+      @qr_code = RQRCode::QRCode.new(provisioning_uri).as_svg(module_size: 4, use_path: true)
+    end
 
     def provisioning_uri
       ROTP::TOTP.new(session[PENDING_SECRET_KEY], issuer: Rails.application.class.module_parent_name)
