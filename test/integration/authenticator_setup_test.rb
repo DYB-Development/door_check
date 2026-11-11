@@ -11,4 +11,13 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
 
     assert_select "svg"
   end
+
+  test "a person who types the code their new authenticator app shows has it saved" do
+    get "/door_check/authenticator/new"
+    secret = session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+
+    post "/door_check/authenticator", params: { code: ROTP::TOTP.new(secret).now }
+
+    assert DoorCheck::Credential.exists?(person: @user, method_name: "authenticator_app")
+  end
 end

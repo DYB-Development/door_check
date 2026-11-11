@@ -7,6 +7,15 @@ module DoorCheck
       @qr_code = RQRCode::QRCode.new(provisioning_uri).as_svg(module_size: 4, use_path: true)
     end
 
+    def create
+      credential = Credential.new(person: door_check_person, method_name: "authenticator_app", secret: session[PENDING_SECRET_KEY])
+      return unless credential.verify(params[:code].to_s.strip)
+
+      credential.save!
+      session.delete(PENDING_SECRET_KEY)
+      redirect_to session.delete(EntryCheck::RETURN_KEY) || "/"
+    end
+
     private
 
     def provisioning_uri
