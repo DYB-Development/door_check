@@ -12,6 +12,12 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "svg"
   end
 
+  test "the setup page asks for the code the app shows" do
+    get "/door_check/authenticator/new"
+
+    assert_select "form[action='/door_check/authenticator'] input[name=code]"
+  end
+
   test "a person who types the code their new authenticator app shows has it saved" do
     get "/door_check/authenticator/new"
     secret = session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
