@@ -1,0 +1,9 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "Check your email", subtitle: "If that address has an account, we sent it a six-digit code and a sign-in link.") %>
+  <%= ui_alert(message: @error, type: :error) if @error %>
+  <%= ui_form(action: door_check.email_code_path) do %>
+    <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
+                      autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
+    <%= ui_button(label: "Sign in") %>
+  <% end %>
+<% end %>

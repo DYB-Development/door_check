@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_11_151030) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_151734) do
   create_table "accounts", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -25,6 +25,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_151030) do
     t.datetime "updated_at", null: false
     t.json "accepted_methods"
     t.index ["account_type", "account_id"], name: "index_door_check_account_rules_on_account", unique: true
+  end
+
+  create_table "door_check_challenges", force: :cascade do |t|
+    t.string "person_type", null: false
+    t.integer "person_id", null: false
+    t.string "code_digest", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_type", "person_id"], name: "index_door_check_challenges_on_person"
+    t.index ["token_digest"], name: "index_door_check_challenges_on_token_digest", unique: true
   end
 
   create_table "door_check_credentials", force: :cascade do |t|
