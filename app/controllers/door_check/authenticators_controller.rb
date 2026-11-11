@@ -2,6 +2,8 @@ module DoorCheck
   class AuthenticatorsController < ApplicationController
     PENDING_SECRET_KEY = :door_check_pending_authenticator_secret
 
+    before_action :ask_for_existing_second_step
+
     def new
       session[PENDING_SECRET_KEY] = ROTP::Base32.random
       draw_qr_code
@@ -16,6 +18,14 @@ module DoorCheck
     end
 
     private
+
+    def ask_for_existing_second_step
+      return unless SecondStep.set_up?(door_check_person)
+      return if door_check_proved_by.any? { |method_name, _| Methods.roles(method_name).include?(:second_step) }
+
+      session[EntryCheck::RETURN_KEY] = request.fullpath
+      redirect_to door_check.new_second_step_path
+    end
 
     def refuse_code
       @error = "That code is not right. Check your authenticator app and try again."

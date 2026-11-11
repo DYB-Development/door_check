@@ -34,4 +34,12 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
 
     assert_select "div", text: /That code is not right/
   end
+
+  test "a password sign-in of a person who already has a second step is asked for it before adding another" do
+    @user.update!(authenticator_code: "123456")
+
+    get "/door_check/authenticator/new"
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
 end
