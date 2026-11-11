@@ -43,7 +43,13 @@ module DoorCheck
 
     def prove(method_name)
       door_check_session.prove!(method_name)
+      trust_browser if params[:trust_browser] == "1" && DoorCheck.configuration.offered_methods.include?(:trusted_device)
       redirect_to session.delete(EntryCheck::RETURN_KEY) || "/"
+    end
+
+    def trust_browser
+      token = TrustedDevice.trust(@person, device: request.user_agent.to_s.truncate(255))
+      cookies.signed[TrustedDevice::COOKIE] = { value: token, expires: TrustedDevice::LIFETIME, httponly: true, secure: request.ssl?, same_site: :lax }
     end
 
     def verify_code(code)

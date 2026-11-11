@@ -1,6 +1,7 @@
 module DoorCheck
   class TrustedDevice < ApplicationRecord
     LIFETIME = 30.days
+    COOKIE = :door_check_trusted_device
 
     belongs_to :person, polymorphic: true
 
