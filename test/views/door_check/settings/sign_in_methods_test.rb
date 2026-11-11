@@ -47,6 +47,14 @@ module DoorCheck
       assert_select "a[href='/door_check/authenticator/new']"
     end
 
+    test "each method has a button to remove it" do
+      credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}']"
+    end
+
     private
 
     def render_section
