@@ -2,5 +2,6 @@
 <% DoorCheck::Challenge.awaiting_approval.where(person: person).each do |challenge| %>
   <%= ui_panel do %>
     <p><%= challenge.device.presence || "A device" %> in <%= challenge.location %> is asking to sign in as you. Approve it only if it shows <strong><%= challenge.number %></strong>.</p>
+    <%= ui_button(label: "Approve", href: door_check.approve_approval_path(challenge), method: :post) %>
   <% end %>
 <% end %>
