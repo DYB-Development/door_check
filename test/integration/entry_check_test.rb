@@ -51,4 +51,13 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href='/authenticator/setup']"
   end
+
+  test "a backup code used once is refused the second time" do
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post "/door_check/second_step", params: { code: "aaaa" }
+
+    post "/door_check/second_step", params: { code: "aaaa" }
+
+    assert_select "div", text: /That code is not right/
+  end
 end
