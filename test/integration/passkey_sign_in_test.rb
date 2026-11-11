@@ -18,6 +18,14 @@ class PasskeySignInTest < ActionDispatch::IntegrationTest
     assert_equal [ "passkey" ], response.parsed_body
   end
 
+  test "a passkey that did not check the person's fingerprint, face or PIN does not sign them in" do
+    get "/door_check/passkey_sign_in/new"
+
+    post "/door_check/passkey_sign_in", params: { credential: @client.get(challenge: session[:door_check_passkey_challenge], user_verified: false).to_json }
+
+    assert_select "div", text: /could not sign you in/
+  end
+
   private
 
   def add_passkey

@@ -3,7 +3,7 @@ module DoorCheck
     include PasskeyCeremony
 
     def new
-      @options = remember_passkey_challenge(passkey_relying_party.options_for_authentication(user_verification: "required"))
+      prepare_sign_in
     end
 
     def create
@@ -13,6 +13,16 @@ module DoorCheck
       DoorCheck.configuration.sign_in_person.call(self, credential.person)
       door_check_signed_in(credential.person, method_name: :passkey)
       redirect_to "/"
+    rescue WebAuthn::Error, JSON::ParserError, ActiveRecord::RecordNotFound
+      @error = "That passkey could not sign you in. Use one that asks for your fingerprint, face or PIN."
+      prepare_sign_in
+      render :new, status: :unprocessable_content
+    end
+
+    private
+
+    def prepare_sign_in
+      @options = remember_passkey_challenge(passkey_relying_party.options_for_authentication(user_verification: "required"))
     end
   end
 end
