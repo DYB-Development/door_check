@@ -6,4 +6,5 @@ DoorCheck.configure do |config|
   config.person_accounts = ->(_user) { Account.all }
   config.find_person_by_email = ->(email) { User.find_by(email: email) }
   config.sign_in_person = ->(controller, user) { controller.session[:user_id] = user.id }
+  config.sign_out_person = ->(controller) { controller.session.delete(:user_id) }
 end

@@ -3,6 +3,8 @@ module DoorCheck
     RETURN_KEY = :door_check_return_to
 
     def door_check_check_entry
+      return door_check_end_signed_out_session if door_check_session&.signed_out_at
+
       door_check_session&.note_use
       return if door_check_entry_met?
 
@@ -11,6 +13,12 @@ module DoorCheck
     end
 
     private
+
+    def door_check_end_signed_out_session
+      DoorCheck.configuration.sign_out_person.call(self)
+      session.delete(Tracking::SESSION_KEY)
+      redirect_to "/"
+    end
 
     def door_check_entry_met?
       person = door_check_person

@@ -17,4 +17,13 @@ class SignedInSessionsTest < ActionDispatch::IntegrationTest
 
     assert_in_delta Time.current, DoorCheck::SignedInSession.last.last_used_at, 1.second
   end
+
+  test "a browser whose session was signed out from another device is signed out on its next visit" do
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    DoorCheck::SignedInSession.last.update!(signed_out_at: Time.current)
+
+    get "/proofs"
+
+    assert_nil session[:user_id]
+  end
 end
