@@ -55,6 +55,12 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}']"
     end
 
+    test "the section offers a switch to require a second step on every sign-in" do
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/own_second_step'] input[type=checkbox][name=second_step_required]"
+    end
+
     private
 
     def render_section

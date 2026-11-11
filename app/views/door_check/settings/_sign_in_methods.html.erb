@@ -8,3 +8,8 @@
 <% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
   <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
 <% end %>
+<%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
+  <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
+                    type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
+  <%= ui_button(label: "Save") %>
+<% end %>
