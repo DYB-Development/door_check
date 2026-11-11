@@ -1,6 +1,7 @@
 module DoorCheck
   class PasskeysController < ApplicationController
     include PasskeyCeremony
+    include ExistingSecondStep
 
     def new
       prepare_registration

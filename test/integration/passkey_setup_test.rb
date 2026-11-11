@@ -23,4 +23,12 @@ class PasskeySetupTest < ActionDispatch::IntegrationTest
 
     assert_select "div", text: /could not be added/
   end
+
+  test "a password sign-in of a person who already has a second step is asked for it before adding a passkey" do
+    @user.update!(authenticator_code: "123456")
+
+    get "/door_check/passkeys/new"
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
 end
