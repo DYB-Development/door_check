@@ -9,5 +9,11 @@ module DoorCheck
 
       assert_match @challenge.code, mail.text_part.body.to_s
     end
+
+    test "the sign-in email holds a link that signs the person in" do
+      mail = SignInMailer.code_and_link(@challenge, to: "ada@example.com")
+
+      assert_match "/door_check/email_link/#{@challenge.token}", mail.text_part.body.to_s
+    end
   end
 end
