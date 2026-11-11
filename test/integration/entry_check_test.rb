@@ -102,4 +102,17 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
   end
+
+  test "a code from an authenticator app set up in the gem proves the second step" do
+    @user.update!(authenticator_code: nil)
+    credential = DoorCheck::Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+    DoorCheck::AccountRule.create!(account: @account, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+    get dashboard_path
+
+    post "/door_check/second_step", params: { code: ROTP::TOTP.new(credential.secret).now }
+
+    assert_redirected_to "/dashboard"
+  end
 end
