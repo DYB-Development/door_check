@@ -5,13 +5,21 @@ module DoorCheck
 
   class Configuration
     attr_reader :offered_methods
-    attr_accessor :person_method, :account_method
+    attr_accessor :person_method, :account_method, :parent_controller, :existing_authenticator
+
+    def initialize
+      @parent_controller = "::ApplicationController"
+    end
 
     def offered_methods=(names)
       unknown = names - Methods.names
       raise UnknownMethod, "door_check does not know the sign-in method #{unknown.join(', ')}" if unknown.any?
 
       @offered_methods = names
+    end
+
+    def authenticator
+      existing_authenticator&.constantize&.new
     end
   end
 end

@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     door_check (0.1.0)
+      keystone_ui (>= 0.50)
       rails (>= 7.1)
 
 GEM
@@ -103,6 +104,11 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (3.1.0)
+    keystone_ui (0.71.0)
+      keystone_ui-styles (>= 0.29.0)
+      view_component (>= 2.0, < 5)
+    keystone_ui-styles (0.32.0)
+      railties (>= 7.0)
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     logger (1.7.0)
@@ -268,6 +274,10 @@ GEM
     unicode-emoji (4.3.0)
     uri (1.1.2)
     useragent (0.16.11)
+    view_component (4.23.0)
+      actionview (>= 7.1.0)
+      activesupport (>= 7.1.0)
+      prism (>= 1.0)
     websocket-driver (0.8.2)
       base64
       websocket-extensions (>= 0.1.0)

@@ -1,0 +1,15 @@
+<%= ui_page(max_width: :md) do %>
+  <% if @authenticator.set_up?(@person) %>
+    <%= ui_page_header(title: "Confirm it's you", subtitle: "Enter the code from your authenticator app or one of your backup codes.") %>
+    <%= ui_alert(message: @error, type: :error) if @error %>
+    <%= ui_form(action: door_check.second_step_path) do %>
+      <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
+                        autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
+      <%= ui_button(label: "Verify") %>
+    <% end %>
+  <% else %>
+    <%= ui_page_header(title: "Set up a second step", subtitle: "This account requires a second step after your password.") %>
+    <%= ui_empty_state(title: "No authenticator app yet", message: "Set up an authenticator app, then come back to this account.",
+                       action: { label: "Set up", href: @authenticator.setup_path }) %>
+  <% end %>
+<% end %>
