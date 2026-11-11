@@ -16,5 +16,13 @@ module DoorCheck
 
       assert_not challenge.reload.redeem_code(challenge.code)
     end
+
+    test "a code is refused once fifteen minutes have passed" do
+      challenge = Challenge.issue(@user)
+
+      travel 16.minutes do
+        assert_not challenge.redeem_code(challenge.code)
+      end
+    end
   end
 end

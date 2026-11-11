@@ -23,7 +23,7 @@ module DoorCheck
     private
 
     def use
-      self.class.where(id: id, used_at: nil).update_all(used_at: Time.current) == 1
+      self.class.where(id: id, used_at: nil).where("expires_at > ?", Time.current).update_all(used_at: Time.current) == 1
     end
   end
 end
