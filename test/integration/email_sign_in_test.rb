@@ -42,6 +42,12 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_equal [ "email_code" ], response.parsed_body
   end
 
+  test "the code screen asks for the emailed code" do
+    get "/door_check/email_code/new"
+
+    assert_select "form[action='/door_check/email_code'] input[name=code]"
+  end
+
   private
 
   def emailed_code

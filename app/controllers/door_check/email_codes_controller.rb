@@ -1,5 +1,8 @@
 module DoorCheck
   class EmailCodesController < ApplicationController
+    def new
+    end
+
     def create
       challenge = Challenge.find_by(id: session[EmailSignInsController::CHALLENGE_KEY])
       return unless challenge&.redeem_code(params[:code].to_s.strip)
