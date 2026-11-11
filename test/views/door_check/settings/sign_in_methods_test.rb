@@ -41,6 +41,12 @@ module DoorCheck
       assert_select "td", text: /Strict/, count: 0
     end
 
+    test "the section links to setting up an authenticator app" do
+      render_section
+
+      assert_select "a[href='/door_check/authenticator/new']"
+    end
+
     private
 
     def render_section
