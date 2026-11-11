@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_11_010741) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_011134) do
   create_table "accounts", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -48,6 +48,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_010741) do
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "authenticator_code"
+    t.string "backup_codes"
   end
 
   add_foreign_key "door_check_proofs", "door_check_signed_in_sessions", column: "signed_in_session_id"
