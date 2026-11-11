@@ -1,5 +1,6 @@
 module DoorCheck
   class BackupCodesController < ApplicationController
+    before_action { head :not_found unless DoorCheck.configuration.offered_methods.include?(:backup_codes) }
     include ExistingSecondStep
 
     def create

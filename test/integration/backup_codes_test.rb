@@ -19,4 +19,15 @@ class BackupCodesTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/second_step/new"
   end
+
+  test "an app that does not offer backup codes makes none" do
+    offered = DoorCheck.configuration.offered_methods
+    DoorCheck.configuration.offered_methods = %i[password]
+
+    post "/door_check/backup_codes"
+
+    assert_response :not_found
+  ensure
+    DoorCheck.configuration.offered_methods = offered
+  end
 end
