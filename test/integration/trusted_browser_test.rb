@@ -36,6 +36,14 @@ class TrustedBrowserTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/door_check/second_step/new"
   end
 
+  test "the second-step screen offers to trust this browser" do
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+
+    get "/door_check/second_step/new"
+
+    assert_select "input[type=checkbox][name=trust_browser]"
+  end
+
   private
 
   def trust_this_browser

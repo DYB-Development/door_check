@@ -5,6 +5,9 @@
     <%= ui_form(action: door_check.second_step_path) do %>
       <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
                         autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
+      <% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
+        <%= ui_form_field(attribute: "trust_browser", label: "Trust this browser for 30 days", type: :checkbox, value: "0") %>
+      <% end %>
       <%= ui_button(label: "Verify") %>
     <% end %>
     <% if @passkey_options %>
