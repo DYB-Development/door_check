@@ -5,7 +5,8 @@ module DoorCheck
 
   class Configuration
     attr_reader :offered_methods
-    attr_accessor :person_method, :account_method, :parent_controller, :parent_mailer, :existing_authenticator, :person_accounts
+    attr_accessor :person_method, :account_method, :parent_controller, :parent_mailer, :existing_authenticator, :person_accounts,
+                  :find_person_by_email, :sign_in_person
 
     def initialize
       @parent_controller = "::ApplicationController"
