@@ -13,7 +13,8 @@ module DoorCheck
     end
 
     def door_check_account
-      send(DoorCheck.configuration.account_method)
+      account_method = DoorCheck.configuration.account_method
+      send(account_method) if account_method
     end
 
     private

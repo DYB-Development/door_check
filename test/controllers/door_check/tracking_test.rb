@@ -16,5 +16,11 @@ module DoorCheck
 
       assert_equal :the_team, Host.new.door_check_account
     end
+
+    test "an app with no accounts leaves the account unset" do
+      DoorCheck.configuration.account_method = nil
+
+      assert_nil Host.new.door_check_account
+    end
   end
 end
