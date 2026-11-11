@@ -32,7 +32,14 @@ module DoorCheck
       Turbo::StreamsChannel.broadcast_refresh_to(self)
     end
 
+    def decline
+      update!(declined_at: Time.current)
+      Turbo::StreamsChannel.broadcast_refresh_to(self)
+    end
+
     def approved? = approved_at.present?
+
+    def declined? = declined_at.present?
 
     def location
       lookup = DoorCheck.configuration.locate_ip

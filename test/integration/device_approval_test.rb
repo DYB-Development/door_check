@@ -114,6 +114,16 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     assert_not DoorCheck::Challenge.last.approved?
   end
 
+  test "declining the request tells the screen that asked it was declined" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+    signed_in.post "/door_check/approvals/#{DoorCheck::Challenge.last.id}/decline"
+
+    get "/door_check/approval_request"
+
+    assert_select "div", text: /declined/
+  end
+
   private
 
   def signed_in_device
