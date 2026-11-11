@@ -2,6 +2,8 @@ module DoorCheck
   class EmailSignInsController < ApplicationController
     CHALLENGE_KEY = :door_check_challenge_id
 
+    before_action { head :not_found unless DoorCheck.configuration.offered_methods.include?(:email_code) }
+
     def new
     end
 
