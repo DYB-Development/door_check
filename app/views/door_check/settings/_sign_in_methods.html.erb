@@ -8,6 +8,9 @@
 <% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
   <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
 <% end %>
+<% if DoorCheck.configuration.offered_methods.include?(:passkey) %>
+  <%= ui_button(label: "Add a passkey or hardware key", href: door_check.new_passkey_path, variant: :secondary) %>
+<% end %>
 <% if DoorCheck.configuration.offered_methods.include?(:backup_codes) %>
   <%= ui_button(label: "Make new backup codes", href: door_check.backup_codes_path, method: :post, variant: :secondary) %>
 <% end %>

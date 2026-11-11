@@ -67,6 +67,12 @@ module DoorCheck
       assert_select "form[action='/door_check/backup_codes']"
     end
 
+    test "the section links to adding a passkey or hardware key" do
+      render_section
+
+      assert_select "a[href='/door_check/passkeys/new']"
+    end
+
     private
 
     def render_section
