@@ -56,6 +56,15 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_select "div", text: /That code is not right/
   end
 
+  test "typing the emailed code inside the iOS app signs the person in" do
+    ios_app = { "User-Agent" => "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Hotwire Native iOS; Turbo Native iOS" }
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }, headers: ios_app
+
+    post "/door_check/email_code", params: { code: emailed_code }, headers: ios_app
+
+    assert_redirected_to "/"
+  end
+
   private
 
   def emailed_code
