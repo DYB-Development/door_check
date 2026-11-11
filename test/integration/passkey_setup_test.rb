@@ -31,4 +31,15 @@ class PasskeySetupTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/second_step/new"
   end
+
+  test "an app that does not offer passkeys does not add one" do
+    offered = DoorCheck.configuration.offered_methods
+    DoorCheck.configuration.offered_methods = %i[password]
+
+    get "/door_check/passkeys/new"
+
+    assert_response :not_found
+  ensure
+    DoorCheck.configuration.offered_methods = offered
+  end
 end
