@@ -11,7 +11,6 @@ module DoorCheck
       credential = Credential.new(person: door_check_person, method_name: "authenticator_app", secret: session[PENDING_SECRET_KEY])
       return refuse_code unless credential.verify(params[:code].to_s.strip)
 
-      credential.save!
       session.delete(PENDING_SECRET_KEY)
       redirect_to session.delete(EntryCheck::RETURN_KEY) || "/"
     end

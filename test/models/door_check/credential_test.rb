@@ -16,5 +16,13 @@ module DoorCheck
 
       assert_not_equal secret, Credential.connection.select_value("SELECT secret FROM door_check_credentials WHERE id = #{credential.id}")
     end
+
+    test "an accepted code records when the authenticator app was last used" do
+      credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      credential.verify(ROTP::TOTP.new(credential.secret).now)
+
+      assert credential.reload.last_used_at
+    end
   end
 end

@@ -5,7 +5,9 @@ module DoorCheck
     encrypts :secret
 
     def verify(code)
-      ROTP::TOTP.new(secret).verify(code, drift_behind: 15).present?
+      return false unless ROTP::TOTP.new(secret).verify(code, drift_behind: 15)
+
+      update!(last_used_at: Time.current)
     end
   end
 end
