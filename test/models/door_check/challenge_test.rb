@@ -30,5 +30,12 @@ module DoorCheck
 
       assert_equal challenge, Challenge.redeem_token(challenge.token)
     end
+
+    test "a link already used is refused" do
+      challenge = Challenge.issue(@user)
+      Challenge.redeem_token(challenge.token)
+
+      assert_nil Challenge.redeem_token(challenge.token)
+    end
   end
 end

@@ -18,14 +18,12 @@ module DoorCheck
 
     def self.redeem_token(token)
       challenge = find_by(token_digest: digest(token))
-      challenge if challenge&.send(:use)
+      challenge if challenge&.use
     end
 
     def redeem_code(code)
       ActiveSupport::SecurityUtils.secure_compare(code_digest, self.class.digest(code)) && use
     end
-
-    private
 
     def use
       self.class.where(id: id, used_at: nil).where("expires_at > ?", Time.current).update_all(used_at: Time.current) == 1
