@@ -61,6 +61,12 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/own_second_step'] input[type=checkbox][name=second_step_required]"
     end
 
+    test "the section has a button to make a new set of backup codes" do
+      render_section
+
+      assert_select "form[action='/door_check/backup_codes']"
+    end
+
     private
 
     def render_section
