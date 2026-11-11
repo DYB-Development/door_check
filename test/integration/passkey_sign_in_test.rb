@@ -70,11 +70,23 @@ class PasskeySignInTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/dashboard"
   end
 
+  test "another person's passkey does not give this person's second step" do
+    other_client = WebAuthn::FakeClient.new("http://www.example.com")
+    add_passkey(User.create!(email: "grace@example.com"), other_client)
+    reset!
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    get "/door_check/second_step/new"
+
+    post "/door_check/second_step/passkey", params: { credential: other_client.get(challenge: session[:door_check_passkey_challenge]).to_json }
+
+    assert_select "div", text: /did not work/
+  end
+
   private
 
-  def add_passkey
-    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+  def add_passkey(user = @user, client = @client)
+    post sign_in_path, params: { user_id: user.id, method_name: "password" }
     get "/door_check/passkeys/new"
-    post "/door_check/passkeys", params: { name: "Phone", credential: @client.create(challenge: session[:door_check_passkey_challenge], user_verified: true).to_json }
+    post "/door_check/passkeys", params: { name: "Phone", credential: client.create(challenge: session[:door_check_passkey_challenge], user_verified: true).to_json }
   end
 end
