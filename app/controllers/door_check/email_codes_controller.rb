@@ -1,5 +1,7 @@
 module DoorCheck
   class EmailCodesController < ApplicationController
+    before_action { head :not_found unless DoorCheck.configuration.offered_methods.include?(:email_code) }
+
     def new
     end
 

@@ -111,6 +111,18 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.offered_methods = offered
   end
 
+  test "an app that does not offer email codes does not sign in from one" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+    offered = DoorCheck.configuration.offered_methods
+    DoorCheck.configuration.offered_methods = %i[password email_link]
+
+    post "/door_check/email_code", params: { code: emailed_code }
+
+    assert_response :not_found
+  ensure
+    DoorCheck.configuration.offered_methods = offered
+  end
+
   private
 
   def emailed_link
