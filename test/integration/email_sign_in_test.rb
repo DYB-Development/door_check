@@ -14,4 +14,16 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/email_code/new"
   end
+
+  test "an address with no person sends nothing" do
+    assert_no_emails do
+      post "/door_check/email_sign_in", params: { email: "nobody@example.com" }
+    end
+  end
+
+  test "an address with no person leads to the same screen as a real one" do
+    post "/door_check/email_sign_in", params: { email: "nobody@example.com" }
+
+    assert_redirected_to "/door_check/email_code/new"
+  end
 end

@@ -5,10 +5,14 @@ module DoorCheck
     def create
       email = params[:email].to_s.strip
       person = DoorCheck.configuration.find_person_by_email.call(email)
-      challenge = Challenge.issue(person)
-      session[CHALLENGE_KEY] = challenge.id
-      SignInMailer.code_and_link(challenge, to: email).deliver_now
+      session[CHALLENGE_KEY] = person && send_code(person, email).id
       redirect_to door_check.new_email_code_path
+    end
+
+    private
+
+    def send_code(person, email)
+      Challenge.issue(person).tap { |challenge| SignInMailer.code_and_link(challenge, to: email).deliver_now }
     end
   end
 end
