@@ -1,3 +1,4 @@
+require "keystone_ui"
 require "door_check/version"
 require "door_check/configuration"
 require "door_check/engine"
