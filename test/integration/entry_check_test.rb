@@ -124,4 +124,15 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/second_step/new"
   end
+
+  test "an account that does not accept an authenticator app is not offered its setup" do
+    @user.update!(authenticator_code: nil)
+    DoorCheck::AccountRule.create!(account: @account, accepted_methods: %w[password], second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get "/door_check/second_step/new"
+
+    assert_select "a[href='/door_check/authenticator/new']", count: 0
+  end
 end
