@@ -17,5 +17,13 @@ module DoorCheck
 
       assert_equal %w[authenticator_app], AccountRule.for(account).accepted_methods
     end
+
+    test "a method the app does not offer is refused" do
+      account = Account.create!(name: "Acme")
+
+      result = RequireSecondStep.new(person: nil, account: account, values: { accepted_methods: %w[sms_code] }).call
+
+      assert_not result.ok?
+    end
   end
 end
