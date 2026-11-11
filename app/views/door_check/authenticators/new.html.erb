@@ -1,0 +1,4 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_page_header(title: "Set up an authenticator app", subtitle: "Scan this code with your authenticator app, then enter the code it shows.") %>
+  <div class="flex justify-center"><%= @qr_code.html_safe %></div>
+<% end %>
