@@ -13,6 +13,10 @@ module DoorCheck
       !second_step_required || used.any? { |name| Methods.roles(name).include?(:second_step) }
     end
 
+    def accepts?(method_name)
+      accepted_methods.nil? || accepted_methods.map(&:to_sym).include?(method_name.to_sym)
+    end
+
     private
 
     def accepted_among(method_names)
