@@ -46,6 +46,17 @@ class PasskeySignInTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test "an app that does not offer passkeys does not sign in with one" do
+    offered = DoorCheck.configuration.offered_methods
+    DoorCheck.configuration.offered_methods = %i[password]
+
+    post "/door_check/passkey_sign_in", params: { credential: "{}" }
+
+    assert_response :not_found
+  ensure
+    DoorCheck.configuration.offered_methods = offered
+  end
+
   private
 
   def add_passkey

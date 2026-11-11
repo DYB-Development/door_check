@@ -1,5 +1,6 @@
 module DoorCheck
   class PasskeySignInsController < ApplicationController
+    before_action { head :not_found unless DoorCheck.configuration.offered_methods.include?(:passkey) }
     include PasskeyCeremony
 
     def new
