@@ -15,4 +15,16 @@ class LayoutTest < ActionDispatch::IntegrationTest
   ensure
     DoorCheck.configuration.stylesheet = "application"
   end
+
+  test "a door_check page carries the visitor's keystone_ui mode and look on its root element" do
+    KeystoneUi.configuration.register_look("bold", "keystone_ui/looks/bold.css")
+    KeystoneUi.configuration.look_supplier = ->(_view) { "bold" }
+    cookies[:keystone_theme] = "dark"
+    get "/door_check/email_sign_in/new"
+
+    assert_select "html[data-theme=dark][data-look=bold]"
+  ensure
+    KeystoneUi.configuration.looks.delete("bold")
+    KeystoneUi.configuration.look_supplier = nil
+  end
 end
