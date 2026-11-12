@@ -43,4 +43,10 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "#host-navigation", count: 0
   end
+
+  test "a door_check page fits the width of a phone screen" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "head meta[name=viewport][content='width=device-width,initial-scale=1']"
+  end
 end
