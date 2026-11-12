@@ -16,4 +16,12 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
   ensure
     DoorCheck.configuration.stylesheet = "application"
   end
+
+  test "a visitor who chose dark mode sees a door_check page in dark mode" do
+    cookies[:keystone_theme] = "dark"
+
+    get "/door_check/email_sign_in/new"
+
+    assert_select "html[data-theme=dark]"
+  end
 end
