@@ -37,4 +37,10 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
   ensure
     KeystoneUi.instance_variable_set(:@configuration, keystone)
   end
+
+  test "a door_check page shows no host navigation" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "#host-navigation", count: 0
+  end
 end
