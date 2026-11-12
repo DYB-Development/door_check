@@ -19,7 +19,7 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
 
     signed_in.get "/door_check/approvals"
 
-    signed_in.assert_select "strong", text: DoorCheck::Challenge.last.number
+    signed_in.assert_select "p", text: DoorCheck::Challenge.last.number
   end
 
   test "the request names the device that is asking" do

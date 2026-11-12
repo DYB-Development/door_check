@@ -46,6 +46,10 @@ module DoorCheck
       assert_built_from_keystone_ui "approvals/index"
     end
 
+    test "a pending sign-in request is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "approvals/_pending"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)
