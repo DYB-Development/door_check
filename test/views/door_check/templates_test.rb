@@ -34,6 +34,10 @@ module DoorCheck
       assert_built_from_keystone_ui "backup_codes/show"
     end
 
+    test "the approval request page is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "approval_requests/new"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)
