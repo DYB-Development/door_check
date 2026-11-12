@@ -287,6 +287,7 @@ GEM
     sqlite3 (2.10.2-x86_64-darwin)
     sqlite3 (2.10.2-x86_64-linux-gnu)
     sqlite3 (2.10.2-x86_64-linux-musl)
+    the_local (0.4.3)
     thor (1.5.0)
     timeout (0.6.1)
     tpm-key_attestation (0.14.2)
@@ -339,6 +340,7 @@ DEPENDENCIES
   puma
   rubocop-rails-omakase
   sqlite3
+  the_local (~> 0.4)
 
 BUNDLED WITH
    2.7.1
