@@ -81,12 +81,12 @@ module DoorCheck
       assert_select "td", text: /Work laptop/
     end
 
-    test "each trusted browser has a button to remove it" do
+    test "each trusted browser's remove action is an option in its row's action menu" do
       TrustedDevice.trust(@user, device: "Safari on iPhone")
 
       render_section
 
-      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}']"
+      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}'] .ks-menu-option"
     end
 
     test "the section lists each session the person is signed in on with its device" do
