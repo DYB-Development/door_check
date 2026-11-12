@@ -24,4 +24,17 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "html[data-theme=dark]"
   end
+
+  test "a visitor whose look is chosen sees a door_check page in that look" do
+    keystone = KeystoneUi.configuration
+    KeystoneUi.reset_configuration!
+    KeystoneUi.configuration.register_look :bold, "bold.css"
+    KeystoneUi.configuration.look_supplier = ->(_view) { :bold }
+
+    get "/door_check/email_sign_in/new"
+
+    assert_select "html[data-look=bold]"
+  ensure
+    KeystoneUi.instance_variable_set(:@configuration, keystone)
+  end
 end
