@@ -9,7 +9,7 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
   test "setting up an authenticator app shows a QR code to scan" do
     get "/door_check/authenticator/new"
 
-    assert_select "svg"
+    assert_select "img[src^='data:image/svg+xml;base64,']"
   end
 
   test "the setup page asks for the code the app shows" do
