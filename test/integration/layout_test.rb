@@ -54,4 +54,10 @@ class LayoutTest < ActionDispatch::IntegrationTest
   ensure
     DoorCheck.configuration.head_partial = nil
   end
+
+  test "a door_check page renders no host partial in its head when the host names none" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "head style#host-palette", count: 0
+  end
 end
