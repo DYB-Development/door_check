@@ -2,7 +2,8 @@
                   columns: [ { label: "Method" }, { last_used: "Last used" }, { accepted_by: "Accepted by" } ],
                   empty_message: "No sign-in methods set up yet.") do |table| %>
   <% table.actions do |credential| %>
-    <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch) %>
+    <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch,
+                            confirm: "Remove this sign-in method?") %>
   <% end %>
 <% end %>
 <%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),

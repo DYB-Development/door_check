@@ -55,6 +55,14 @@ module DoorCheck
       assert_select "[data-controller=action-menu] form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}'] .ks-menu-option"
     end
 
+    test "removing a method asks the person to confirm first" do
+      credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}'][data-turbo-confirm='Remove this sign-in method?']"
+    end
+
     test "the section offers a switch to require a second step on every sign-in" do
       render_section
 
