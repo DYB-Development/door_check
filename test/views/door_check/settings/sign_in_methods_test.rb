@@ -47,12 +47,12 @@ module DoorCheck
       assert_select "a[href='/door_check/authenticator/new']"
     end
 
-    test "each method has a button to remove it" do
+    test "each method's remove action is an option in its row's action menu" do
       credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
 
       render_section
 
-      assert_select "form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}']"
+      assert_select "[data-controller=action-menu] form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}'] .ks-menu-option"
     end
 
     test "the section offers a switch to require a second step on every sign-in" do
