@@ -54,6 +54,10 @@ module DoorCheck
       assert_built_from_keystone_ui "settings/_sign_in_rules"
     end
 
+    test "the sign-in methods settings section is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "settings/_sign_in_methods"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)
