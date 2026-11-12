@@ -10,7 +10,7 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     post "/door_check/approval_request", params: { email: "ada@example.com" }
     follow_redirect!
 
-    assert_select "strong", text: DoorCheck::Challenge.last.number
+    assert_select "p", text: DoorCheck::Challenge.last.number
   end
 
   test "the person's other signed-in device shows the request with its number" do
@@ -152,7 +152,7 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     post "/door_check/approval_request", params: { email: "nobody@example.com" }
     follow_redirect!
 
-    assert_select "p strong", text: /\A\d{2}\z/
+    assert_select "p", text: /\A\s*\d{2}\s*\z/
   end
 
   test "the approval screen asks for an email address" do
