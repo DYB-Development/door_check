@@ -18,6 +18,12 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "pre code", text: session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
   end
 
+  test "the setup page copies the secret key when its copy button is tapped" do
+    get "/door_check/authenticator/new"
+
+    assert_select "button[data-controller=clipboard][data-clipboard-text=?]", session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+  end
+
   test "the setup page asks for the code the app shows" do
     get "/door_check/authenticator/new"
 
