@@ -55,4 +55,10 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "script[type=importmap]", text: %r{door_check/passkey_controller}
   end
+
+  test "a door_check page loads the host's importmap with keystone_ui's controllers" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "script[type=importmap]", text: %r{keystone_ui/index}
+  end
 end
