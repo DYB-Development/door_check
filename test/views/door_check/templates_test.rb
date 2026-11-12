@@ -50,6 +50,10 @@ module DoorCheck
       assert_built_from_keystone_ui "approvals/_pending"
     end
 
+    test "the sign-in rules settings section is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "settings/_sign_in_rules"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)
