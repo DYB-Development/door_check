@@ -22,6 +22,10 @@ module DoorCheck
       assert_built_from_keystone_ui "passkeys/new"
     end
 
+    test "the second sign-in step page is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "second_steps/new"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)
