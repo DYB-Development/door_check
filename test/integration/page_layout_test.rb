@@ -61,4 +61,10 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "script[type=importmap]", text: %r{keystone_ui/index}
   end
+
+  test "a door_check form page shows its title in keystone_ui's mobile header" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select ".ks-mobile-header-title", text: /Sign in/
+  end
 end
