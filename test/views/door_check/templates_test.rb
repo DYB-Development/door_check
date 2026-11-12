@@ -14,6 +14,10 @@ module DoorCheck
       assert_built_from_keystone_ui "email_links/expired"
     end
 
+    test "the passkey sign-in page is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "passkey_sign_ins/new"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)

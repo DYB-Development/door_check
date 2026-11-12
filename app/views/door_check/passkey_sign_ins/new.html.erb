@@ -1,9 +1,10 @@
 <%= ui_page(max_width: :md) do %>
-  <%= ui_page_header(title: "Sign in with a passkey", subtitle: "Use this device's fingerprint, face or PIN, or a hardware key that asks for its PIN.") %>
-  <%= ui_alert(message: @error, type: :error) if @error %>
-  <%= ui_form(action: door_check.passkey_sign_in_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "get",
-                                                              door_check_passkey_options_value: @options.to_json, action: "submit->door-check-passkey#run" }) do %>
-    <input type="hidden" name="credential" data-door-check-passkey-target="credential">
-    <%= ui_button(label: "Sign in") %>
+  <%= ui_section(title: "Sign in with a passkey", subtitle: "Use this device's fingerprint, face or PIN, or a hardware key that asks for its PIN.") do %>
+    <%= ui_alert(message: @error, type: :error) if @error %>
+    <%= ui_form(action: door_check.passkey_sign_in_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "get",
+                                                                door_check_passkey_options_value: @options.to_json, action: "submit->door-check-passkey#run" }) do %>
+      <%= hidden_field_tag "credential", nil, id: nil, data: { door_check_passkey_target: "credential" } %>
+      <%= ui_button(label: "Sign in") %>
+    <% end %>
   <% end %>
 <% end %>
