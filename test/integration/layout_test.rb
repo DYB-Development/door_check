@@ -45,4 +45,13 @@ class LayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "head script[type=importmap]"
   end
+
+  test "a door_check page renders in its head the partial the host names in door_check's configuration" do
+    DoorCheck.configuration.head_partial = "application/palette"
+    get "/door_check/email_sign_in/new"
+
+    assert_select "head style#host-palette"
+  ensure
+    DoorCheck.configuration.head_partial = nil
+  end
 end
