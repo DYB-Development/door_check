@@ -1,0 +1,17 @@
+require "test_helper"
+
+module DoorCheck
+  class TemplatesTest < ActiveSupport::TestCase
+    test "the email sign-in page is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "email_sign_ins/new"
+    end
+
+    private
+
+    def assert_built_from_keystone_ui(template)
+      source = DoorCheck::Engine.root.join("app/views/door_check/#{template}.html.erb").read
+
+      assert_no_match(/<[a-z]|ui_page_header/, source)
+    end
+  end
+end
