@@ -1,8 +1,6 @@
 <%= ui_page(max_width: :md) do %>
-  <%= ui_page_header(title: "Your backup codes", subtitle: "Save these somewhere safe now. Each works once as a second step, and they are not shown again.") %>
-  <ul class="grid grid-cols-2 gap-2">
-    <% @codes.each do |code| %>
-      <li><code><%= code %></code></li>
-    <% end %>
-  </ul>
+  <%= ui_section(title: "Your backup codes", subtitle: "Save these somewhere safe now. Each works once as a second step, and they are not shown again.") do %>
+    <%= ui_code do %><%= @codes.join("\n") %><% end %>
+    <%= ui_copy_button(text: @codes.join("\n"), label: "Copy codes") %>
+  <% end %>
 <% end %>

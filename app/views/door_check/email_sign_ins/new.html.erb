@@ -1,8 +1,9 @@
 <%= ui_page(max_width: :md) do %>
-  <%= ui_page_header(title: "Sign in", subtitle: "Enter your email address and we will send you a code and a link.") %>
-  <%= ui_form(action: door_check.email_sign_in_path) do %>
-    <%= ui_form_field(attribute: "email", label: "Email", type: :email, required: true, autofocus: true,
-                      autocomplete: "email", autocapitalize: "none") %>
-    <%= ui_button(label: "Send") %>
+  <%= ui_section(title: "Sign in", subtitle: "Enter your email address and we will send you a code and a link.") do %>
+    <%= ui_form(action: door_check.email_sign_in_path) do %>
+      <%= ui_form_field(attribute: "email", label: "Email", type: :email, required: true, autofocus: true,
+                        autocomplete: "email", autocapitalize: "none") %>
+      <%= ui_button(label: "Send") %>
+    <% end %>
   <% end %>
 <% end %>

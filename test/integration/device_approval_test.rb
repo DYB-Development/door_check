@@ -10,7 +10,7 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     post "/door_check/approval_request", params: { email: "ada@example.com" }
     follow_redirect!
 
-    assert_select "strong", text: DoorCheck::Challenge.last.number
+    assert_select "p", text: DoorCheck::Challenge.last.number
   end
 
   test "the person's other signed-in device shows the request with its number" do
@@ -19,7 +19,24 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
 
     signed_in.get "/door_check/approvals"
 
-    signed_in.assert_select "strong", text: DoorCheck::Challenge.last.number
+    signed_in.assert_select "p", text: DoorCheck::Challenge.last.number
+  end
+
+  test "the request list says no sign-ins are waiting when none is" do
+    signed_in = signed_in_device
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "h2", text: "No sign-ins are waiting"
+  end
+
+  test "the request list does not say no sign-ins are waiting while one is" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "h2", text: "No sign-ins are waiting", count: 0
   end
 
   test "the request names the device that is asking" do
@@ -152,7 +169,7 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     post "/door_check/approval_request", params: { email: "nobody@example.com" }
     follow_redirect!
 
-    assert_select "p strong", text: /\A\d{2}\z/
+    assert_select "p", text: /\A\s*\d{2}\s*\z/
   end
 
   test "the approval screen asks for an email address" do

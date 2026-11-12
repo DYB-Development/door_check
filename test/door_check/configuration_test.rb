@@ -16,4 +16,12 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
 
     assert_includes error.message, "carrier_pigeon"
   end
+
+  test "door_check pages use the host's application stylesheet unless the host names another" do
+    assert_equal "application", DoorCheck::Configuration.new.stylesheet
+  end
+
+  test "door_check pages render no host head partial unless the host names one" do
+    assert_nil DoorCheck::Configuration.new.head_partial
+  end
 end

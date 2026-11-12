@@ -9,7 +9,19 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
   test "setting up an authenticator app shows a QR code to scan" do
     get "/door_check/authenticator/new"
 
-    assert_select "svg"
+    assert_select "img[src^='data:image/svg+xml;base64,']"
+  end
+
+  test "the setup page shows the secret key so a person can type it into an authenticator app on the same phone" do
+    get "/door_check/authenticator/new"
+
+    assert_select "pre code", text: session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+  end
+
+  test "the setup page copies the secret key when its copy button is tapped" do
+    get "/door_check/authenticator/new"
+
+    assert_select "button[data-controller=clipboard][data-clipboard-text=?]", session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
   end
 
   test "the setup page asks for the code the app shows" do

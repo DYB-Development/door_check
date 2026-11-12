@@ -1,5 +1,6 @@
 <%= ui_page(max_width: :md) do %>
-  <%= ui_page_header(title: "Sign in") %>
-  <%= ui_alert(message: "This sign-in link no longer works. Links work once and stop working after 15 minutes.", type: :error) %>
-  <%= ui_button(label: "Send a new code", href: door_check.new_email_sign_in_path) %>
+  <%= ui_section(title: "Sign in") do %>
+    <%= ui_alert(message: "This sign-in link no longer works. Links work once and stop working after 15 minutes.", type: :error) %>
+    <%= ui_button(label: "Send a new code", href: door_check.new_email_sign_in_path) %>
+  <% end %>
 <% end %>

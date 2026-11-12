@@ -47,12 +47,20 @@ module DoorCheck
       assert_select "a[href='/door_check/authenticator/new']"
     end
 
-    test "each method has a button to remove it" do
+    test "each method's remove action is an option in its row's action menu" do
       credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
 
       render_section
 
-      assert_select "form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}']"
+      assert_select "[data-controller=action-menu] form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}'] .ks-menu-option"
+    end
+
+    test "removing a method asks the person to confirm first" do
+      credential = Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/remove?credential_id=#{credential.id}'][data-turbo-confirm='Remove this sign-in method?']"
     end
 
     test "the section offers a switch to require a second step on every sign-in" do
@@ -81,12 +89,12 @@ module DoorCheck
       assert_select "td", text: /Work laptop/
     end
 
-    test "each trusted browser has a button to remove it" do
+    test "each trusted browser's remove action is an option in its row's action menu" do
       TrustedDevice.trust(@user, device: "Safari on iPhone")
 
       render_section
 
-      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}']"
+      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}'] .ks-menu-option"
     end
 
     test "the section lists each session the person is signed in on with its device" do
@@ -97,12 +105,28 @@ module DoorCheck
       assert_select "td", text: /Firefox on Linux/
     end
 
-    test "each session has a button to sign it out" do
+    test "each session's sign-out action is an option in its row's action menu" do
       signed_in_session = SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
 
       render_section
 
-      assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}']"
+      assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}'] .ks-menu-option"
+    end
+
+    test "signing out a session asks the person to confirm first" do
+      signed_in_session = SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}'][data-turbo-confirm='Sign out this session?']"
+    end
+
+    test "removing a trusted browser asks the person to confirm first" do
+      TrustedDevice.trust(@user, device: "Safari on iPhone")
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}'][data-turbo-confirm='Remove this trusted browser?']"
     end
 
     private

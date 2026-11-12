@@ -1,26 +1,30 @@
 <%= ui_page(max_width: :md) do %>
   <% if @second_step_set_up %>
-    <%= ui_page_header(title: "Confirm it's you", subtitle: "Enter the code from your authenticator app or one of your backup codes.") %>
-    <%= ui_alert(message: @error, type: :error) if @error %>
-    <%= ui_form(action: door_check.second_step_path) do %>
-      <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
-                        autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
-      <% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
-        <%= ui_form_field(attribute: "trust_browser", label: "Trust this browser for 30 days", type: :checkbox, value: "0") %>
+    <%= ui_section(title: "Confirm it's you", subtitle: "Enter the code from your authenticator app or one of your backup codes.") do %>
+      <%= ui_alert(message: @error, type: :error) if @error %>
+      <%= ui_form(action: door_check.second_step_path) do %>
+        <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,
+                          autocomplete: "one-time-code", inputmode: "numeric", autocapitalize: "none") %>
+        <% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
+          <%= ui_form_field(attribute: "trust_browser", label: "Trust this browser for 30 days", type: :checkbox, value: "0") %>
+        <% end %>
+        <%= ui_button(label: "Verify") %>
       <% end %>
-      <%= ui_button(label: "Verify") %>
-    <% end %>
-    <% if @passkey_options %>
-      <%= ui_form(action: door_check.passkey_second_step_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "get",
-                                                                      door_check_passkey_options_value: @passkey_options.to_json, action: "submit->door-check-passkey#run" }) do %>
-        <input type="hidden" name="credential" data-door-check-passkey-target="credential">
-        <%= ui_button(label: "Use a passkey or key", variant: :secondary) %>
+      <% if @passkey_options %>
+        <%= ui_form(action: door_check.passkey_second_step_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "get",
+                                                                        door_check_passkey_options_value: @passkey_options.to_json, action: "submit->door-check-passkey#run" }) do %>
+          <%= hidden_field_tag "credential", nil, id: nil, data: { door_check_passkey_target: "credential" } %>
+          <%= ui_button(label: "Use a passkey or key", variant: :secondary) %>
+        <% end %>
       <% end %>
     <% end %>
   <% else %>
-    <%= ui_page_header(title: "Set up a second step", subtitle: "A second step is required here, and you have none set up yet.") %>
-    <% @setups.each do |method_name, setup_page| %>
-      <%= ui_button(label: "Set up #{method_name.to_s.humanize.downcase}", href: door_check.public_send(setup_page)) %>
+    <%= ui_section(title: "Set up a second step", subtitle: "A second step is required here, and you have none set up yet.") do %>
+      <%= ui_grid(gap: :sm) do %>
+        <% @setups.each do |method_name, setup_page| %>
+          <%= ui_button(label: "Set up #{method_name.to_s.humanize.downcase}", href: door_check.public_send(setup_page), full_width: true) %>
+        <% end %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>

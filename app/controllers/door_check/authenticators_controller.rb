@@ -1,3 +1,5 @@
+require "base64"
+
 module DoorCheck
   class AuthenticatorsController < ApplicationController
     PENDING_SECRET_KEY = :door_check_pending_authenticator_secret
@@ -28,7 +30,9 @@ module DoorCheck
     end
 
     def draw_qr_code
-      @qr_code = RQRCode::QRCode.new(provisioning_uri).as_svg(module_size: 4, use_path: true)
+      @secret_key = session[PENDING_SECRET_KEY]
+      svg = RQRCode::QRCode.new(provisioning_uri).as_svg(module_size: 4, use_path: true)
+      @qr_code_url = "data:image/svg+xml;base64,#{Base64.strict_encode64(svg)}"
     end
 
     def provisioning_uri
