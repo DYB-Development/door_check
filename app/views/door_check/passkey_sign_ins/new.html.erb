@@ -1,5 +1,5 @@
+<%= ui_form_page(title: "Sign in with a passkey", subtitle: "Use this device's fingerprint, face or PIN, or a hardware key that asks for its PIN.", trail: []) %>
 <%= ui_page(max_width: :md) do %>
-  <%= ui_page_header(title: "Sign in with a passkey", subtitle: "Use this device's fingerprint, face or PIN, or a hardware key that asks for its PIN.") %>
   <%= ui_alert(message: @error, type: :error) if @error %>
   <%= ui_form(action: door_check.passkey_sign_in_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "get",
                                                               door_check_passkey_options_value: @options.to_json, action: "submit->door-check-passkey#run" }) do %>
