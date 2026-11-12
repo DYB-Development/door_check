@@ -30,6 +30,10 @@ module DoorCheck
       assert_built_from_keystone_ui "authenticators/new"
     end
 
+    test "the backup codes page is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "backup_codes/show"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)

@@ -9,7 +9,7 @@ class BackupCodesTest < ActionDispatch::IntegrationTest
   test "making a set of backup codes shows all ten" do
     post "/door_check/backup_codes"
 
-    assert_select "code", count: 10
+    assert_equal 10, css_select("code").text.split.size
   end
 
   test "a password sign-in of a person who already has a second step is asked for it before making codes" do
