@@ -49,4 +49,10 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "head meta[name=viewport][content='width=device-width,initial-scale=1']"
   end
+
+  test "a door_check page loads the host's importmap with door_check's passkey controller" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "script[type=importmap]", text: %r{door_check/passkey_controller}
+  end
 end
