@@ -1,8 +1,8 @@
 <%= ui_page(max_width: :md) do %>
   <%= ui_page_header(title: "Your backup codes", subtitle: "Save these somewhere safe now. Each works once as a second step, and they are not shown again.") %>
-  <ul class="grid grid-cols-2 gap-2">
+  <%= ui_grid(cols: { default: 2 }, gap: :sm) do %>
     <% @codes.each do |code| %>
-      <li><code><%= code %></code></li>
+      <%= ui_code { code } %>
     <% end %>
-  </ul>
+  <% end %>
 <% end %>
