@@ -1,7 +1,8 @@
 <%= turbo_stream_from person, :door_check_approvals %>
 <% DoorCheck::Challenge.awaiting_approval.where(person: person).each do |challenge| %>
   <%= ui_panel do %>
-    <p><%= challenge.device.presence || "A device" %> in <%= challenge.location %> is asking to sign in as you. Approve it only if it shows <strong><%= challenge.number %></strong>.</p>
+    <%= ui_paragraph(text: safe_join([ challenge.device.presence || "A device", " in ", challenge.location,
+                                       " is asking to sign in as you. Approve it only if it shows ", tag.strong(challenge.number), "." ])) %>
     <%= ui_button(label: "Approve", href: door_check.approve_approval_path(challenge), method: :post) %>
     <%= ui_button(label: "Decline", href: door_check.decline_approval_path(challenge), method: :post, variant: :secondary) %>
   <% end %>
