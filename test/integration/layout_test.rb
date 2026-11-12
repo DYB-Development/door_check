@@ -39,4 +39,10 @@ class LayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "nav", count: 0
   end
+
+  test "a door_check page loads the host's importmap JavaScript" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "head script[type=importmap]"
+  end
 end
