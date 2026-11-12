@@ -30,6 +30,7 @@ module DoorCheck
     end
 
     def draw_qr_code
+      @secret_key = session[PENDING_SECRET_KEY]
       svg = RQRCode::QRCode.new(provisioning_uri).as_svg(module_size: 4, use_path: true)
       @qr_code_url = "data:image/svg+xml;base64,#{Base64.strict_encode64(svg)}"
     end

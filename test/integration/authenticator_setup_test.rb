@@ -12,6 +12,12 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "img[src^='data:image/svg+xml;base64,']"
   end
 
+  test "the setup page shows the secret key so a person can type it into an authenticator app on the same phone" do
+    get "/door_check/authenticator/new"
+
+    assert_select "pre code", text: session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+  end
+
   test "the setup page asks for the code the app shows" do
     get "/door_check/authenticator/new"
 
