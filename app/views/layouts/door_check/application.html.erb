@@ -14,11 +14,11 @@
 </head>
 <body>
 
-<% if content_for?(:form_page) %>
+<% if content_for?(:form_page) || content_for?(:mobile_page_title) %>
   <%= ui_navbar do |navbar| %>
     <% navbar.with_mobile_left do %>
-      <%= ui_mobile_header(title: content_for(:form_page_title), back_url: content_for(:form_page_back_url).presence,
-                           subtitle: content_for(:form_page_subtitle)) %>
+      <%= ui_mobile_header(title: content_for(:form_page_title).presence || content_for(:mobile_page_title),
+                           back_url: content_for(:form_page_back_url).presence, subtitle: content_for(:form_page_subtitle)) %>
     <% end %>
   <% end %>
 <% end %>

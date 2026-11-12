@@ -67,4 +67,10 @@ class PageLayoutTest < ActionDispatch::IntegrationTest
 
     assert_select ".ks-mobile-header-title", text: /Sign in/
   end
+
+  test "a door_check page with a page header shows its title in keystone_ui's mobile header" do
+    get "/door_check/approval_request"
+
+    assert_select ".ks-mobile-header-title", text: /Approve on another device/
+  end
 end
