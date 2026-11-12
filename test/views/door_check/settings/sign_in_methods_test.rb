@@ -113,6 +113,14 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}'] .ks-menu-option"
     end
 
+    test "signing out a session asks the person to confirm first" do
+      signed_in_session = SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}'][data-turbo-confirm='Sign out this session?']"
+    end
+
     private
 
     def render_section
