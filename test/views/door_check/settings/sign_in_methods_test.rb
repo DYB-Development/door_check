@@ -121,6 +121,14 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/sign_out_session?signed_in_session_id=#{signed_in_session.id}'][data-turbo-confirm='Sign out this session?']"
     end
 
+    test "removing a trusted browser asks the person to confirm first" do
+      TrustedDevice.trust(@user, device: "Safari on iPhone")
+
+      render_section
+
+      assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}'][data-turbo-confirm='Remove this trusted browser?']"
+    end
+
     private
 
     def render_section
