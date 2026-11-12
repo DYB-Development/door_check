@@ -33,4 +33,10 @@ class LayoutTest < ActionDispatch::IntegrationTest
 
     assert_select "head meta[name=viewport][content='width=device-width,initial-scale=1']"
   end
+
+  test "a door_check page shows no host navigation" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "nav", count: 0
+  end
 end
