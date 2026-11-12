@@ -6,6 +6,10 @@ module DoorCheck
       assert_built_from_keystone_ui "email_sign_ins/new"
     end
 
+    test "the email code page is built only from keystone_ui components a phone shows" do
+      assert_built_from_keystone_ui "email_codes/new"
+    end
+
     private
 
     def assert_built_from_keystone_ui(template)
