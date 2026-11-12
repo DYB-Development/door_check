@@ -6,6 +6,6 @@
   <% elsif @challenge&.expired? %>
     <%= ui_alert(message: "The request expired after five minutes, so you are not signed in. Ask again to try once more.", type: :error) %>
   <% else %>
-    <p class="text-center text-4xl"><strong><%= @number %></strong></p>
+    <%= ui_heading(text: tag.strong(@number), size: :lg) %>
   <% end %>
 <% end %>

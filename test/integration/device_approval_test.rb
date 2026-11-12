@@ -152,7 +152,7 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     post "/door_check/approval_request", params: { email: "nobody@example.com" }
     follow_redirect!
 
-    assert_select "p strong", text: /\A\d{2}\z/
+    assert_select "h2 strong", text: /\A\d{2}\z/
   end
 
   test "the approval screen asks for an email address" do
