@@ -27,4 +27,10 @@ class LayoutTest < ActionDispatch::IntegrationTest
     KeystoneUi.configuration.looks.delete("bold")
     KeystoneUi.configuration.look_supplier = nil
   end
+
+  test "a door_check page fits the width of a phone screen" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "head meta[name=viewport][content='width=device-width,initial-scale=1']"
+  end
 end
