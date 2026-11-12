@@ -30,6 +30,15 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     signed_in.assert_select "h2", text: "No sign-ins are waiting"
   end
 
+  test "the request list does not say no sign-ins are waiting while one is" do
+    signed_in = signed_in_device
+    post "/door_check/approval_request", params: { email: "ada@example.com" }
+
+    signed_in.get "/door_check/approvals"
+
+    signed_in.assert_select "h2", text: "No sign-ins are waiting", count: 0
+  end
+
   test "the request names the device that is asking" do
     signed_in = signed_in_device
     post "/door_check/approval_request", params: { email: "ada@example.com" }, headers: { "User-Agent" => "Chrome on Windows" }

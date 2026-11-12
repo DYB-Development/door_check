@@ -1,6 +1,7 @@
 <%= turbo_stream_from person, :door_check_approvals %>
-<%= ui_empty_state(title: "No sign-ins are waiting") %>
-<% DoorCheck::Challenge.awaiting_approval.where(person: person).each do |challenge| %>
+<% challenges = DoorCheck::Challenge.awaiting_approval.where(person: person) %>
+<%= ui_empty_state(title: "No sign-ins are waiting") if challenges.none? %>
+<% challenges.each do |challenge| %>
   <%= ui_panel do %>
     <%= ui_section(spacing: :sm) do %>
       <%= ui_paragraph(text: "#{challenge.device.presence || 'A device'} in #{challenge.location} is asking to sign in as you. Approve it only if it shows this number.") %>
