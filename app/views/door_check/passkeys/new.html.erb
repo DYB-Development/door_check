@@ -1,5 +1,5 @@
+<%= ui_form_page(title: "Add a passkey", subtitle: "Use this device's fingerprint, face or PIN, or a hardware key such as a YubiKey.", trail: []) %>
 <%= ui_page(max_width: :md) do %>
-  <%= ui_page_header(title: "Add a passkey", subtitle: "Use this device's fingerprint, face or PIN, or a hardware key such as a YubiKey.") %>
   <%= ui_alert(message: @error, type: :error) if @error %>
   <%= ui_form(action: door_check.passkeys_path, data: { controller: "door-check-passkey", door_check_passkey_ceremony_value: "create",
                                                        door_check_passkey_options_value: @options.to_json, action: "submit->door-check-passkey#run" }) do %>
