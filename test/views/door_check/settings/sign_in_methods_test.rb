@@ -191,6 +191,12 @@ module DoorCheck
       assert_includes panel_under("Sign-in methods").css("td").map(&:text).join, "Authenticator app"
     end
 
+    test "the buttons to add a method sit in the panel under the title Sign-in methods" do
+      render_section
+
+      assert_predicate panel_under("Sign-in methods").css("a[href='/door_check/authenticator/new']"), :any?
+    end
+
     private
 
     def panel_under(title)

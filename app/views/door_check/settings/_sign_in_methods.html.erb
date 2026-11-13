@@ -8,6 +8,17 @@
                                 confirm: "Remove this sign-in method?") %>
       <% end %>
     <% end %>
+    <%= ui_section(spacing: :sm) do %>
+      <% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
+        <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
+      <% end %>
+      <% if DoorCheck.configuration.offered_methods.include?(:passkey) %>
+        <%= ui_button(label: "Add a passkey or hardware key", href: door_check.new_passkey_path, variant: :secondary) %>
+      <% end %>
+      <% if DoorCheck.configuration.offered_methods.include?(:backup_codes) %>
+        <%= ui_button(label: "Make new backup codes", href: door_check.backup_codes_path, method: :post, variant: :secondary) %>
+      <% end %>
+    <% end %>
   <% end %>
 <% end %>
 <%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
@@ -27,15 +38,6 @@
                               confirm: "Remove this trusted browser?") %>
     <% end %>
   <% end %>
-<% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
-  <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
-<% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:passkey) %>
-  <%= ui_button(label: "Add a passkey or hardware key", href: door_check.new_passkey_path, variant: :secondary) %>
-<% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:backup_codes) %>
-  <%= ui_button(label: "Make new backup codes", href: door_check.backup_codes_path, method: :post, variant: :secondary) %>
 <% end %>
 <% if !DoorCheck.configuration.people_choose_second_step %>
   <%= ui_alert(message: "This app decides when you are asked for a second step.") %>
