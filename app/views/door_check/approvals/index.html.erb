@@ -1,5 +1,6 @@
 <%= ui_page(max_width: :md) do %>
   <%= ui_section(title: "Sign-in requests") do %>
     <%= render "door_check/approvals/pending", person: @person %>
+    <%= ui_empty_state(title: "No sign-ins are waiting") if DoorCheck::Challenge.awaiting_approval.where(person: @person).none? %>
   <% end %>
 <% end %>
