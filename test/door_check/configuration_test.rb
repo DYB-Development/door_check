@@ -25,6 +25,10 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
     assert_nil DoorCheck::Configuration.new.head_partial
   end
 
+  test "people choose their own second step unless the app turns the choice off" do
+    assert DoorCheck::Configuration.new.people_choose_second_step
+  end
+
   test "the authenticator app shows the host application's name unless the host names another" do
     assert_equal Rails.application.class.module_parent_name, DoorCheck::Configuration.new.authenticator_issuer
   end
