@@ -29,10 +29,10 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "Scan the QR code or type the secret key into your authenticator app, then enter the code it shows."
   end
 
-  test "the setup page shows the secret key so a person can type it into an authenticator app on the same phone" do
+  test "the setup page shows the secret key in groups of four so a person can type it into an authenticator app on the same phone" do
     get "/door_check/authenticator/new"
 
-    assert_select "pre code", text: session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+    assert_select "pre code", text: session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY].scan(/.{1,4}/).join(" ")
   end
 
   test "the setup page copies the secret key when its copy button is tapped" do
