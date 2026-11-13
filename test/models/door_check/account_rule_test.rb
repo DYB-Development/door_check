@@ -15,5 +15,9 @@ module DoorCheck
 
       assert_not AccountRule.for(@account).met_by?(%i[password])
     end
+
+    test "an account that never saved its rules lets members choose their own second step" do
+      assert AccountRule.for(@account).members_choose_second_step
+    end
   end
 end

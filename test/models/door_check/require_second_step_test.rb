@@ -18,6 +18,22 @@ module DoorCheck
       assert_equal %w[authenticator_app], AccountRule.for(account).accepted_methods
     end
 
+    test "saving the section with the members box unticked stops members choosing their own second step" do
+      account = Account.create!(name: "Acme")
+
+      RequireSecondStep.new(person: nil, account: account, values: { members_choose_second_step: "0" }).call
+
+      assert_not AccountRule.for(account).members_choose_second_step
+    end
+
+    test "saving the section without the members value leaves members choosing their own second step" do
+      account = Account.create!(name: "Acme")
+
+      RequireSecondStep.new(person: nil, account: account, values: { second_step_required: "1" }).call
+
+      assert AccountRule.for(account).members_choose_second_step
+    end
+
     test "a method the app does not offer is refused" do
       account = Account.create!(name: "Acme")
 

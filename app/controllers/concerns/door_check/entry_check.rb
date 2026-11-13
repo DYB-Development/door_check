@@ -27,7 +27,7 @@ module DoorCheck
       proved = door_check_proved_by.map(&:first)
       proved += [ :trusted_device ] if door_check_trusted_browser?(person)
       account = door_check_account
-      PersonRule.for(person).met_by?(proved) && (account.nil? || AccountRule.for(account).met_by?(proved))
+      PersonRule.for(person).met_by?(proved, account: account) && (account.nil? || AccountRule.for(account).met_by?(proved))
     end
 
     def door_check_trusted_browser?(person)
