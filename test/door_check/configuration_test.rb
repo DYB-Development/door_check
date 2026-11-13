@@ -24,4 +24,8 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
   test "door_check pages render no host head partial unless the host names one" do
     assert_nil DoorCheck::Configuration.new.head_partial
   end
+
+  test "the authenticator app shows the host application's name unless the host names another" do
+    assert_equal Rails.application.class.module_parent_name, DoorCheck::Configuration.new.authenticator_issuer
+  end
 end
