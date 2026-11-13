@@ -41,5 +41,23 @@ module DoorCheck
     ensure
       DoorCheck.configuration.people_choose_second_step = true
     end
+
+    test "the accepted methods sit in the panel under the title Accepted methods" do
+      render_section
+
+      assert_equal DoorCheck.configuration.offered_methods.size, group_titled("Accepted methods").css("input[type=checkbox][name='accepted_methods[]']").size
+    end
+
+    private
+
+    def group_titled(title)
+      Nokogiri::HTML5(rendered).xpath(
+        "//div[contains(@class, 'ks-panel')]//div[div[contains(@class, 'ks-section-header')]//h2[normalize-space() = '#{title}']]"
+      )
+    end
+
+    def render_section
+      render partial: "door_check/settings/sign_in_rules", locals: { account: Account.create!(name: "Acme"), submit_url: "/settings/sign_in_rules" }
+    end
   end
 end
