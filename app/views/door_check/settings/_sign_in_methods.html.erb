@@ -33,9 +33,9 @@
     <% end %>
   <% end %>
 <% end %>
-<%= ui_section(title: "Trusted browsers") do %>
-  <%= ui_panel do %>
-    <% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
+<% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
+  <%= ui_section(title: "Trusted browsers") do %>
+    <%= ui_panel do %>
       <%= ui_data_table(items: DoorCheck::TrustedDevice.where(person: person).where("expires_at > ?", Time.current),
                         columns: [ { device: "Trusted browser" }, { trusted_until: "Trusted until" } ],
                         empty_message: "No trusted browsers.") do |table| %>

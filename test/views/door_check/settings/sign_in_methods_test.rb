@@ -213,6 +213,17 @@ module DoorCheck
       assert_includes panel_under("Trusted browsers").css("td").map(&:text).join, "Safari on iPhone"
     end
 
+    test "the section leaves out the Trusted browsers group when the app does not offer trusted browsers" do
+      offered = DoorCheck.configuration.offered_methods
+      DoorCheck.configuration.offered_methods = %i[password authenticator_app]
+
+      render_section
+
+      assert_select "h2", text: "Trusted browsers", count: 0
+    ensure
+      DoorCheck.configuration.offered_methods = offered
+    end
+
     private
 
     def panel_under(title)
