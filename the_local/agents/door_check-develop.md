@@ -152,8 +152,17 @@ end
 `current_user` stands for the host's person method. Use the same method the
 install local gave door_check as the person method.
 
+The person section shows titled groups, in this order: Sign-in methods,
+Signed-in sessions, Trusted browsers and Second step. It leaves out the Trusted
+browsers group when the app does not offer `trusted_device`, so the trusted
+browser route is only reached when `trusted_device` is offered. Ask the
+developer whether to write that route when it is not offered.
+
 What each section sends, and what the action does with it:
 
+- The Second step group shows the alert "Your account asks everyone for a
+  second step." when it was rendered with an account whose rule requires a
+  second step. It shows this as well as the checkbox or the alerts below.
 - When the app is set so people do not choose their own second step, the
   person section shows the alert "This app decides when you are asked for a
   second step." in place of the second-step checkbox, whatever the account
@@ -222,22 +231,26 @@ before building `RequireSecondStep`.
 3. The sign-in email always carries both a code and a link. The link returns
    not found unless `email_link` is offered, so ask the developer whether to
    offer `email_link` whenever `email_code` is offered.
-4. Put the sign-in links on the host's sign-in page, for a person who is not
+4. The person section's Sign-in methods group already shows buttons to set up
+   an authenticator app, add a passkey and make new backup codes, each only
+   when its method is offered. Add those links elsewhere only when the
+   developer asks for them outside the settings page.
+5. Put the sign-in links on the host's sign-in page, for a person who is not
    signed in. The approvals, authenticator, passkey and backup codes links are
    for a signed-in person only.
-5. Link to `backup_codes_path` with a form that sends a `POST`, such as
+6. Link to `backup_codes_path` with a form that sends a `POST`, such as
    `button_to`, never a plain link.
-6. When the person already has a second step set up, the authenticator, passkey
+7. When the person already has a second step set up, the authenticator, passkey
    and backup codes pages first ask for it if this session has not passed one,
    then send the person back.
-7. The authenticator page keeps showing the same secret key in this browser
+8. The authenticator page keeps showing the same secret key in this browser
    session until setup succeeds, so reloading it or entering a wrong code does
    not change the key the person already scanned. A wrong code shows an error on
    the same page and saves nothing.
-8. When the browser session no longer holds the key, such as after the person
+9. When the browser session no longer holds the key, such as after the person
    signed out and back in, saving a code sends the person back to the
    authenticator page with a new key and a warning to scan it again.
-9. A right code saves the authenticator app, counts as this session's second
+10. A right code saves the authenticator app, counts as this session's second
    step, and sends the person to the page they were on before door_check asked
    for a second step, or to `/` when there was none. The app lists the account
    under the person's email when the person responds to `email`.

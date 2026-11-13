@@ -197,15 +197,30 @@ trusted browsers.
       `members_choose_second_step`, so the host action must leave that value
       unchanged when the parameter is missing.
 
+    The personal section renders its own titled groups, so place it on the page
+    without a heading or panel around it:
+    - **Sign-in methods** — the person's saved methods, with a button to set up
+      an authenticator app, a passkey or new backup codes for each of those
+      that `offered_methods` includes.
+    - **Signed-in sessions** — the person's sessions that are still signed in.
+    - **Trusted browsers** — shown only when `trusted_device` is offered.
+    - **Second step** — the person's own second-step checkbox, or a note in its
+      place.
+
+    On a phone-width screen each table shows as a list and the setup buttons
+    stack at full width.
+
     Every account starts out letting its members choose their own second step.
     While an account does not, a person's own choice is not applied inside that
     account, and only the account's own rule decides.
 
     Pass the person's current account as `account:` to the personal section.
-    When that account does not let members choose, the section shows the note
+    When that account requires a second step, the Second step group shows
+    "Your account asks everyone for a second step." above the checkbox or note.
+    When that account does not let members choose, the group shows the note
     "Your account decides whether you are asked for a second step." in place of
-    the second-step checkbox. Leave `account:` out only when the host has no
-    accounts, since without it the checkbox always shows.
+    the checkbox. Leave `account:` out only when the host has no accounts, since
+    without it the checkbox always shows and no account note appears.
 
     The controller actions behind those routes are the develop local's to
     write. Ask the developer which settings page each section goes on, and who
