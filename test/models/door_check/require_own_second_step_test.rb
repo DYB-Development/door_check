@@ -30,5 +30,17 @@ module DoorCheck
 
       assert_equal "Your account decides whether you are asked for a second step.", result.message
     end
+
+    test "a refused save keeps the person's earlier choice" do
+      user = User.create!(email: "ada@example.com")
+      PersonRule.create!(person: user, second_step_required: true)
+      DoorCheck.configuration.people_choose_second_step = false
+
+      RequireOwnSecondStep.new(person: user, account: nil, values: { second_step_required: "0" }).call
+
+      assert PersonRule.for(user).second_step_required
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
   end
 end
