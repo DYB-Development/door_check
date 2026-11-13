@@ -62,12 +62,17 @@ door_check declares nothing for this local to document.
 - **Offered methods** — the subset of known methods this app turns on. Naming a
   method door_check does not know is an error at boot. A page for a method the
   app does not offer returns not found.
-- **Account rule** — whether an account requires a second step, and which of the
-  offered methods it accepts. An account can only narrow what the app offers.
-- **Person rule** — whether a person requires a second step on their own login,
-  whatever their account says.
+- **Account rule** — whether an account requires a second step, which of the
+  offered methods it accepts, and whether its members choose their own second
+  step. An account can only narrow what the app offers. Members choose by
+  default.
+- **Person rule** — whether a person requires a second step on their own login.
+  It is in force with no account, and in an account that lets members choose.
+  In an account that does not, only the account's rule decides, and the person's
+  saved choice is kept and applies again once the account lets members choose.
 - **Proof** — a method a session has passed. A person may enter a page once the
-  session's proofs meet both their person rule and their current account's rule.
+  session's proofs meet their current account's rule and, where it is in force,
+  their person rule.
   Otherwise they are sent to the second step page and returned afterwards.
 - **Signed-in session** — one sign-in on one device, with its device, IP address
   and last use. Ending one signs that device out on its next request.

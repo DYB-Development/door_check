@@ -34,7 +34,7 @@ Method names:
 Rule and session actions. Each is built with `person:`, `account:` and
 `values:`, all three required, and `call` returns a `DoorCheck::Result`:
 
-- `DoorCheck::RequireSecondStep` — saves the account's rule: the methods it accepts from `values[:accepted_methods]`, and whether it requires a second step from `values[:second_step_required]`.
+- `DoorCheck::RequireSecondStep` — saves the account's rule: the methods it accepts from `values[:accepted_methods]`, whether it requires a second step from `values[:second_step_required]`, and whether its members choose their own second step from `values[:members_choose_second_step]`.
 - `DoorCheck::RequireOwnSecondStep` — saves the person's own rule: whether they require a second step, from `values[:second_step_required]`.
 - `DoorCheck::RemoveMethod` — removes the person's saved method whose id is `values[:credential_id]`.
 - `DoorCheck::SignOutSession` — signs out the person's signed-in session whose id is `values[:signed_in_session_id]`.
@@ -133,7 +133,8 @@ class SettingsController < ApplicationController
 
   def sign_in_rules
     finish DoorCheck::RequireSecondStep.new(person: current_user, account: door_check_account,
-                                            values: params.permit(:second_step_required, accepted_methods: [])).call
+                                            values: params.permit(:second_step_required, :members_choose_second_step,
+                                                                  accepted_methods: [])).call
   end
 
   private
@@ -155,7 +156,8 @@ What each section sends, and what the action does with it:
 
 - The person section's second-step form sends `second_step_required`.
   `RequireOwnSecondStep` saves the rule as on when the value is `"1"` and off
-  for any other value.
+  for any other value. It saves the choice even while the current account does
+  not let members choose.
 - The person section's Remove on a saved method sends `credential_id`.
   `RemoveMethod` removes that method only when it belongs to `person`.
 - The person section's Sign out on a session sends `signed_in_session_id`.
@@ -166,11 +168,17 @@ What each section sends, and what the action does with it:
   `RemoveTrustedBrowser` forgets that browser only when it belongs to `person`,
   and the browser is asked for a second step again.
 - The account section sends `accepted_methods[]`, one value per ticked method,
-  and `second_step_required`. `RequireSecondStep` refuses the save when a
-  ticked method is not one the app offers, and returns a result whose `ok?` is
-  false and whose `message` is `"Pick only methods this app offers."`.
-  Otherwise it saves both values to the rule of the `account` it was given, with
-  the second step on only when `second_step_required` is `"1"`.
+  `second_step_required` and `members_choose_second_step`. `RequireSecondStep`
+  refuses the save when a ticked method is not one the app offers, and returns
+  a result whose `ok?` is false and whose `message` is
+  `"Pick only methods this app offers."`. Otherwise it saves the values to the
+  rule of the `account` it was given, with the second step on only when
+  `second_step_required` is `"1"` and members choosing only when
+  `members_choose_second_step` is `"1"`.
+- Permit `members_choose_second_step` in the `sign_in_rules` action. When
+  `values` has no `members_choose_second_step` key, `RequireSecondStep` leaves
+  the account's setting as it was, so an action that does not permit it never
+  changes it.
 
 Ask the developer who may save the account's rules. door_check does not check
 it, so the `sign_in_rules` action must refuse anyone the host does not allow,
@@ -234,8 +242,16 @@ before building `RequireSecondStep`.
   that does not belong to the person changes nothing and still returns true.
 - When no `accepted_methods[]` box is ticked, the form sends none and the
   account's rule is saved as accepting every offered method.
-- A person's rule and an account's rule both apply. A person who requires a
-  second step is asked for one whatever their account's rule says.
+- An account lets its members choose their own second step until its rule is
+  saved with `members_choose_second_step` off.
+- While the current account lets members choose, a person's rule and the
+  account's rule both apply, so a person who requires a second step is asked
+  for one whatever the account requires.
+- While the current account does not let members choose, the person's own rule
+  is not in force there, and only the account's rule decides whether a second
+  step is asked for. The person's saved choice is kept, and it applies again
+  once the account lets members choose.
+- When `door_check_account` is nil, the person's own rule is always in force.
 - Out of scope: adding the gem, its migrations, its routes, its settings, the
   host controller's tracking and second-step check, and placing the settings
   sections. Those belong to the install local.

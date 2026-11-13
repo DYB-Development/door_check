@@ -40,7 +40,7 @@ trusted browsers.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
 - `door_check/settings/sign_in_methods` — the partial a person uses to see and remove their methods, sessions and trusted browsers, set up new ones, and require a second step on their own login.
-- `door_check/settings/sign_in_rules` — the partial an account admin uses to choose which offered methods the account accepts and whether it requires a second step.
+- `door_check/settings/sign_in_rules` — the partial an account admin uses to choose which offered methods the account accepts, whether it requires a second step, and whether its members' own second-step choice applies inside it.
 
 ## How to use it
 
@@ -181,7 +181,12 @@ trusted browsers.
     - `remove` receives `credential_id`.
     - `sign_out_session` receives `signed_in_session_id`.
     - `remove_trusted_browser` receives `trusted_device_id`.
-    - The account section's URL receives `accepted_methods[]` and `second_step_required`.
+    - The account section's URL receives `accepted_methods[]`,
+      `second_step_required` and `members_choose_second_step`.
+
+    Every account starts out letting its members choose their own second step.
+    While an account does not, a person's own choice is not applied inside that
+    account, and only the account's own rule decides.
 
     The controller actions behind those routes are the develop local's to
     write. Ask the developer which settings page each section goes on, and who
