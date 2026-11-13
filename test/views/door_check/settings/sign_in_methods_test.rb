@@ -147,6 +147,15 @@ module DoorCheck
       assert_select "label", text: "Ask me for a second step every time I sign in"
     end
 
+    test "the section explains that the account decides when it does not let members choose" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, members_choose_second_step: false)
+
+      render_section(account: account)
+
+      assert_includes rendered, "Your account decides whether you are asked for a second step."
+    end
+
     private
 
     def render_section(account: nil)

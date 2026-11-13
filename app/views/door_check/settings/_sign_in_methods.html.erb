@@ -39,4 +39,6 @@
                       type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
     <%= ui_button(label: "Save") %>
   <% end %>
+<% else %>
+  <%= ui_alert(message: "Your account decides whether you are asked for a second step.") %>
 <% end %>
