@@ -70,6 +70,13 @@ door_check declares nothing for this local to document.
   It is in force with no account, and in an account that lets members choose.
   In an account that does not, only the account's rule decides, and the person's
   saved choice is kept and applies again once the account lets members choose.
+- **Personal settings section** — the section where a person sees their saved
+  methods, signed-in sessions and trusted browsers, and sets their person rule.
+  When the person's current account does not let members choose, it shows the note "Your account decides
+  whether you are asked for a second step." in place of the checkbox.
+- **Account settings section** — the section where an account's rule is set:
+  which offered methods it accepts, whether it requires a second step, and
+  whether members choose their own.
 - **Proof** — a method a session has passed. A person may enter a page once the
   session's proofs meet their current account's rule and, where it is in force,
   their person rule.

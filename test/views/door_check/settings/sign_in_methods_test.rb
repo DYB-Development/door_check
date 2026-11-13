@@ -129,11 +129,45 @@ module DoorCheck
       assert_select "form[action='/settings/sign_in_methods/remove_trusted_browser?trusted_device_id=#{TrustedDevice.last.id}'][data-turbo-confirm='Remove this trusted browser?']"
     end
 
+    test "the section hides the second-step switch when the account does not let members choose" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, members_choose_second_step: false)
+
+      render_section(account: account)
+
+      assert_select "input[type=checkbox][name=second_step_required]", count: 0
+    end
+
+    test "the section shows the second-step switch when the account lets members choose" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, members_choose_second_step: true)
+
+      render_section(account: account)
+
+      assert_select "label", text: "Ask me for a second step every time I sign in"
+    end
+
+    test "the section explains that the account decides when it does not let members choose" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, members_choose_second_step: false)
+
+      render_section(account: account)
+
+      assert_includes rendered, "Your account decides whether you are asked for a second step."
+    end
+
+    test "the section shows the second-step switch when the host renders it with no account" do
+      render partial: "door_check/settings/sign_in_methods",
+             locals: { person: @user, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step" } }
+
+      assert_select "input[type=checkbox][name=second_step_required]"
+    end
+
     private
 
-    def render_section
+    def render_section(account: nil)
       render partial: "door_check/settings/sign_in_methods",
-             locals: { person: @user, account: nil, selection: {}, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step", remove: "/settings/sign_in_methods/remove",
+             locals: { person: @user, account: account, selection: {}, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step", remove: "/settings/sign_in_methods/remove",
                                                                    remove_trusted_browser: "/settings/sign_in_methods/remove_trusted_browser",
                                                                    sign_out_session: "/settings/sign_in_methods/sign_out_session" } }
     end

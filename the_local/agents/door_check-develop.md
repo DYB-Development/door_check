@@ -154,6 +154,11 @@ install local gave door_check as the person method.
 
 What each section sends, and what the action does with it:
 
+- The person section shows its second-step checkbox only while the account it
+  was rendered with lets members choose, or when it was rendered with no
+  account. Otherwise it shows the alert "Your account decides whether you are
+  asked for a second step." in place of the checkbox, and sends nothing to the
+  own second-step route.
 - The person section's second-step form sends `second_step_required`.
   `RequireOwnSecondStep` saves the rule as on when the value is `"1"` and off
   for any other value. It saves the choice even while the current account does
