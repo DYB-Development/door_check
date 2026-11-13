@@ -42,7 +42,7 @@ module DoorCheck
     end
 
     def provisioning_uri
-      ROTP::TOTP.new(session[PENDING_SECRET_KEY], issuer: Rails.application.class.module_parent_name)
+      ROTP::TOTP.new(session[PENDING_SECRET_KEY], issuer: DoorCheck.configuration.authenticator_issuer)
                 .provisioning_uri(door_check_person.try(:email).to_s)
     end
   end

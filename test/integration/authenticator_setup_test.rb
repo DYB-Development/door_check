@@ -12,6 +12,17 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "img[src^='data:image/svg+xml;base64,']"
   end
 
+  test "the QR code adds the account under the name the host gives the authenticator app" do
+    DoorCheck.configuration.authenticator_issuer = "Door Desk"
+    get "/door_check/authenticator/new"
+    DoorCheck.configuration.authenticator_issuer = nil
+    secret = session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+    uri = ROTP::TOTP.new(secret, issuer: "Door Desk").provisioning_uri("ada@example.com")
+    svg = RQRCode::QRCode.new(uri).as_svg(module_size: 4, use_path: true)
+
+    assert_select "img[src=?]", "data:image/svg+xml;base64,#{Base64.strict_encode64(svg)}"
+  end
+
   test "the setup page shows the secret key so a person can type it into an authenticator app on the same phone" do
     get "/door_check/authenticator/new"
 
