@@ -210,6 +210,18 @@ trusted browsers.
     On a phone-width screen each table shows as a list and the setup buttons
     stack at full width.
 
+    The account section renders its own panel, holding three titled groups and
+    one Save button, so place it on the page without a heading or panel around
+    it either:
+    - **Accepted methods** — a checkbox for each method in `offered_methods`.
+      Members enter the account only after using one of the ticked methods.
+    - **Second step** — the checkbox that asks members who signed in with only
+      a password for a second step before they enter.
+    - **Members** — the checkbox that lets a member's own second-step choice
+      apply in this account, or, while `people_choose_second_step` is false,
+      the note "This app decides when members are asked for a second step." in
+      its place.
+
     Every account starts out letting its members choose their own second step.
     While an account does not, a person's own choice is not applied inside that
     account, and only the account's own rule decides.
