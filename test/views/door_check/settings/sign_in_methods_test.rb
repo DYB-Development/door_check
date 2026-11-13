@@ -230,6 +230,15 @@ module DoorCheck
       assert_predicate panel_under("Second step").css("input[type=checkbox][name=second_step_required]"), :any?
     end
 
+    test "the second-step group says the account asks everyone for a second step when the account requires one" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, second_step_required: true)
+
+      render_section(account: account)
+
+      assert_includes panel_under("Second step").text, "Your account asks everyone for a second step."
+    end
+
     private
 
     def panel_under(title)
