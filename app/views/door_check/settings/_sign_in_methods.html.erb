@@ -2,7 +2,7 @@
   <%= ui_panel do %>
     <%= ui_data_table(items: DoorCheck::Credential.where(person: person),
                       columns: [ { label: "Method" }, { last_used: "Last used" }, { accepted_by: "Accepted by" } ],
-                      empty_message: "No sign-in methods set up yet.") do |table| %>
+                      empty_message: "No sign-in methods set up yet.", phone_list: true) do |table| %>
       <% table.actions do |credential| %>
         <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch,
                                 confirm: "Remove this sign-in method?") %>
@@ -25,7 +25,7 @@
   <%= ui_panel do %>
     <%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
                       columns: [ { device: "Signed in on" }, { last_used: "Last used" } ],
-                      empty_message: "No signed-in sessions.") do |table| %>
+                      empty_message: "No signed-in sessions.", phone_list: true) do |table| %>
       <% table.actions do |signed_in_session| %>
         <%= ui_action_menu_item(label: "Sign out", href: "#{submit_urls[:sign_out_session]}?signed_in_session_id=#{signed_in_session.id}", method: :patch,
                                 confirm: "Sign out this session?") %>
@@ -38,7 +38,7 @@
     <%= ui_panel do %>
       <%= ui_data_table(items: DoorCheck::TrustedDevice.where(person: person).where("expires_at > ?", Time.current),
                         columns: [ { device: "Trusted browser" }, { trusted_until: "Trusted until" } ],
-                        empty_message: "No trusted browsers.") do |table| %>
+                        empty_message: "No trusted browsers.", phone_list: true) do |table| %>
         <% table.actions do |trusted_device| %>
           <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove_trusted_browser]}?trusted_device_id=#{trusted_device.id}", method: :patch,
                                   confirm: "Remove this trusted browser?") %>

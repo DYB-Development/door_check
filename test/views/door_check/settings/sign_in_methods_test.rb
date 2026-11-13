@@ -239,6 +239,12 @@ module DoorCheck
       assert_includes panel_under("Second step").text, "Your account asks everyone for a second step."
     end
 
+    test "the methods, sessions and trusted browsers tables each show as a list on a phone" do
+      render_section
+
+      assert_select "table[class~='max-sm:block']", count: 3
+    end
+
     private
 
     def panel_under(title)
