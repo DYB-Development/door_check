@@ -62,6 +62,13 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/door_check/authenticator/new"
   end
 
+  test "a person whose pending key was lost is told setup started again with a new key" do
+    post "/door_check/authenticator", params: { code: "000000" }
+    follow_redirect!
+
+    assert_select "div", text: /Setup started again/
+  end
+
   test "a password sign-in of a person who already has a second step is asked for it before adding another" do
     @user.update!(authenticator_code: "123456")
 

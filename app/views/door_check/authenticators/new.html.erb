@@ -1,5 +1,6 @@
 <%= ui_page(max_width: :md) do %>
   <%= ui_section(title: "Set up an authenticator app", subtitle: "Scan this code with your authenticator app, then enter the code it shows.") do %>
+    <%= ui_alert(message: flash[:alert], type: :warning) if flash[:alert] %>
     <%= ui_alert(message: @error, type: :error) if @error %>
     <%= ui_picture(src: @qr_code_url, alt: "QR code for your authenticator app") %>
     <%= ui_code(caption: "Secret key") do %><%= @secret_key %><% end %>
