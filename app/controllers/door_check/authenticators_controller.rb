@@ -12,6 +12,8 @@ module DoorCheck
     end
 
     def create
+      return redirect_to(new_authenticator_path) unless session[PENDING_SECRET_KEY]
+
       credential = Credential.new(person: door_check_person, method_name: "authenticator_app", secret: session[PENDING_SECRET_KEY])
       return refuse_code unless credential.verify(params[:code].to_s.strip)
 
@@ -21,7 +23,6 @@ module DoorCheck
     end
 
     private
-
 
     def refuse_code
       @error = "That code is not right. Check your authenticator app and try again."
