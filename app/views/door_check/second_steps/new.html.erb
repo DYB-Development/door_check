@@ -21,8 +21,8 @@
   <% else %>
     <%= ui_section(title: "Set up a second step", subtitle: "A second step is required here, and you have none set up yet.") do %>
       <%= ui_grid(gap: :sm) do %>
-        <% @setups.each do |method_name, setup_page| %>
-          <%= ui_button(label: "Set up #{method_name.to_s.humanize.downcase}", href: door_check.public_send(setup_page), full_width: true) %>
+        <% @setups.each do |setup| %>
+          <%= ui_button(label: "Set up #{setup.method_name.to_s.humanize.downcase}", href: door_check.public_send(setup.page), full_width: true) %>
         <% end %>
       <% end %>
     <% end %>

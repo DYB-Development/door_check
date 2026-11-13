@@ -31,7 +31,7 @@ module DoorCheck
       @person = door_check_person
       @authenticator = DoorCheck.configuration.authenticator
       @second_step_set_up = SecondStep.set_up?(@person)
-      @setups = SecondStep.offered_setups(door_check_account)
+      @setups = SecondStep.setups_before_second_step(door_check_account)
     end
 
     def prepare_passkey
