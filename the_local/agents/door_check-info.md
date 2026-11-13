@@ -76,10 +76,18 @@ door_check declares nothing for this local to document.
   again once both the app and the account let them choose.
 - **Personal settings section** — the section where a person sees their saved
   methods, signed-in sessions and trusted browsers, and sets their person rule.
-  When the app does not let people choose, it shows the note "This app decides
-  when you are asked for a second step." in place of the checkbox. When the
-  person's current account does not let members choose, it shows the note
-  "Your account decides whether you are asked for a second step." instead.
+  It shows four titled groups, each in its own panel: Sign-in methods, with the
+  buttons to add one; Signed-in sessions; Trusted browsers, left out when the
+  app does not offer trusted browsers; and Second step. On a phone each table
+  shows as a list and the add buttons stack at full width.
+- **Second step group** — the part of the personal settings section that holds
+  the person rule's checkbox. When the person's current account requires a
+  second step, it shows the note "Your account asks everyone for a second
+  step." above the rest. When the app does not let people choose, it shows the
+  note "This app decides when you are asked for a second step." in place of the
+  checkbox. When the person's current account does not let members choose, it
+  shows the note "Your account decides whether you are asked for a second
+  step." instead.
 - **Account settings section** — the section where an account's rule is set:
   which offered methods it accepts, whether it requires a second step, and
   whether members choose their own. When the app does not let people choose,

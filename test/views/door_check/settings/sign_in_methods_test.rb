@@ -183,7 +183,81 @@ module DoorCheck
       assert_select "input[type=checkbox][name=second_step_required]"
     end
 
+    test "the person's methods sit in a panel under the title Sign-in methods" do
+      Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_includes panel_under("Sign-in methods").css("td").map(&:text).join, "Authenticator app"
+    end
+
+    test "the buttons to add a method sit in the panel under the title Sign-in methods" do
+      render_section
+
+      assert_predicate panel_under("Sign-in methods").css("a[href='/door_check/authenticator/new']"), :any?
+    end
+
+    test "the person's sessions sit in a panel under the title Signed-in sessions" do
+      SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_includes panel_under("Signed-in sessions").css("td").map(&:text).join, "Firefox on Linux"
+    end
+
+    test "the person's trusted browsers sit in a panel under the title Trusted browsers" do
+      TrustedDevice.trust(@user, device: "Safari on iPhone")
+
+      render_section
+
+      assert_includes panel_under("Trusted browsers").css("td").map(&:text).join, "Safari on iPhone"
+    end
+
+    test "the section leaves out the Trusted browsers group when the app does not offer trusted browsers" do
+      offered = DoorCheck.configuration.offered_methods
+      DoorCheck.configuration.offered_methods = %i[password authenticator_app]
+
+      render_section
+
+      assert_select "h2", text: "Trusted browsers", count: 0
+    ensure
+      DoorCheck.configuration.offered_methods = offered
+    end
+
+    test "the second-step choice sits in a panel under the title Second step" do
+      render_section
+
+      assert_predicate panel_under("Second step").css("input[type=checkbox][name=second_step_required]"), :any?
+    end
+
+    test "the second-step group says the account asks everyone for a second step when the account requires one" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, second_step_required: true)
+
+      render_section(account: account)
+
+      assert_includes panel_under("Second step").text, "Your account asks everyone for a second step."
+    end
+
+    test "the methods, sessions and trusted browsers tables each show as a list on a phone" do
+      render_section
+
+      assert_select "table[class~='max-sm:block']", count: 3
+    end
+
+    test "the buttons to add a method each fill the width of a phone, one under another" do
+      render_section
+
+      assert_select ".grid-cols-1 > .w-full", count: 3
+    end
+
     private
+
+    def panel_under(title)
+      Nokogiri::HTML5(rendered).xpath(
+        "//div[div[contains(@class, 'ks-section-header')]//h2[normalize-space() = '#{title}']]/div[contains(@class, 'ks-panel')]"
+      )
+    end
 
     def render_section(account: nil)
       render partial: "door_check/settings/sign_in_methods",

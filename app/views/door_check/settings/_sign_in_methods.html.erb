@@ -1,46 +1,71 @@
-<%= ui_data_table(items: DoorCheck::Credential.where(person: person),
-                  columns: [ { label: "Method" }, { last_used: "Last used" }, { accepted_by: "Accepted by" } ],
-                  empty_message: "No sign-in methods set up yet.") do |table| %>
-  <% table.actions do |credential| %>
-    <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch,
-                            confirm: "Remove this sign-in method?") %>
-  <% end %>
-<% end %>
-<%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
-                  columns: [ { device: "Signed in on" }, { last_used: "Last used" } ],
-                  empty_message: "No signed-in sessions.") do |table| %>
-  <% table.actions do |signed_in_session| %>
-    <%= ui_action_menu_item(label: "Sign out", href: "#{submit_urls[:sign_out_session]}?signed_in_session_id=#{signed_in_session.id}", method: :patch,
-                            confirm: "Sign out this session?") %>
-  <% end %>
-<% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
-  <%= ui_data_table(items: DoorCheck::TrustedDevice.where(person: person).where("expires_at > ?", Time.current),
-                    columns: [ { device: "Trusted browser" }, { trusted_until: "Trusted until" } ],
-                    empty_message: "No trusted browsers.") do |table| %>
-    <% table.actions do |trusted_device| %>
-      <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove_trusted_browser]}?trusted_device_id=#{trusted_device.id}", method: :patch,
-                              confirm: "Remove this trusted browser?") %>
+<%= ui_section(title: "Sign-in methods") do %>
+  <%= ui_panel do %>
+    <%= ui_data_table(items: DoorCheck::Credential.where(person: person),
+                      columns: [ { label: "Method" }, { last_used: "Last used" }, { accepted_by: "Accepted by" } ],
+                      empty_message: "No sign-in methods set up yet.", phone_list: true) do |table| %>
+      <% table.actions do |credential| %>
+        <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove]}?credential_id=#{credential.id}", method: :patch,
+                                confirm: "Remove this sign-in method?") %>
+      <% end %>
+    <% end %>
+    <%= ui_section(spacing: :sm) do %>
+      <%= ui_grid(cols: { default: 1, sm: 3 }, gap: :sm) do %>
+        <% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
+          <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary, full_width: true) %>
+        <% end %>
+        <% if DoorCheck.configuration.offered_methods.include?(:passkey) %>
+          <%= ui_button(label: "Add a passkey or hardware key", href: door_check.new_passkey_path, variant: :secondary, full_width: true) %>
+        <% end %>
+        <% if DoorCheck.configuration.offered_methods.include?(:backup_codes) %>
+          <%= ui_button(label: "Make new backup codes", href: door_check.backup_codes_path, method: :post, variant: :secondary, full_width: true) %>
+        <% end %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:authenticator_app) %>
-  <%= ui_button(label: "Set up an authenticator app", href: door_check.new_authenticator_path, variant: :secondary) %>
-<% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:passkey) %>
-  <%= ui_button(label: "Add a passkey or hardware key", href: door_check.new_passkey_path, variant: :secondary) %>
-<% end %>
-<% if DoorCheck.configuration.offered_methods.include?(:backup_codes) %>
-  <%= ui_button(label: "Make new backup codes", href: door_check.backup_codes_path, method: :post, variant: :secondary) %>
-<% end %>
-<% if !DoorCheck.configuration.people_choose_second_step %>
-  <%= ui_alert(message: "This app decides when you are asked for a second step.") %>
-<% elsif DoorCheck::PersonRule.for(person).may_choose_in?(local_assigns[:account]) %>
-  <%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
-    <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
-                      type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
-    <%= ui_button(label: "Save") %>
+<%= ui_section(title: "Signed-in sessions") do %>
+  <%= ui_panel do %>
+    <%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
+                      columns: [ { device: "Signed in on" }, { last_used: "Last used" } ],
+                      empty_message: "No signed-in sessions.", phone_list: true) do |table| %>
+      <% table.actions do |signed_in_session| %>
+        <%= ui_action_menu_item(label: "Sign out", href: "#{submit_urls[:sign_out_session]}?signed_in_session_id=#{signed_in_session.id}", method: :patch,
+                                confirm: "Sign out this session?") %>
+      <% end %>
+    <% end %>
   <% end %>
-<% else %>
-  <%= ui_alert(message: "Your account decides whether you are asked for a second step.") %>
+<% end %>
+<% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>
+  <%= ui_section(title: "Trusted browsers") do %>
+    <%= ui_panel do %>
+      <%= ui_data_table(items: DoorCheck::TrustedDevice.where(person: person).where("expires_at > ?", Time.current),
+                        columns: [ { device: "Trusted browser" }, { trusted_until: "Trusted until" } ],
+                        empty_message: "No trusted browsers.", phone_list: true) do |table| %>
+        <% table.actions do |trusted_device| %>
+          <%= ui_action_menu_item(label: "Remove", href: "#{submit_urls[:remove_trusted_browser]}?trusted_device_id=#{trusted_device.id}", method: :patch,
+                                  confirm: "Remove this trusted browser?") %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+<%= ui_section(title: "Second step") do %>
+  <%= ui_panel do %>
+    <%= ui_grid(gap: :md) do %>
+      <% if local_assigns[:account] && DoorCheck::AccountRule.for(local_assigns[:account]).second_step_required %>
+        <%= ui_alert(message: "Your account asks everyone for a second step.") %>
+      <% end %>
+      <% if !DoorCheck.configuration.people_choose_second_step %>
+        <%= ui_alert(message: "This app decides when you are asked for a second step.") %>
+      <% elsif DoorCheck::PersonRule.for(person).may_choose_in?(local_assigns[:account]) %>
+        <%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
+          <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
+                            type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
+          <%= ui_button(label: "Save") %>
+        <% end %>
+      <% else %>
+        <%= ui_alert(message: "Your account decides whether you are asked for a second step.") %>
+      <% end %>
+    <% end %>
+  <% end %>
 <% end %>
