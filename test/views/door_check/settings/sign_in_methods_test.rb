@@ -156,6 +156,13 @@ module DoorCheck
       assert_includes rendered, "Your account decides whether you are asked for a second step."
     end
 
+    test "the section shows the second-step switch when the host renders it with no account" do
+      render partial: "door_check/settings/sign_in_methods",
+             locals: { person: @user, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step" } }
+
+      assert_select "input[type=checkbox][name=second_step_required]"
+    end
+
     private
 
     def render_section(account: nil)
