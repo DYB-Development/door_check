@@ -1,7 +1,7 @@
 <% rule = DoorCheck::AccountRule.for(account) %>
 <%= ui_panel do %>
   <%= ui_form(action: submit_url, method: :patch) do %>
-    <%= ui_section(title: "Accepted methods", spacing: :sm) do %>
+    <%= ui_section(title: "Accepted methods", subtitle: "Members enter this account only after using one of the ticked methods.", spacing: :sm) do %>
       <% DoorCheck.configuration.offered_methods.each do |method_name| %>
         <%= ui_checkbox_row(name: "accepted_methods[]", value: method_name, label: method_name.to_s.humanize, checked: rule.accepts?(method_name)) %>
       <% end %>

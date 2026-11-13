@@ -60,6 +60,12 @@ module DoorCheck
       assert_predicate group_titled("Members").css("input[type=checkbox][name=members_choose_second_step]"), :any?
     end
 
+    test "the Accepted methods group says what its choice changes for members" do
+      render_section
+
+      assert_equal "Members enter this account only after using one of the ticked methods.", group_titled("Accepted methods").css(".ks-section-subtitle").text
+    end
+
     private
 
     def group_titled(title)
