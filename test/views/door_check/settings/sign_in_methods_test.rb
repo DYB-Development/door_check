@@ -245,6 +245,12 @@ module DoorCheck
       assert_select "table[class~='max-sm:block']", count: 3
     end
 
+    test "the buttons to add a method each fill the width of a phone, one under another" do
+      render_section
+
+      assert_select ".grid-cols-1 > .w-full", count: 3
+    end
+
     private
 
     def panel_under(title)
