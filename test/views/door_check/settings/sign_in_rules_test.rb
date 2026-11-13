@@ -66,6 +66,12 @@ module DoorCheck
       assert_equal "Members enter this account only after using one of the ticked methods.", group_titled("Accepted methods").css(".ks-section-subtitle").text
     end
 
+    test "the Second step group says what its choice changes for members" do
+      render_section
+
+      assert_equal "When ticked, members who signed in with only a password are asked for a second step before they enter.", group_titled("Second step").css(".ks-section-subtitle").text
+    end
+
     private
 
     def group_titled(title)
