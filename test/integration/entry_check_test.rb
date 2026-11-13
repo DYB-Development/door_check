@@ -191,4 +191,17 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/door_check/second_step/new"
   end
+
+  test "a person's saved second step applies again once their account lets members choose again" do
+    DoorCheck::PersonRule.create!(person: @user, second_step_required: true)
+    rule = DoorCheck::AccountRule.create!(account: @account, members_choose_second_step: false)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+    get dashboard_path
+    rule.update!(members_choose_second_step: true)
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
 end
