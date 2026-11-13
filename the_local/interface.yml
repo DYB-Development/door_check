@@ -20,6 +20,7 @@ install:
   - config.stylesheet
   - config.head_partial
   - config.authenticator_issuer
+  - config.people_choose_second_step
   - include DoorCheck::Tracking
   - include DoorCheck::EntryCheck
   - before_action :door_check_check_entry
@@ -68,6 +69,7 @@ sources:
   - app/models/door_check/challenge.rb
   - app/models/door_check/require_second_step.rb
   - app/models/door_check/require_own_second_step.rb
+  - app/models/door_check/person_rule.rb
   - app/models/door_check/remove_method.rb
   - app/models/door_check/sign_out_session.rb
   - app/models/door_check/remove_trusted_browser.rb

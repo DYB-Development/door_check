@@ -154,15 +154,18 @@ install local gave door_check as the person method.
 
 What each section sends, and what the action does with it:
 
-- The person section shows its second-step checkbox only while the account it
-  was rendered with lets members choose, or when it was rendered with no
-  account. Otherwise it shows the alert "Your account decides whether you are
-  asked for a second step." in place of the checkbox, and sends nothing to the
-  own second-step route.
+- When the app is set so people do not choose their own second step, the
+  person section shows the alert "This app decides when you are asked for a
+  second step." in place of the second-step checkbox, whatever the account
+  allows, and sends nothing to the own second-step route.
+- Otherwise the person section shows its second-step checkbox only while the
+  account it was rendered with lets members choose, or when it was rendered
+  with no account. When the account does not let members choose, it shows the
+  alert "Your account decides whether you are asked for a second step." in
+  place of the checkbox, and sends nothing to the own second-step route.
 - The person section's second-step form sends `second_step_required`.
   `RequireOwnSecondStep` saves the rule as on when the value is `"1"` and off
-  for any other value. It saves the choice even while the current account does
-  not let members choose.
+  for any other value.
 - The person section's Remove on a saved method sends `credential_id`.
   `RemoveMethod` removes that method only when it belongs to `person`.
 - The person section's Sign out on a session sends `signed_in_session_id`.
@@ -180,6 +183,10 @@ What each section sends, and what the action does with it:
   rule of the `account` it was given, with the second step on only when
   `second_step_required` is `"1"` and members choosing only when
   `members_choose_second_step` is `"1"`.
+- When the app is set so people do not choose their own second step, the
+  account section shows the alert "This app decides when members are asked for
+  a second step." in place of the members checkbox, and sends no
+  `members_choose_second_step`.
 - Permit `members_choose_second_step` in the `sign_in_rules` action. When
   `values` has no `members_choose_second_step` key, `RequireSecondStep` leaves
   the account's setting as it was, so an action that does not permit it never
@@ -249,14 +256,21 @@ before building `RequireSecondStep`.
   account's rule is saved as accepting every offered method.
 - An account lets its members choose their own second step until its rule is
   saved with `members_choose_second_step` off.
-- While the current account lets members choose, a person's rule and the
-  account's rule both apply, so a person who requires a second step is asked
+- While the app lets people choose and the current account lets members
+  choose, a person's rule and the account's rule both apply, so a person who requires a second step is asked
   for one whatever the account requires.
 - While the current account does not let members choose, the person's own rule
   is not in force there, and only the account's rule decides whether a second
   step is asked for. The person's saved choice is kept, and it applies again
   once the account lets members choose.
-- When `door_check_account` is nil, the person's own rule is always in force.
+- When `door_check_account` is nil, the person's own rule is in force unless
+  the app is set so people do not choose their own second step.
+- While the app is set so people do not choose their own second step, no
+  person's own rule is in force in any account or with no account, and only
+  the account's rule decides whether a second step is asked for. Each person's
+  saved choice is kept, and it applies again once the app lets people choose.
+  Read the host's door_check initializer, or ask the developer, to learn which
+  way the app is set.
 - Out of scope: adding the gem, its migrations, its routes, its settings, the
   host controller's tracking and second-step check, and placing the settings
   sections. Those belong to the install local.

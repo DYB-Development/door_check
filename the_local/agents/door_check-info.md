@@ -62,21 +62,29 @@ door_check declares nothing for this local to document.
 - **Offered methods** — the subset of known methods this app turns on. Naming a
   method door_check does not know is an error at boot. A page for a method the
   app does not offer returns not found.
+- **People choosing their own second step** — an app-wide switch, on by
+  default. When the app turns it off, no person rule is in force anywhere, and
+  only account rules decide when a second step is asked for.
 - **Account rule** — whether an account requires a second step, which of the
   offered methods it accepts, and whether its members choose their own second
   step. An account can only narrow what the app offers. Members choose by
-  default.
+  default, and only while the app lets people choose.
 - **Person rule** — whether a person requires a second step on their own login.
-  It is in force with no account, and in an account that lets members choose.
-  In an account that does not, only the account's rule decides, and the person's
-  saved choice is kept and applies again once the account lets members choose.
+  It is in force only while the app lets people choose, and then with no
+  account or in an account that lets members choose. Elsewhere only the
+  account's rule decides, and the person's saved choice is kept and applies
+  again once both the app and the account let them choose.
 - **Personal settings section** — the section where a person sees their saved
   methods, signed-in sessions and trusted browsers, and sets their person rule.
-  When the person's current account does not let members choose, it shows the note "Your account decides
-  whether you are asked for a second step." in place of the checkbox.
+  When the app does not let people choose, it shows the note "This app decides
+  when you are asked for a second step." in place of the checkbox. When the
+  person's current account does not let members choose, it shows the note
+  "Your account decides whether you are asked for a second step." instead.
 - **Account settings section** — the section where an account's rule is set:
   which offered methods it accepts, whether it requires a second step, and
-  whether members choose their own.
+  whether members choose their own. When the app does not let people choose,
+  the members checkbox is replaced by the note "This app decides when members
+  are asked for a second step."
 - **Proof** — a method a session has passed. A person may enter a page once the
   session's proofs meet their current account's rule and, where it is in force,
   their person rule.
