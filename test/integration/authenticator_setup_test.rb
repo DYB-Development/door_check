@@ -24,6 +24,15 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "button[data-controller=clipboard][data-clipboard-text=?]", session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
   end
 
+  test "loading the setup page again shows the same secret key" do
+    get "/door_check/authenticator/new"
+    first_key = session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+
+    get "/door_check/authenticator/new"
+
+    assert_equal first_key, session[DoorCheck::AuthenticatorsController::PENDING_SECRET_KEY]
+  end
+
   test "the setup page asks for the code the app shows" do
     get "/door_check/authenticator/new"
 

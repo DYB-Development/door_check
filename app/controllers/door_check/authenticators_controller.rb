@@ -7,7 +7,7 @@ module DoorCheck
     include ExistingSecondStep
 
     def new
-      session[PENDING_SECRET_KEY] = ROTP::Base32.random
+      session[PENDING_SECRET_KEY] ||= ROTP::Base32.random
       draw_qr_code
     end
 
