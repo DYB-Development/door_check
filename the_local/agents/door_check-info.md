@@ -88,11 +88,16 @@ door_check declares nothing for this local to document.
   checkbox. When the person's current account does not let members choose, it
   shows the note "Your account decides whether you are asked for a second
   step." instead.
-- **Account settings section** — the section where an account's rule is set:
-  which offered methods it accepts, whether it requires a second step, and
-  whether members choose their own. When the app does not let people choose,
-  the members checkbox is replaced by the note "This app decides when members
-  are asked for a second step."
+- **Account settings section** — the section where an account's rule is set,
+  in one panel with one Save button. It shows three titled groups, each with a
+  line saying what ticking it does. Accepted methods lists every offered method,
+  and members enter the account only after using one of the ticked methods.
+  Second step holds the checkbox that makes members who signed in with only a
+  password take a second step before they enter. Members holds the checkbox that
+  lets a member's own second-step choice apply in this account. When the app
+  does not let people choose, the Members group shows the note "This app
+  decides when members are asked for a second step." in place of its checkbox
+  and line.
 - **Proof** — a method a session has passed. A person may enter a page once the
   session's proofs meet their current account's rule and, where it is in force,
   their person rule.

@@ -41,5 +41,53 @@ module DoorCheck
     ensure
       DoorCheck.configuration.people_choose_second_step = true
     end
+
+    test "the accepted methods sit in the panel under the title Accepted methods" do
+      render_section
+
+      assert_equal DoorCheck.configuration.offered_methods.size, group_titled("Accepted methods").css("input[type=checkbox][name='accepted_methods[]']").size
+    end
+
+    test "the account's second step sits in the panel under the title Second step" do
+      render_section
+
+      assert_predicate group_titled("Second step").css("input[type=checkbox][name=second_step_required]"), :any?
+    end
+
+    test "the members choice sits in the panel under the title Members" do
+      render_section
+
+      assert_predicate group_titled("Members").css("input[type=checkbox][name=members_choose_second_step]"), :any?
+    end
+
+    test "the Accepted methods group says what its choice changes for members" do
+      render_section
+
+      assert_equal "Members enter this account only after using one of the ticked methods.", group_titled("Accepted methods").css(".ks-section-subtitle").text
+    end
+
+    test "the Second step group says what its choice changes for members" do
+      render_section
+
+      assert_equal "When ticked, members who signed in with only a password are asked for a second step before they enter.", group_titled("Second step").css(".ks-section-subtitle").text
+    end
+
+    test "the Members group says what its choice changes for members" do
+      render_section
+
+      assert_equal "When ticked, a member who asks for a second step every time they sign in is asked for it in this account.", group_titled("Members").css(".ks-section-subtitle").text
+    end
+
+    private
+
+    def group_titled(title)
+      Nokogiri::HTML5(rendered).xpath(
+        "//div[contains(@class, 'ks-panel')]//div[div[contains(@class, 'ks-section-header')]//h2[normalize-space() = '#{title}']]"
+      )
+    end
+
+    def render_section
+      render partial: "door_check/settings/sign_in_rules", locals: { account: Account.create!(name: "Acme"), submit_url: "/settings/sign_in_rules" }
+    end
   end
 end

@@ -158,6 +158,11 @@ browsers group when the app does not offer `trusted_device`, so the trusted
 browser route is only reached when `trusted_device` is offered. Ask the
 developer whether to write that route when it is not offered.
 
+The account section is one panel holding one form, with titled groups in this
+order: Accepted methods, Second step and Members, then a single Save button.
+That one Save sends every group's values together to the `sign_in_rules`
+route.
+
 What each section sends, and what the action does with it:
 
 - The Second step group shows the alert "Your account asks everyone for a
