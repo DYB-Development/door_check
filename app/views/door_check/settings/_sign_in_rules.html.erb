@@ -10,8 +10,9 @@
       <%= ui_form_field(attribute: "second_step_required", label: "Require a second step to enter this account",
                         type: :checkbox, value: (rule.second_step_required ? "1" : "0")) %>
     <% end %>
-    <%= ui_section(title: "Members", spacing: :sm) do %>
-      <% if DoorCheck.configuration.people_choose_second_step %>
+    <% people_choose = DoorCheck.configuration.people_choose_second_step %>
+    <%= ui_section(title: "Members", subtitle: (people_choose ? "When ticked, a member who asks for a second step every time they sign in is asked for it in this account." : nil), spacing: :sm) do %>
+      <% if people_choose %>
         <%= ui_form_field(attribute: "members_choose_second_step", label: "Members choose their own second step",
                           type: :checkbox, value: (rule.members_choose_second_step ? "1" : "0")) %>
       <% else %>
