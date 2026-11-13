@@ -138,6 +138,15 @@ module DoorCheck
       assert_select "input[type=checkbox][name=second_step_required]", count: 0
     end
 
+    test "the section shows the second-step switch when the account lets members choose" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, members_choose_second_step: true)
+
+      render_section(account: account)
+
+      assert_select "label", text: "Ask me for a second step every time I sign in"
+    end
+
     private
 
     def render_section(account: nil)
