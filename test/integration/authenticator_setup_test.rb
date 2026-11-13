@@ -73,6 +73,14 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "div", text: /That code is not right/
   end
 
+  test "a wrong code saves no authenticator app" do
+    get "/door_check/authenticator/new"
+
+    post "/door_check/authenticator", params: { code: "000000" }
+
+    assert_not DoorCheck::Credential.exists?(person: @user, method_name: "authenticator_app")
+  end
+
   test "sending a code after the pending key was lost starts setup again" do
     post "/door_check/authenticator", params: { code: "000000" }
 
