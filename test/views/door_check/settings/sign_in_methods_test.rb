@@ -156,6 +156,26 @@ module DoorCheck
       assert_includes rendered, "Your account decides whether you are asked for a second step."
     end
 
+    test "the section explains that the app decides when the app turns the choice off" do
+      DoorCheck.configuration.people_choose_second_step = false
+
+      render_section
+
+      assert_includes rendered, "This app decides when you are asked for a second step."
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
+
+    test "the section hides the second-step switch when the app turns the choice off" do
+      DoorCheck.configuration.people_choose_second_step = false
+
+      render_section
+
+      assert_select "input[type=checkbox][name=second_step_required]", count: 0
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
+
     test "the section shows the second-step switch when the host renders it with no account" do
       render partial: "door_check/settings/sign_in_methods",
              locals: { person: @user, submit_urls: { own_second_step: "/settings/sign_in_methods/own_second_step" } }

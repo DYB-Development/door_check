@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -36,6 +36,7 @@ trusted browsers.
 - `config.stylesheet` — the stylesheet door_check's pages link.
 - `config.head_partial` — a host partial rendered at the end of the head of door_check's pages.
 - `config.authenticator_issuer` — the name an authenticator app shows above the account it adds during setup.
+- `config.people_choose_second_step` — whether people may require a second step on their own login, true or false.
 - `include DoorCheck::Tracking` — adds sign-in recording and the reads of proofs and the current account to the host's controller.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
@@ -139,6 +140,14 @@ trusted browsers.
      application's module, such as `"Shop"` for `Shop::Application`. Set it when
      people should see another name in their authenticator app. Changing it does
      not rename accounts people already added.
+   - `config.people_choose_second_step = false` — defaults to true. Set it to
+     false when only the app and its accounts' rules decide who is asked for a
+     second step. While it is false, no person's saved choice is applied in any
+     account, the personal section shows "This app decides when you are asked
+     for a second step." in place of its checkbox, and the account section
+     shows "This app decides when members are asked for a second step." in
+     place of its members checkbox. Saved choices are kept, and apply again if
+     it is set back to true.
 
 8. Add the tracking and the second-step check to the host's
    `app/controllers/application_controller.rb`, or to the controller named in
@@ -183,7 +192,10 @@ trusted browsers.
     - `sign_out_session` receives `signed_in_session_id`.
     - `remove_trusted_browser` receives `trusted_device_id`.
     - The account section's URL receives `accepted_methods[]`,
-      `second_step_required` and `members_choose_second_step`.
+      `second_step_required` and `members_choose_second_step`. While
+      `people_choose_second_step` is false it does not send
+      `members_choose_second_step`, so the host action must leave that value
+      unchanged when the parameter is missing.
 
     Every account starts out letting its members choose their own second step.
     While an account does not, a person's own choice is not applied inside that

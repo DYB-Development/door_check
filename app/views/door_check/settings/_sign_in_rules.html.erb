@@ -6,7 +6,11 @@
   <%= ui_form_field(attribute: "second_step_required", label: "Require a second step to enter this account",
                     type: :checkbox, value: (rule.second_step_required ? "1" : "0"),
                     hint: "Members who signed in with only a password are asked for their authenticator code when they enter.") %>
-  <%= ui_form_field(attribute: "members_choose_second_step", label: "Members choose their own second step",
-                    type: :checkbox, value: (rule.members_choose_second_step ? "1" : "0")) %>
+  <% if DoorCheck.configuration.people_choose_second_step %>
+    <%= ui_form_field(attribute: "members_choose_second_step", label: "Members choose their own second step",
+                      type: :checkbox, value: (rule.members_choose_second_step ? "1" : "0")) %>
+  <% else %>
+    <%= ui_alert(message: "This app decides when members are asked for a second step.") %>
+  <% end %>
   <%= ui_button(label: "Save") %>
 <% end %>

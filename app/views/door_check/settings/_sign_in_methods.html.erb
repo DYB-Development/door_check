@@ -33,7 +33,9 @@
 <% if DoorCheck.configuration.offered_methods.include?(:backup_codes) %>
   <%= ui_button(label: "Make new backup codes", href: door_check.backup_codes_path, method: :post, variant: :secondary) %>
 <% end %>
-<% if DoorCheck::PersonRule.for(person).may_choose_in?(local_assigns[:account]) %>
+<% if !DoorCheck.configuration.people_choose_second_step %>
+  <%= ui_alert(message: "This app decides when you are asked for a second step.") %>
+<% elsif DoorCheck::PersonRule.for(person).may_choose_in?(local_assigns[:account]) %>
   <%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
     <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
                       type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
