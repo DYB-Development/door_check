@@ -54,6 +54,12 @@ module DoorCheck
       assert_predicate group_titled("Second step").css("input[type=checkbox][name=second_step_required]"), :any?
     end
 
+    test "the members choice sits in the panel under the title Members" do
+      render_section
+
+      assert_predicate group_titled("Members").css("input[type=checkbox][name=members_choose_second_step]"), :any?
+    end
+
     private
 
     def group_titled(title)
