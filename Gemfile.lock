@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    door_check (0.3.2)
+    door_check (0.4.0)
       keystone_ui (>= 0.50)
       rails (>= 7.1)
       rotp (>= 6.0)
