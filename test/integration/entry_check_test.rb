@@ -169,4 +169,15 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
   end
+
+  test "an account that does not let members choose still asks for its own second step" do
+    DoorCheck::PersonRule.create!(person: @user, second_step_required: true)
+    DoorCheck::AccountRule.create!(account: @account, members_choose_second_step: false, second_step_required: true)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_redirected_to "/door_check/second_step/new"
+  end
 end
