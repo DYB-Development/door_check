@@ -47,14 +47,18 @@
     <% end %>
   <% end %>
 <% end %>
-<% if !DoorCheck.configuration.people_choose_second_step %>
-  <%= ui_alert(message: "This app decides when you are asked for a second step.") %>
-<% elsif DoorCheck::PersonRule.for(person).may_choose_in?(local_assigns[:account]) %>
-  <%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
-    <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
-                      type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
-    <%= ui_button(label: "Save") %>
+<%= ui_section(title: "Second step") do %>
+  <%= ui_panel do %>
+    <% if !DoorCheck.configuration.people_choose_second_step %>
+      <%= ui_alert(message: "This app decides when you are asked for a second step.") %>
+    <% elsif DoorCheck::PersonRule.for(person).may_choose_in?(local_assigns[:account]) %>
+      <%= ui_form(action: submit_urls[:own_second_step], method: :patch) do %>
+        <%= ui_form_field(attribute: "second_step_required", label: "Ask me for a second step every time I sign in",
+                          type: :checkbox, value: (DoorCheck::PersonRule.for(person).second_step_required ? "1" : "0")) %>
+        <%= ui_button(label: "Save") %>
+      <% end %>
+    <% else %>
+      <%= ui_alert(message: "Your account decides whether you are asked for a second step.") %>
+    <% end %>
   <% end %>
-<% else %>
-  <%= ui_alert(message: "Your account decides whether you are asked for a second step.") %>
 <% end %>

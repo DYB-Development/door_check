@@ -224,6 +224,12 @@ module DoorCheck
       DoorCheck.configuration.offered_methods = offered
     end
 
+    test "the second-step choice sits in a panel under the title Second step" do
+      render_section
+
+      assert_predicate panel_under("Second step").css("input[type=checkbox][name=second_step_required]"), :any?
+    end
+
     private
 
     def panel_under(title)
