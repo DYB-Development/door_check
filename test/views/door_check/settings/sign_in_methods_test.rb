@@ -183,7 +183,21 @@ module DoorCheck
       assert_select "input[type=checkbox][name=second_step_required]"
     end
 
+    test "the person's methods sit in a panel under the title Sign-in methods" do
+      Credential.create!(person: @user, method_name: "authenticator_app", secret: ROTP::Base32.random)
+
+      render_section
+
+      assert_includes panel_under("Sign-in methods").css("td").map(&:text).join, "Authenticator app"
+    end
+
     private
+
+    def panel_under(title)
+      Nokogiri::HTML5(rendered).xpath(
+        "//div[div[contains(@class, 'ks-section-header')]//h2[normalize-space() = '#{title}']]/div[contains(@class, 'ks-panel')]"
+      )
+    end
 
     def render_section(account: nil)
       render partial: "door_check/settings/sign_in_methods",
