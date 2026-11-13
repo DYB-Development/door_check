@@ -205,6 +205,14 @@ module DoorCheck
       assert_includes panel_under("Signed-in sessions").css("td").map(&:text).join, "Firefox on Linux"
     end
 
+    test "the person's trusted browsers sit in a panel under the title Trusted browsers" do
+      TrustedDevice.trust(@user, device: "Safari on iPhone")
+
+      render_section
+
+      assert_includes panel_under("Trusted browsers").css("td").map(&:text).join, "Safari on iPhone"
+    end
+
     private
 
     def panel_under(title)
