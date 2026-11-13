@@ -48,7 +48,7 @@ controllers:
 - `door_check.new_passkey_sign_in_path` — the page where a person signs in with a passkey.
 - `door_check.new_approval_request_path` — the page where a person asks to be let in by approving from a device they are already signed in on.
 - `door_check.approvals_path` — the page where a signed-in person sees waiting approval requests and approves or declines them.
-- `door_check.new_authenticator_path` — the page where a signed-in person sets up an authenticator app.
+- `door_check.new_authenticator_path` — the page where a signed-in person sets up an authenticator app by scanning a QR code or typing a secret key, then entering the code the app shows.
 - `door_check.new_passkey_path` — the page where a signed-in person adds a passkey or hardware key.
 - `door_check.backup_codes_path` — makes a new set of backup codes for the signed-in person and shows them. It takes a `POST` only.
 
@@ -210,6 +210,17 @@ before building `RequireSecondStep`.
 6. When the person already has a second step set up, the authenticator, passkey
    and backup codes pages first ask for it if this session has not passed one,
    then send the person back.
+7. The authenticator page keeps showing the same secret key in this browser
+   session until setup succeeds, so reloading it or entering a wrong code does
+   not change the key the person already scanned. A wrong code shows an error on
+   the same page and saves nothing.
+8. When the browser session no longer holds the key, such as after the person
+   signed out and back in, saving a code sends the person back to the
+   authenticator page with a new key and a warning to scan it again.
+9. A right code saves the authenticator app, counts as this session's second
+   step, and sends the person to the page they were on before door_check asked
+   for a second step, or to `/` when there was none. The app lists the account
+   under the person's email when the person responds to `email`.
 
 ## Conventions
 

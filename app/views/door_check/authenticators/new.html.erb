@@ -1,8 +1,9 @@
 <%= ui_page(max_width: :md) do %>
-  <%= ui_section(title: "Set up an authenticator app", subtitle: "Scan this code with your authenticator app, then enter the code it shows.") do %>
+  <%= ui_section(title: "Set up an authenticator app", subtitle: "Scan the QR code or type the secret key into your authenticator app, then enter the code it shows.") do %>
+    <%= ui_alert(message: flash[:alert], type: :warning) if flash[:alert] %>
     <%= ui_alert(message: @error, type: :error) if @error %>
     <%= ui_picture(src: @qr_code_url, alt: "QR code for your authenticator app") %>
-    <%= ui_code(caption: "Secret key") do %><%= @secret_key %><% end %>
+    <%= ui_code(caption: "Secret key") do %><%= @spaced_secret_key %><% end %>
     <%= ui_copy_button(text: @secret_key) %>
     <%= ui_form(action: door_check.authenticator_path) do %>
       <%= ui_form_field(attribute: "code", label: "Code", required: true, autofocus: true,

@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -35,6 +35,7 @@ trusted browsers.
 - `config.locate_ip` — a lambda taking an IP address and returning a place name to show on approval requests.
 - `config.stylesheet` — the stylesheet door_check's pages link.
 - `config.head_partial` — a host partial rendered at the end of the head of door_check's pages.
+- `config.authenticator_issuer` — the name an authenticator app shows above the account it adds during setup.
 - `include DoorCheck::Tracking` — adds sign-in recording and the reads of proofs and the current account to the host's controller.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
@@ -134,6 +135,10 @@ trusted browsers.
      main stylesheet has another name.
    - `config.head_partial` — a partial path such as `"layouts/door_check_head"`,
      for fonts, a favicon or theme tags the host's own layout adds to its head.
+   - `config.authenticator_issuer` — defaults to the name of the host
+     application's module, such as `"Shop"` for `Shop::Application`. Set it when
+     people should see another name in their authenticator app. Changing it does
+     not rename accounts people already added.
 
 8. Add the tracking and the second-step check to the host's
    `app/controllers/application_controller.rb`, or to the controller named in

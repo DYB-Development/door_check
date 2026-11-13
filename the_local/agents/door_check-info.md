@@ -76,6 +76,15 @@ door_check declares nothing for this local to document.
   ask again.
 - **Credential** — a second step a person has set up, such as an authenticator
   app, a passkey or a set of backup codes.
+- **Authenticator setup** — the page where a person adds door_check to an
+  authenticator app by scanning a QR code or typing a secret key shown in groups
+  of four. The key is held for that browser session until the person enters a
+  code their app shows, and only a correct code saves the credential.
+- **Authenticator name** — the name the authenticator app shows beside the
+  person's email. It is the host application's name unless the host sets another.
+- **Existing authenticator** — an authenticator app the host already stored
+  before door_check. A person who set one up there counts as having a second
+  step, without setting one up again.
 - **Approval request** — a sign-in waiting for the person to approve it from a
   device where they are already signed in, matched by a two-digit number shown
   on both.

@@ -19,6 +19,7 @@ install:
   - config.locate_ip
   - config.stylesheet
   - config.head_partial
+  - config.authenticator_issuer
   - include DoorCheck::Tracking
   - include DoorCheck::EntryCheck
   - before_action :door_check_check_entry
