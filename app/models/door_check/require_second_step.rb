@@ -9,13 +9,17 @@ module DoorCheck
     def call
       return Result.new(ok: false, message: "Pick only methods this app offers.") if picks_unoffered_method?
 
-      AccountRule.for(@account).update!(second_step_required: @values[:second_step_required] == "1",
-                                        members_choose_second_step: @values[:members_choose_second_step] == "1",
-                                        accepted_methods: @values[:accepted_methods])
+      AccountRule.for(@account).update!(saved_values)
       Result.new(ok: true)
     end
 
     private
+
+    def saved_values
+      saved = { second_step_required: @values[:second_step_required] == "1", accepted_methods: @values[:accepted_methods] }
+      saved[:members_choose_second_step] = @values[:members_choose_second_step] == "1" if @values.key?(:members_choose_second_step)
+      saved
+    end
 
     def picks_unoffered_method?
       picked = Array(@values[:accepted_methods]).map(&:to_sym)
