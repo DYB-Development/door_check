@@ -1,0 +1,79 @@
+scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
+
+install:
+  - gem "door_check"
+  - bin/rails door_check:install:migrations
+  - mount DoorCheck::Engine
+  - DoorCheck.configure
+  - config.offered_methods
+  - config.person_method
+  - config.account_method
+  - config.person_accounts
+  - config.find_person_by_email
+  - config.sign_in_person
+  - config.sign_out_person
+  - config.existing_authenticator
+  - config.parent_controller
+  - config.parent_mailer
+  - config.passkey_domain
+  - config.locate_ip
+  - config.stylesheet
+  - config.head_partial
+  - include DoorCheck::Tracking
+  - include DoorCheck::EntryCheck
+  - before_action :door_check_check_entry
+  - door_check/settings/sign_in_methods
+  - door_check/settings/sign_in_rules
+
+develop:
+  - door_check_signed_in
+  - door_check_proved_by
+  - door_check_account
+  - DoorCheck::Methods.names
+  - DoorCheck::UnknownMethod
+  - DoorCheck::RequireSecondStep
+  - DoorCheck::RequireOwnSecondStep
+  - DoorCheck::RemoveMethod
+  - DoorCheck::SignOutSession
+  - DoorCheck::RemoveTrustedBrowser
+  - DoorCheck::Result
+  - door_check.new_email_sign_in_path
+  - door_check.new_passkey_sign_in_path
+  - door_check.new_approval_request_path
+  - door_check.approvals_path
+  - door_check.new_authenticator_path
+  - door_check.new_passkey_path
+  - door_check.backup_codes_path
+
+sources:
+  - lib/door_check.rb
+  - lib/door_check/configuration.rb
+  - lib/door_check/methods.rb
+  - lib/door_check/engine.rb
+  - config/routes.rb
+  - app/controllers/concerns/door_check/tracking.rb
+  - app/controllers/concerns/door_check/entry_check.rb
+  - app/controllers/door_check/application_controller.rb
+  - app/controllers/door_check/second_steps_controller.rb
+  - app/controllers/door_check/email_sign_ins_controller.rb
+  - app/controllers/door_check/email_links_controller.rb
+  - app/controllers/door_check/email_codes_controller.rb
+  - app/controllers/door_check/passkey_sign_ins_controller.rb
+  - app/controllers/door_check/approval_requests_controller.rb
+  - app/controllers/concerns/door_check/passkey_ceremony.rb
+  - app/mailers/door_check/sign_in_mailer.rb
+  - app/models/door_check/second_step.rb
+  - app/models/door_check/credential.rb
+  - app/models/door_check/challenge.rb
+  - app/models/door_check/require_second_step.rb
+  - app/models/door_check/require_own_second_step.rb
+  - app/models/door_check/remove_method.rb
+  - app/models/door_check/sign_out_session.rb
+  - app/models/door_check/remove_trusted_browser.rb
+  - app/models/door_check/result.rb
+  - app/views/layouts/door_check/application.html.erb
+  - app/views/door_check/settings/_sign_in_methods.html.erb
+  - app/views/door_check/settings/_sign_in_rules.html.erb
+  - test/dummy/config/initializers/door_check.rb
+  - test/dummy/config/routes.rb
+  - test/dummy/app/controllers/application_controller.rb
