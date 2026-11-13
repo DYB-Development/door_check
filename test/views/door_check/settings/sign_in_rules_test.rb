@@ -21,5 +21,15 @@ module DoorCheck
 
       assert_select "input[type=checkbox][name=members_choose_second_step][checked]"
     end
+
+    test "the section shows no members switch when the app turns the choice off" do
+      DoorCheck.configuration.people_choose_second_step = false
+
+      render partial: "door_check/settings/sign_in_rules", locals: { account: Account.create!(name: "Acme"), submit_url: "/settings/sign_in_rules" }
+
+      assert_select "input[type=checkbox][name=members_choose_second_step]", count: 0
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
   end
 end
