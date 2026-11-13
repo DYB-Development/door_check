@@ -21,12 +21,16 @@
     <% end %>
   <% end %>
 <% end %>
-<%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
-                  columns: [ { device: "Signed in on" }, { last_used: "Last used" } ],
-                  empty_message: "No signed-in sessions.") do |table| %>
-  <% table.actions do |signed_in_session| %>
-    <%= ui_action_menu_item(label: "Sign out", href: "#{submit_urls[:sign_out_session]}?signed_in_session_id=#{signed_in_session.id}", method: :patch,
-                            confirm: "Sign out this session?") %>
+<%= ui_section(title: "Signed-in sessions") do %>
+  <%= ui_panel do %>
+    <%= ui_data_table(items: DoorCheck::SignedInSession.where(person: person, signed_out_at: nil).order(last_used_at: :desc),
+                      columns: [ { device: "Signed in on" }, { last_used: "Last used" } ],
+                      empty_message: "No signed-in sessions.") do |table| %>
+      <% table.actions do |signed_in_session| %>
+        <%= ui_action_menu_item(label: "Sign out", href: "#{submit_urls[:sign_out_session]}?signed_in_session_id=#{signed_in_session.id}", method: :patch,
+                                confirm: "Sign out this session?") %>
+      <% end %>
+    <% end %>
   <% end %>
 <% end %>
 <% if DoorCheck.configuration.offered_methods.include?(:trusted_device) %>

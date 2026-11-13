@@ -197,6 +197,14 @@ module DoorCheck
       assert_predicate panel_under("Sign-in methods").css("a[href='/door_check/authenticator/new']"), :any?
     end
 
+    test "the person's sessions sit in a panel under the title Signed-in sessions" do
+      SignedInSession.create!(person: @user, device: "Firefox on Linux", last_used_at: Time.current)
+
+      render_section
+
+      assert_includes panel_under("Signed-in sessions").css("td").map(&:text).join, "Firefox on Linux"
+    end
+
     private
 
     def panel_under(title)
