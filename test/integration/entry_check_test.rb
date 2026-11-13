@@ -158,4 +158,15 @@ class EntryCheckTest < ActionDispatch::IntegrationTest
 
     assert_select "input[name=code]"
   end
+
+  test "a person who asked for a second step is not asked for one entering an account that does not let members choose" do
+    DoorCheck::PersonRule.create!(person: @user, second_step_required: true)
+    DoorCheck::AccountRule.create!(account: @account, members_choose_second_step: false)
+    post sign_in_path, params: { user_id: @user.id, method_name: "password" }
+    post switch_account_path(@account)
+
+    get dashboard_path
+
+    assert_response :ok
+  end
 end
