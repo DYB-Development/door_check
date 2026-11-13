@@ -17,5 +17,15 @@ module DoorCheck
 
       assert PersonRule.for(user).met_by?(%i[password], account: account)
     end
+
+    test "a person's own second step is not in force in an app that turns the choice off" do
+      user = User.create!(email: "ada@example.com")
+      PersonRule.create!(person: user, second_step_required: true)
+      DoorCheck.configuration.people_choose_second_step = false
+
+      assert PersonRule.for(user).met_by?(%i[password])
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
   end
 end

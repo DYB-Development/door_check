@@ -15,7 +15,7 @@ module DoorCheck
     end
 
     def may_choose_in?(account)
-      account.nil? || AccountRule.for(account).members_choose_second_step
+      DoorCheck.configuration.people_choose_second_step && (account.nil? || AccountRule.for(account).members_choose_second_step)
     end
   end
 end
