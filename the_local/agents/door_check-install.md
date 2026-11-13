@@ -146,8 +146,11 @@ trusted browsers.
      account, the personal section shows "This app decides when you are asked
      for a second step." in place of its checkbox, and the account section
      shows "This app decides when members are asked for a second step." in
-     place of its members checkbox. Saved choices are kept, and apply again if
-     it is set back to true.
+     place of its members checkbox. While it is false, door_check also refuses
+     a save of a person's own second-step choice with the first message, and a
+     save of the account section that carries the members choice with the
+     second. A refused save leaves the earlier value in place. Saved choices
+     are kept, and apply again if it is set back to true.
 
 8. Add the tracking and the second-step check to the host's
    `app/controllers/application_controller.rb`, or to the controller named in
@@ -194,8 +197,12 @@ trusted browsers.
     - The account section's URL receives `accepted_methods[]`,
       `second_step_required` and `members_choose_second_step`. While
       `people_choose_second_step` is false it does not send
-      `members_choose_second_step`, so the host action must leave that value
-      unchanged when the parameter is missing.
+      `members_choose_second_step`.
+    - The host action behind the account section's URL must pass
+      `members_choose_second_step` on only when the request carries it.
+      door_check keeps the account's earlier value when the parameter is
+      missing, and refuses the save when it is present while
+      `people_choose_second_step` is false.
 
     The personal section renders its own titled groups, so place it on the page
     without a heading or panel around it:
@@ -231,8 +238,10 @@ trusted browsers.
     "Your account asks everyone for a second step." above the checkbox or note.
     When that account does not let members choose, the group shows the note
     "Your account decides whether you are asked for a second step." in place of
-    the checkbox. Leave `account:` out only when the host has no accounts, since
-    without it the checkbox always shows and no account note appears.
+    the checkbox. A save of the person's own choice in that account is refused
+    with the same note, and the person's earlier choice is kept. Leave
+    `account:` out only when the host has no accounts, since without it the
+    checkbox always shows and no account note appears.
 
     The controller actions behind those routes are the develop local's to
     write. Ask the developer which settings page each section goes on, and who

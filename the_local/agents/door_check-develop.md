@@ -180,6 +180,13 @@ What each section sends, and what the action does with it:
 - The person section's second-step form sends `second_step_required`.
   `RequireOwnSecondStep` saves the rule as on when the value is `"1"` and off
   for any other value.
+- `RequireOwnSecondStep` refuses the save, keeps the person's earlier choice,
+  and returns a result whose `ok?` is false when the person may not choose
+  with the `account` it was given:
+  - When the app is set so people do not choose their own second step, the
+    `message` is `"This app decides when you are asked for a second step."`.
+  - Otherwise, when `account` is not nil and does not let members choose, the
+    `message` is `"Your account decides whether you are asked for a second step."`.
 - The person section's Remove on a saved method sends `credential_id`.
   `RemoveMethod` removes that method only when it belongs to `person`.
 - The person section's Sign out on a session sends `signed_in_session_id`.
@@ -201,6 +208,13 @@ What each section sends, and what the action does with it:
   account section shows the alert "This app decides when members are asked for
   a second step." in place of the members checkbox, and sends no
   `members_choose_second_step`.
+- When the app is set so people do not choose their own second step and
+  `values` has a `members_choose_second_step` key, whatever its value,
+  `RequireSecondStep` refuses the save, keeps the account's earlier rule, and
+  returns a result whose `ok?` is false and whose `message` is
+  `"This app decides when members are asked for a second step."`. A save that
+  ticks a method the app does not offer is refused with the offered-methods
+  message first.
 - Permit `members_choose_second_step` in the `sign_in_rules` action. When
   `values` has no `members_choose_second_step` key, `RequireSecondStep` leaves
   the account's setting as it was, so an action that does not permit it never
@@ -265,11 +279,15 @@ before building `RequireSecondStep`.
 - Never edit door_check's records directly. Change rules, sessions, saved methods
   and trusted browsers through the five actions above.
 - Pass the five actions the person from the host's person method and the
-  account from `door_check_account`. `RequireOwnSecondStep`, `RemoveMethod`,
+  account from `door_check_account`. `RequireOwnSecondStep` decides from that
+  account whether the person may choose, so passing another account gives a
+  different answer than the settings section showed. `RemoveMethod`,
   `SignOutSession` and `RemoveTrustedBrowser` take `account:` but do not use it.
-- `RequireOwnSecondStep`, `RemoveMethod`, `SignOutSession` and
-  `RemoveTrustedBrowser` always return a result whose `ok?` is true. An id
-  that does not belong to the person changes nothing and still returns true.
+- Show `result.message` whenever `ok?` is false, since `RequireSecondStep` and
+  `RequireOwnSecondStep` can both refuse a save.
+- `RemoveMethod`, `SignOutSession` and `RemoveTrustedBrowser` always return a
+  result whose `ok?` is true. An id that does not belong to the person changes
+  nothing and still returns true.
 - When no `accepted_methods[]` box is ticked, the form sends none and the
   account's rule is saved as accepting every offered method.
 - An account lets its members choose their own second step until its rule is

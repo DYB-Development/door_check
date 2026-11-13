@@ -41,5 +41,28 @@ module DoorCheck
 
       assert_not result.ok?
     end
+
+    test "saving the members choice in an app that turns personal choices off is refused with the app as the one who decides" do
+      account = Account.create!(name: "Acme")
+      DoorCheck.configuration.people_choose_second_step = false
+
+      result = RequireSecondStep.new(person: nil, account: account, values: { members_choose_second_step: "1" }).call
+
+      assert_equal "This app decides when members are asked for a second step.", result.message
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
+
+    test "a refused account save keeps the account's earlier rule" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, second_step_required: false)
+      DoorCheck.configuration.people_choose_second_step = false
+
+      RequireSecondStep.new(person: nil, account: account, values: { second_step_required: "1", members_choose_second_step: "0" }).call
+
+      assert_not AccountRule.for(account).second_step_required
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
   end
 end

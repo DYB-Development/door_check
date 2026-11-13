@@ -69,11 +69,22 @@ door_check declares nothing for this local to document.
   offered methods it accepts, and whether its members choose their own second
   step. An account can only narrow what the app offers. Members choose by
   default, and only while the app lets people choose.
+- **Refused account rule save** — saving an account rule that accepts a method
+  the app does not offer is refused with "Pick only methods this app offers."
+  Saving one that sets whether members choose, while the app does not let people
+  choose, is refused with "This app decides when members are asked for a second
+  step." A refused save changes nothing, and the account keeps its earlier rule.
 - **Person rule** — whether a person requires a second step on their own login.
   It is in force only while the app lets people choose, and then with no
   account or in an account that lets members choose. Elsewhere only the
   account's rule decides, and the person's saved choice is kept and applies
   again once both the app and the account let them choose.
+- **Refused person rule save** — saving a person rule where the person may not
+  choose is refused. The message is "This app decides when you are asked for a
+  second step." when the app does not let people choose, and "Your account
+  decides whether you are asked for a second step." when the person's account
+  does not let members choose. A refused save changes nothing, and the person
+  keeps their earlier choice.
 - **Personal settings section** — the section where a person sees their saved
   methods, signed-in sessions and trusted browsers, and sets their person rule.
   It shows four titled groups, each in its own panel: Sign-in methods, with the
