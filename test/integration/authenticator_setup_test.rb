@@ -23,6 +23,12 @@ class AuthenticatorSetupTest < ActionDispatch::IntegrationTest
     assert_select "img[src=?]", "data:image/svg+xml;base64,#{Base64.strict_encode64(svg)}"
   end
 
+  test "the setup page tells a person to scan the code or type the secret key, then enter the code their app shows" do
+    get "/door_check/authenticator/new"
+
+    assert_select "p", text: "Scan the QR code or type the secret key into your authenticator app, then enter the code it shows."
+  end
+
   test "the setup page shows the secret key so a person can type it into an authenticator app on the same phone" do
     get "/door_check/authenticator/new"
 
