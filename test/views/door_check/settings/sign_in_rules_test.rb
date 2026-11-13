@@ -15,5 +15,11 @@ module DoorCheck
 
       assert_select "input[type=checkbox][name='accepted_methods[]']", count: DoorCheck.configuration.offered_methods.size
     end
+
+    test "the members switch is ticked for an account that never saved its rules" do
+      render partial: "door_check/settings/sign_in_rules", locals: { account: Account.create!(name: "Acme"), submit_url: "/settings/sign_in_rules" }
+
+      assert_select "input[type=checkbox][name=members_choose_second_step][checked]"
+    end
   end
 end
