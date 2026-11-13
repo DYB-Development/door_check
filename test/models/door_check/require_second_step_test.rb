@@ -52,5 +52,17 @@ module DoorCheck
     ensure
       DoorCheck.configuration.people_choose_second_step = true
     end
+
+    test "a refused account save keeps the account's earlier rule" do
+      account = Account.create!(name: "Acme")
+      AccountRule.create!(account: account, second_step_required: false)
+      DoorCheck.configuration.people_choose_second_step = false
+
+      RequireSecondStep.new(person: nil, account: account, values: { second_step_required: "1", members_choose_second_step: "0" }).call
+
+      assert_not AccountRule.for(account).second_step_required
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
   end
 end
