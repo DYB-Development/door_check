@@ -30,6 +30,12 @@ class DeviceApprovalTest < ActionDispatch::IntegrationTest
     signed_in.assert_select "h2", text: "No sign-ins are waiting"
   end
 
+  test "a host page that shows waiting requests shows nothing when none is waiting" do
+    html = DoorCheck::ApprovalsController.render(partial: "door_check/approvals/pending", locals: { person: @user })
+
+    assert_no_match "No sign-ins are waiting", html
+  end
+
   test "the request list does not say no sign-ins are waiting while one is" do
     signed_in = signed_in_device
     post "/door_check/approval_request", params: { email: "ada@example.com" }
