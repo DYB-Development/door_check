@@ -9,6 +9,8 @@
   <% if DoorCheck.configuration.people_choose_second_step %>
     <%= ui_form_field(attribute: "members_choose_second_step", label: "Members choose their own second step",
                       type: :checkbox, value: (rule.members_choose_second_step ? "1" : "0")) %>
+  <% else %>
+    <%= ui_alert(message: "This app decides when members are asked for a second step.") %>
   <% end %>
   <%= ui_button(label: "Save") %>
 <% end %>

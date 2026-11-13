@@ -31,5 +31,15 @@ module DoorCheck
     ensure
       DoorCheck.configuration.people_choose_second_step = true
     end
+
+    test "the section explains that the app decides when the app turns the choice off" do
+      DoorCheck.configuration.people_choose_second_step = false
+
+      render partial: "door_check/settings/sign_in_rules", locals: { account: Account.create!(name: "Acme"), submit_url: "/settings/sign_in_rules" }
+
+      assert_includes rendered, "This app decides when members are asked for a second step."
+    ensure
+      DoorCheck.configuration.people_choose_second_step = true
+    end
   end
 end
