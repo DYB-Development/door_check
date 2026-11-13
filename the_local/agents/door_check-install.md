@@ -164,6 +164,7 @@ trusted browsers.
     ```erb
     <%= render "door_check/settings/sign_in_methods",
                person: current_user,
+               account: current_account,
                submit_urls: {
                  own_second_step: own_second_step_settings_path,
                  remove: remove_sign_in_method_settings_path,
@@ -187,6 +188,12 @@ trusted browsers.
     Every account starts out letting its members choose their own second step.
     While an account does not, a person's own choice is not applied inside that
     account, and only the account's own rule decides.
+
+    Pass the person's current account as `account:` to the personal section.
+    When that account does not let members choose, the section shows the note
+    "Your account decides whether you are asked for a second step." in place of
+    the second-step checkbox. Leave `account:` out only when the host has no
+    accounts, since without it the checkbox always shows.
 
     The controller actions behind those routes are the develop local's to
     write. Ask the developer which settings page each section goes on, and who
