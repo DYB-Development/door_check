@@ -48,6 +48,12 @@ module DoorCheck
       assert_equal DoorCheck.configuration.offered_methods.size, group_titled("Accepted methods").css("input[type=checkbox][name='accepted_methods[]']").size
     end
 
+    test "the account's second step sits in the panel under the title Second step" do
+      render_section
+
+      assert_predicate group_titled("Second step").css("input[type=checkbox][name=second_step_required]"), :any?
+    end
+
     private
 
     def group_titled(title)
