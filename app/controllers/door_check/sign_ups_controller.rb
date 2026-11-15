@@ -10,6 +10,7 @@ module DoorCheck
 
     def create
       return refuse_sign_up("Tick the agreement to sign up.") unless params[:agreement] == "1"
+      return refuse_sign_up("Enter a password to sign up.") if chosen_sign_in_method == :password && params[:password].blank?
 
       result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
       return refuse_sign_up(result.message) unless result.ok?
