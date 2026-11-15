@@ -14,6 +14,8 @@ module DoorCheck
       result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
       return refuse_sign_up(result.message) unless result.ok?
 
+      return sign_in_with_password(params[:email].to_s.strip) if chosen_sign_in_method == :password
+
       send_code(params[:email].to_s.strip)
       redirect_to door_check.new_email_code_path
     end
@@ -38,6 +40,12 @@ module DoorCheck
 
     def submitted_values
       params.to_unsafe_h.except(:controller, :action, :authenticity_token)
+    end
+
+    def sign_in_with_password(email)
+      person = DoorCheck.configuration.find_person_by_email.call(email)
+      DoorCheck.configuration.sign_in_person.call(self, person)
+      redirect_to "/"
     end
 
     def send_code(email)
