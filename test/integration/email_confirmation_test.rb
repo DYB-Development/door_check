@@ -35,4 +35,14 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_select "[role=alert]", text: /no longer works/
   end
+
+  test "a confirmation link opened after a day says it no longer works" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+
+    travel 25.hours do
+      get "/door_check/confirm_email/#{challenge.token}"
+    end
+
+    assert_select "[role=alert]", text: /no longer works/
+  end
 end
