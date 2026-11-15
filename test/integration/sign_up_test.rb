@@ -94,6 +94,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=email][value='ada@example.com']"
   end
 
+  test "the sign-up page shows the agreement checkbox with the label the host configured" do
+    with_configuration(sign_up_agreement_label: "I agree to the Acme terms") do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_select "input[type=checkbox][name=agreement] + label", text: "I agree to the Acme terms"
+  end
+
   private
 
   def refused
@@ -103,6 +111,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
   def signed_up(values)
     User.create!(email: values[:email])
     DoorCheck::Result.new(ok: true)
+  end
+
+  def with_configuration(**settings)
+    previous = settings.keys.index_with { |name| DoorCheck.configuration.public_send(name) }
+    settings.each { |name, value| DoorCheck.configuration.public_send("#{name}=", value) }
+    yield
+  ensure
+    previous.each { |name, value| DoorCheck.configuration.public_send("#{name}=", value) }
   end
 
   def with_sign_up_person(callable)
