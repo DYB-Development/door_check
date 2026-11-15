@@ -17,7 +17,7 @@ module DoorCheck
     private
 
     def send_code(person, email)
-      Challenge.issue(person).tap { |challenge| SignInMailer.code_and_link(challenge, to: email).deliver_now }
+      Challenge.issue(person, email: email).tap { |challenge| SignInMailer.code_and_link(challenge, to: email).deliver_now }
     end
   end
 end
