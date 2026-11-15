@@ -120,6 +120,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_not called
   end
 
+  test "a sign-up without the agreement ticked asks the visitor to tick it on the sign-up page" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "0" }
+
+    assert_select "[role=alert]", text: /Tick the agreement to sign up/
+  end
+
   private
 
   def refused

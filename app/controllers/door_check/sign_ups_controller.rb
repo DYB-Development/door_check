@@ -6,7 +6,7 @@ module DoorCheck
     end
 
     def create
-      return render(:new, status: :unprocessable_content) unless params[:agreement] == "1"
+      return refuse_sign_up("Tick the agreement to sign up.") unless params[:agreement] == "1"
 
       result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
       return refuse_sign_up(result.message) unless result.ok?
