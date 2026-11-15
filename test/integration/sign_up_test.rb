@@ -45,6 +45,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "a[href*=sign_in_method]", count: 0
   end
 
+  test "the sign-up page asks for a password without a choice when the app offers only passwords" do
+    with_configuration(offered_methods: %i[password]) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_select "input[type=password][name=password]"
+  end
+
   test "a visitor opens the sign-up page when the host offers passwords but not email codes" do
     with_configuration(offered_methods: %i[password email_link]) do
       get "/door_check/sign_up/new"
