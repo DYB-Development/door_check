@@ -25,6 +25,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
                  css_select("a[href*=sign_in_method]").map { |tab| [ tab.text.squish, tab["href"] ] }
   end
 
+  test "a visitor who has not chosen a password is not asked for one on the sign-up page" do
+    get "/door_check/sign_up/new"
+
+    assert_select "input[name=password]", count: 0
+  end
+
   test "the sign-up page marks the password as the visitor's choice once they choose it" do
     get "/door_check/sign_up/new", params: { sign_in_method: "password" }
 
