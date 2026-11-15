@@ -147,7 +147,18 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal "1", received[:agreement]
   end
 
+  test "a sign-up leaves nothing about the agreement in door_check's tables" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    assert_no_match(/agree/i, door_check_rows.to_s)
+  end
+
   private
+
+  def door_check_rows
+    connection = ActiveRecord::Base.connection
+    connection.tables.grep(/\Adoor_check_/).flat_map { |table| connection.select_all("SELECT * FROM #{table}").to_a }
+  end
 
   def refused
     DoorCheck::Result.new(ok: false, message: "Sign-up is closed for this team.")
