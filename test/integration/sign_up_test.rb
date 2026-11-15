@@ -187,6 +187,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert DoorCheck::EmailConfirmation.confirmed?(User.find_by(email: "ada@example.com"), "ada@example.com")
   end
 
+  test "a visitor who signs up with the emailed code is sent no confirmation email" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    assert_empty ActionMailer::Base.deliveries.select { |mail| mail.subject == "Confirm your email address" }
+  end
+
   test "a sign-up the host refuses shows the host's message on the sign-up page" do
     with_sign_up_person(->(_controller, _values) { refused }) do
       post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
