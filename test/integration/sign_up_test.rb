@@ -226,6 +226,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=password][value]", count: 0
   end
 
+  test "the dummy app's sign-up callable refuses a password shorter than 12 characters" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+
+    assert_select "[role=alert]", text: /Choose a password of at least 12 characters/
+  end
+
   test "the sign-up page shows the agreement checkbox with the label the host configured" do
     with_configuration(sign_up_agreement_label: "I agree to the Acme terms") do
       get "/door_check/sign_up/new"
