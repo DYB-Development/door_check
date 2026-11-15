@@ -32,10 +32,10 @@ class SignUpTest < ActionDispatch::IntegrationTest
   test "submitting the sign-up page passes every submitted value to the host's sign-up callable" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values.to_h; signed_up(values) }) do
-      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
     end
 
-    assert_equal({ "name" => "Ada Lovelace", "email" => "ada@example.com" }, received)
+    assert_equal({ "name" => "Ada Lovelace", "email" => "ada@example.com", "agreement" => "1" }, received)
   end
 
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
@@ -43,26 +43,26 @@ class SignUpTest < ActionDispatch::IntegrationTest
     with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
       get "/door_check/sign_up/new", params: { invitation: "inv-42/abc" }
       form_action = css_select("form").first["action"]
-      post form_action, params: { name: "Ada Lovelace", email: "ada@example.com" }
+      post form_action, params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
     end
 
     assert_equal "inv-42/abc", received[:invitation]
   end
 
   test "a visitor the host signs up is emailed a sign-in code and link" do
-    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
 
     assert_match(%r{code is \d{6}.*/email_link/}m, ActionMailer::Base.deliveries.last&.text_part&.body.to_s)
   end
 
   test "a visitor the host signs up is taken to the screen where the code is typed" do
-    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
 
     assert_redirected_to "/door_check/email_code/new"
   end
 
   test "typing the code emailed at sign-up signs the new person in with an email code" do
-    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
 
     post "/door_check/email_code", params: { code: ActionMailer::Base.deliveries.last.text_part.body.to_s[/code is (\d{6})/, 1] }
 
@@ -72,7 +72,7 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
   test "a sign-up the host refuses shows the host's message on the sign-up page" do
     with_sign_up_person(->(_controller, _values) { refused }) do
-      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
     end
 
     assert_select "[role=alert]", text: /Sign-up is closed for this team/
@@ -80,7 +80,7 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
   test "a sign-up the host refuses keeps the name the visitor entered" do
     with_sign_up_person(->(_controller, _values) { refused }) do
-      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
     end
 
     assert_select "input[name=name][value='Ada Lovelace']"
@@ -88,7 +88,7 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
   test "a sign-up the host refuses keeps the email address the visitor entered" do
     with_sign_up_person(->(_controller, _values) { refused }) do
-      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
     end
 
     assert_select "input[name=email][value='ada@example.com']"
@@ -109,6 +109,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
     end
 
     assert_equal [ [ "Terms of Service", "/terms" ], [ "Privacy Policy", "/privacy" ] ], css_select("form a").map { |link| [ link.text.squish, link["href"] ] }
+  end
+
+  test "a sign-up without the agreement ticked does not reach the host's sign-up callable" do
+    called = false
+    with_sign_up_person(->(_controller, values) { called = true; signed_up(values) }) do
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "0" }
+    end
+
+    assert_not called
   end
 
   private
