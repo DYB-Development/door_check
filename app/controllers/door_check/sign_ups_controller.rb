@@ -1,5 +1,7 @@
 module DoorCheck
   class SignUpsController < ApplicationController
+    include SendSignInCode
+
     SIGN_IN_METHOD_LABELS = { email_code: "Emailed code", password: "Password" }.freeze
 
     before_action { head :not_found unless DoorCheck.configuration.sign_up_offered? }
@@ -17,7 +19,8 @@ module DoorCheck
 
       return sign_in_with_password(params[:email].to_s.strip) if chosen_sign_in_method == :password
 
-      send_code(params[:email].to_s.strip)
+      email = params[:email].to_s.strip
+      door_check_send_sign_in_code(DoorCheck.configuration.find_person_by_email.call(email), email)
       redirect_to door_check.new_email_code_path
     end
 
@@ -50,12 +53,6 @@ module DoorCheck
       EmailConfirmation.for(person).update!(email: email)
       SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
       redirect_to "/"
-    end
-
-    def send_code(email)
-      challenge = Challenge.issue(DoorCheck.configuration.find_person_by_email.call(email), email: email)
-      SignInMailer.code_and_link(challenge, to: email).deliver_now
-      session[EmailSignInsController::CHALLENGE_KEY] = challenge.id
     end
 
     def sign_in_methods
