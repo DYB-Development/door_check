@@ -101,6 +101,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal User.find_by(email: "ada@example.com").id, session[:user_id]
   end
 
+  test "a visitor who signs up with a password is sent no sign-in code" do
+    assert_no_emails do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+  end
+
   test "a visitor who signs up with a password has a signed-in session proved by password" do
     post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
 
