@@ -6,4 +6,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
     assert_select "form[action='/door_check/sign_up'] input[name=name]"
   end
+
+  test "the sign-up page is not found when the host has set no sign-up callable" do
+    sign_up_person = DoorCheck.configuration.sign_up_person
+    DoorCheck.configuration.sign_up_person = nil
+
+    get "/door_check/sign_up/new"
+
+    assert_response :not_found
+  ensure
+    DoorCheck.configuration.sign_up_person = sign_up_person
+  end
 end
