@@ -101,6 +101,13 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal User.find_by(email: "ada@example.com").id, session[:user_id]
   end
 
+  test "a visitor who signs up with a password has a signed-in session proved by password" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    get "/proofs"
+    assert_equal [ "password" ], response.parsed_body
+  end
+
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do

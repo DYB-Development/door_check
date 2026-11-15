@@ -45,6 +45,7 @@ module DoorCheck
     def sign_in_with_password(email)
       person = DoorCheck.configuration.find_person_by_email.call(email)
       DoorCheck.configuration.sign_in_person.call(self, person)
+      door_check_signed_in(person, method_name: :password)
       redirect_to "/"
     end
 
