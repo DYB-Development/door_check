@@ -58,6 +58,10 @@ controllers:
 - `door_check.new_passkey_path` — the page where a signed-in person adds a passkey or hardware key.
 - `door_check.backup_codes_path` — makes a new set of backup codes for the signed-in person and shows them. It takes a `POST` only.
 
+Sign-up:
+
+- `DoorCheck.configuration.sign_up_offered?` — true when the host's `sign_up_person` setting is set and the app offers `email_code`, `password` or both, which is exactly when the sign-up page is on, and false otherwise.
+
 ## How to use it
 
 ### Record a sign-in made by the host
@@ -289,7 +293,8 @@ before building `RequireSecondStep`.
    initializer, and show a link only when its method is offered:
    - the email sign-in page needs `email_code`
    - the sign-up page needs `email_code`, `password` or both, and the host's
-     `sign_up_person` setting
+     `sign_up_person` setting, so show its link only when
+     `DoorCheck.configuration.sign_up_offered?` is true
    - both passkey pages need `passkey`
    - the approval request page and the approvals page need `device_approval`
    - the authenticator page needs `authenticator_app`
@@ -311,7 +316,11 @@ before building `RequireSecondStep`.
    when its method is offered. Add those links elsewhere only when the
    developer asks for them outside the settings page.
 5. Put the sign-in and sign-up links on the host's sign-in page, for a person
-   who is not signed in. The approvals, authenticator, passkey and backup codes links are
+   who is not signed in. door_check's own email sign-in page already shows a
+   "Create an account" button linking to the sign-up page whenever
+   `DoorCheck.configuration.sign_up_offered?` is true, so add a sign-up link
+   only on the host's own pages, wrapped in
+   `<% if DoorCheck.configuration.sign_up_offered? %>`. The approvals, authenticator, passkey and backup codes links are
    for a signed-in person only.
 6. Link to `backup_codes_path` with a form that sends a `POST`, such as
    `button_to`, never a plain link.
