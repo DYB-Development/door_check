@@ -38,6 +38,17 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal({ "name" => "Ada Lovelace", "email" => "ada@example.com" }, received)
   end
 
+  test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
+    received = nil
+    with_sign_up_person(->(_controller, values) { received = values; DoorCheck::Result.new(ok: true) }) do
+      get "/door_check/sign_up/new", params: { invitation: "inv-42/abc" }
+      form_action = css_select("form").first["action"]
+      post form_action, params: { name: "Ada Lovelace", email: "ada@example.com" }
+    end
+
+    assert_equal "inv-42/abc", received[:invitation]
+  end
+
   private
 
   def with_sign_up_person(callable)
