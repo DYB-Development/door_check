@@ -7,7 +7,8 @@ module DoorCheck
     end
 
     def self.confirmed?(person, email)
-      self.for(person).confirmed_at.present?
+      confirmation = self.for(person)
+      confirmation.confirmed_at.present? && confirmation.email == email
     end
 
     def confirm(email)

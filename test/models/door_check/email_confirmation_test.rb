@@ -9,5 +9,11 @@ module DoorCheck
 
       assert EmailConfirmation.confirmed?(@user, "ada@example.com")
     end
+
+    test "a person whose address the host has since changed reads as not confirmed" do
+      EmailConfirmation.for(@user).confirm("ada@example.com")
+
+      assert_not EmailConfirmation.confirmed?(@user, "ada@newmail.example")
+    end
   end
 end
