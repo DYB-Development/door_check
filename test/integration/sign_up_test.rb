@@ -179,6 +179,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal [ "email_code" ], response.parsed_body
   end
 
+  test "a visitor who signs up with the emailed code reads as confirmed once they type it" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    post "/door_check/email_code", params: { code: ActionMailer::Base.deliveries.last.text_part.body.to_s[/code is (\d{6})/, 1] }
+
+    assert DoorCheck::EmailConfirmation.confirmed?(User.find_by(email: "ada@example.com"), "ada@example.com")
+  end
+
   test "a sign-up the host refuses shows the host's message on the sign-up page" do
     with_sign_up_person(->(_controller, _values) { refused }) do
       post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
