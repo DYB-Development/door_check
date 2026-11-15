@@ -102,6 +102,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[type=checkbox][name=agreement] + label", text: "I agree to the Acme terms"
   end
 
+  test "the sign-up page links to each document the host configured for the agreement" do
+    links = ->(_controller) { [ { title: "Terms of Service", url: "/terms" }, { title: "Privacy Policy", url: "/privacy" } ] }
+    with_configuration(sign_up_agreement_links: links) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_equal [ [ "Terms of Service", "/terms" ], [ "Privacy Policy", "/privacy" ] ], css_select("form a").map { |link| [ link.text.squish, link["href"] ] }
+  end
+
   private
 
   def refused
