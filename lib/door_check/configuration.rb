@@ -5,7 +5,7 @@ module DoorCheck
 
   class Configuration
     attr_reader :offered_methods
-    attr_writer :authenticator_issuer
+    attr_writer :authenticator_issuer, :sign_up_agreement_label
     attr_accessor :person_method, :account_method, :parent_controller, :parent_mailer, :existing_authenticator, :person_accounts,
                   :find_person_by_email, :sign_in_person, :sign_out_person, :passkey_domain, :locate_ip, :stylesheet, :head_partial,
                   :people_choose_second_step, :sign_up_person
@@ -26,6 +26,10 @@ module DoorCheck
 
     def authenticator_issuer
       @authenticator_issuer || Rails.application.class.module_parent_name
+    end
+
+    def sign_up_agreement_label
+      @sign_up_agreement_label || "I agree to the Terms of Service and Privacy Policy"
     end
 
     def authenticator
