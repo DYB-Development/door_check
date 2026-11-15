@@ -74,4 +74,13 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_select "form[action='/door_check/email_confirmation?token=#{challenge.token}'] button", text: "Send a new confirmation email"
   end
+
+  test "a signed-out person who asks for a new email from a used confirmation link is sent one at that link's address" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    post "/door_check/email_confirmation", params: { token: challenge.token }
+
+    assert_equal [ "ada@example.com" ], ActionMailer::Base.deliveries.last&.to
+  end
 end
