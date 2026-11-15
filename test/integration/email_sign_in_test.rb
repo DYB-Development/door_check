@@ -33,6 +33,12 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_select "form[action='/door_check/email_sign_in'] input[name=email]"
   end
 
+  test "the sign-in screen links to the sign-up page when sign-up is on" do
+    get "/door_check/email_sign_in/new"
+
+    assert_select "a[href='/door_check/sign_up/new']", text: "Create an account"
+  end
+
   test "typing the emailed code signs the person in with an email code" do
     post "/door_check/email_sign_in", params: { email: "ada@example.com" }
 
