@@ -12,6 +12,7 @@ module DoorCheck
       session.delete(EmailSignInsController::CHALLENGE_KEY)
       DoorCheck.configuration.sign_in_person.call(self, challenge.person)
       door_check_signed_in(challenge.person, method_name: :email_code)
+      EmailConfirmation.for(challenge.person).confirm(challenge.email)
       redirect_to "/"
     end
 
