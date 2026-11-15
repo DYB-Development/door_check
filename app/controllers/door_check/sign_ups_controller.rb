@@ -6,6 +6,8 @@ module DoorCheck
     end
 
     def create
+      return refuse_sign_up("Tick the agreement to sign up.") unless params[:agreement] == "1"
+
       result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
       return refuse_sign_up(result.message) unless result.ok?
 

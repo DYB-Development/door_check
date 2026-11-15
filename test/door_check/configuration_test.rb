@@ -36,4 +36,12 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
   test "an app has no sign-up page unless the host sets a sign-up callable" do
     assert_nil DoorCheck::Configuration.new.sign_up_person
   end
+
+  test "the sign-up agreement checkbox reads as agreeing to the terms and privacy policy unless the host words it" do
+    assert_equal "I agree to the Terms of Service and Privacy Policy", DoorCheck::Configuration.new.sign_up_agreement_label
+  end
+
+  test "the sign-up agreement links to no documents unless the host lists them" do
+    assert_empty DoorCheck::Configuration.new.sign_up_agreement_links.call(nil)
+  end
 end

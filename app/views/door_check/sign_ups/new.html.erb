@@ -5,6 +5,10 @@
       <%= ui_form_field(attribute: "name", label: "Name", value: params[:name], required: true, autofocus: true, autocomplete: "name") %>
       <%= ui_form_field(attribute: "email", label: "Email", type: :email, value: params[:email], required: true,
                         autocomplete: "email", autocapitalize: "none") %>
+      <%= ui_form_field(attribute: "agreement", label: DoorCheck.configuration.sign_up_agreement_label, type: :checkbox, value: params[:agreement],
+                        required: true) %>
+      <%= ui_link_list(rows: DoorCheck.configuration.sign_up_agreement_links.call(controller)
+                                    .map { |document| { label: document.fetch(:title), href: document.fetch(:url) } }) %>
       <%= ui_button(label: "Send") %>
     <% end %>
   <% end %>

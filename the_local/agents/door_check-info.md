@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page and its agreement checkbox, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -29,7 +29,7 @@ door_check declares nothing for this local to document.
 
 - The **install** local owns adding the gem, its migrations and its routes,
   every configuration setting, including the callable that creates a person
-  from the sign-up page, the two controller additions that record sign-ins
+  from the sign-up page and the sign-up page's agreement label and links, the two controller additions that record sign-ins
   and enforce second steps, and the two settings sections a host places on its
   settings page.
 - The **develop** local owns what a host's code calls once door_check is
@@ -65,6 +65,14 @@ door_check declares nothing for this local to document.
   signs them in by email code. On refused, the page shows the message and keeps
   the name and email. The page is off, and answers not found, unless the host
   sets the callable and offers email codes.
+- **Sign-up agreement** — the required checkbox on the sign-up page. Its label
+  is "I agree to the Terms of Service and Privacy Policy" unless the host sets
+  another, and the host may list documents, each a title and an address, shown
+  as links under it. When it is not ticked, the page refuses the sign-up with
+  "Tick the agreement to sign up.", keeps the name and email, and does not call
+  the host's sign-up callable. When it is ticked, the callable receives
+  `agreement` as `"1"` with the other values, and the host's own terms and
+  privacy records keep it. door_check stores nothing about the agreement.
 - **Second step** — a check asked for after sign-in: authenticator app, SMS
   code, passkey, backup codes or trusted device. A passkey can be either a
   sign-in method or a second step.

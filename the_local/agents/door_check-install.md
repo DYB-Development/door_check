@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -38,6 +38,8 @@ trusted browsers.
 - `config.authenticator_issuer` — the name an authenticator app shows above the account it adds during setup.
 - `config.people_choose_second_step` — whether people may require a second step on their own login, true or false.
 - `config.sign_up_person` — a lambda taking the controller and the sign-up page's values, which creates the person and returns a `DoorCheck::Result`, or nil to turn the sign-up page off.
+- `config.sign_up_agreement_label` — the text beside the sign-up page's agreement checkbox, as a string.
+- `config.sign_up_agreement_links` — a lambda taking the controller and returning the documents linked under the agreement checkbox, as an array of `{ title:, url: }` hashes.
 - `include DoorCheck::Tracking` — adds sign-in recording and the reads of proofs and the current account to the host's controller.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
@@ -185,7 +187,34 @@ trusted browsers.
        recorded as the session's proof.
      - After a refused result, the page shows the message and keeps the name
        and email that were entered.
+     - The page also shows a required agreement checkbox named `agreement`.
+       When it is not ticked, door_check refuses the sign-up on the same page
+       with "Tick the agreement to sign up.", keeps the name and email, and
+       does not call `sign_up_person`. When it is ticked, `values` carries
+       `agreement` as `"1"` with the other values. door_check stores nothing
+       about the agreement, so `sign_up_person` must record it wherever the
+       host keeps its terms and privacy acceptances.
      - Linking to the page from the host is the develop local's to write.
+   - `config.sign_up_agreement_label` — defaults to
+     `"I agree to the Terms of Service and Privacy Policy"`. Set it when the
+     checkbox should say something else:
+     ```ruby
+     config.sign_up_agreement_label = "I agree to the Terms of Service and Privacy Policy"
+     ```
+     Ask the developer what the checkbox should say.
+   - `config.sign_up_agreement_links` — defaults to a lambda returning `[]`,
+     which shows no links. Set it to show the documents the agreement names as
+     links under the checkbox:
+     ```ruby
+     config.sign_up_agreement_links = lambda do |controller|
+       [
+         { title: "Terms of Service", url: controller.main_app.terms_path },
+         { title: "Privacy Policy", url: controller.main_app.privacy_path }
+       ]
+     end
+     ```
+     The titles and routes are examples. Ask the developer which documents to
+     link and where each one is. Each hash must carry both `title` and `url`.
 
 8. Add the tracking and the second-step check to the host's
    `app/controllers/application_controller.rb`, or to the controller named in
