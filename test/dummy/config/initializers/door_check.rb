@@ -12,6 +12,10 @@ DoorCheck.configure do |config|
     [ { title: "Terms of Service", url: "/terms" }, { title: "Privacy Policy", url: "/privacy" } ]
   end
   config.sign_up_person = lambda do |_controller, values|
+    if values[:sign_in_method] == "password" && values[:password].to_s.length < 12
+      next DoorCheck::Result.new(ok: false, message: "Choose a password of at least 12 characters.")
+    end
+
     User.create!(email: values[:email])
     DoorCheck::Result.new(ok: true)
   end

@@ -1,15 +1,19 @@
 <%= ui_page(max_width: :md) do %>
-  <%= ui_section(title: "Sign up", subtitle: "Enter your name and email address and we will send you a code and a link.") do %>
+  <%= ui_section(title: "Sign up", subtitle: chosen_sign_in_method == :password ? "Enter your name and email address and choose a password." : "Enter your name and email address and we will send you a code and a link.") do %>
+    <%= ui_tab_switcher(tabs: sign_in_method_tabs) if sign_in_method_tabs.many? %>
     <%= ui_alert(message: @error, type: :error) if @error %>
     <%= ui_form(action: door_check.sign_up_path(request.query_parameters)) do %>
       <%= ui_form_field(attribute: "name", label: "Name", value: params[:name], required: true, autofocus: true, autocomplete: "name") %>
       <%= ui_form_field(attribute: "email", label: "Email", type: :email, value: params[:email], required: true,
                         autocomplete: "email", autocapitalize: "none") %>
+      <% if chosen_sign_in_method == :password %>
+        <%= ui_form_field(attribute: "password", label: "Password", type: :password, required: true, autocomplete: "new-password") %>
+      <% end %>
       <%= ui_form_field(attribute: "agreement", label: DoorCheck.configuration.sign_up_agreement_label, type: :checkbox, value: params[:agreement],
                         required: true) %>
       <%= ui_link_list(rows: DoorCheck.configuration.sign_up_agreement_links.call(controller)
                                     .map { |document| { label: document.fetch(:title), href: document.fetch(:url) } }) %>
-      <%= ui_button(label: "Send") %>
+      <%= ui_button(label: "Sign up") %>
     <% end %>
   <% end %>
 <% end %>

@@ -18,15 +18,73 @@ class SignUpTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.sign_up_person = sign_up_person
   end
 
-  test "the sign-up page is not found when the host does not offer email codes" do
-    offered = DoorCheck.configuration.offered_methods
-    DoorCheck.configuration.offered_methods = %i[password email_link]
-
+  test "a visitor on the sign-up page can choose between an emailed code and a password" do
     get "/door_check/sign_up/new"
 
+    assert_equal [ [ "Emailed code", "/door_check/sign_up/new?sign_in_method=email_code" ], [ "Password", "/door_check/sign_up/new?sign_in_method=password" ] ],
+                 css_select("a[href*=sign_in_method]").map { |tab| [ tab.text.squish, tab["href"] ] }
+  end
+
+  test "a visitor who has not chosen a password is not asked for one on the sign-up page" do
+    get "/door_check/sign_up/new"
+
+    assert_select "input[name=password]", count: 0
+  end
+
+  test "a visitor who chooses a password is not told the sign-up page will send a code" do
+    get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+
+    assert_no_match(/send you a code/, response.body)
+  end
+
+  test "a visitor who chooses a password submits the sign-up page with a Sign up button" do
+    get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+
+    assert_select "form button[type=submit]", text: "Sign up"
+  end
+
+  test "the sign-up page marks the password as the visitor's choice once they choose it" do
+    get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+
+    assert_select "a[aria-current=page]", text: "Password"
+  end
+
+  test "a visitor who chooses a password on the sign-up page must fill in a password field" do
+    get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+
+    assert_select "input[type=password][name=password][required]"
+  end
+
+  test "the sign-up page offers no choice of sign-in when the app offers only email codes" do
+    with_configuration(offered_methods: %i[email_code email_link]) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_select "a[href*=sign_in_method]", count: 0
+  end
+
+  test "the sign-up page asks for a password without a choice when the app offers only passwords" do
+    with_configuration(offered_methods: %i[password]) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_select "input[type=password][name=password]"
+  end
+
+  test "a visitor opens the sign-up page when the host offers passwords but not email codes" do
+    with_configuration(offered_methods: %i[password email_link]) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_response :ok
+  end
+
+  test "the sign-up page is not found when the host offers neither passwords nor email codes" do
+    with_configuration(offered_methods: %i[email_link passkey]) do
+      get "/door_check/sign_up/new"
+    end
+
     assert_response :not_found
-  ensure
-    DoorCheck.configuration.offered_methods = offered
   end
 
   test "submitting the sign-up page passes every submitted value to the host's sign-up callable" do
@@ -36,6 +94,51 @@ class SignUpTest < ActionDispatch::IntegrationTest
     end
 
     assert_equal({ "name" => "Ada Lovelace", "email" => "ada@example.com", "agreement" => "1" }, received)
+  end
+
+  test "a password chosen at sign-up reaches the host's sign-up callable with the agreement and the other values" do
+    received = nil
+    with_sign_up_person(->(_controller, values) { received = values.to_h; signed_up(values) }) do
+      get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+      post css_select("form").first["action"], params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_equal({ "sign_in_method" => "password", "name" => "Ada Lovelace", "email" => "ada@example.com", "password" => "correct horse battery", "agreement" => "1" },
+                 received)
+  end
+
+  test "a visitor the host signs up with a password is signed in as the new person" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_equal User.find_by(email: "ada@example.com").id, session[:user_id]
+  end
+
+  test "a password sign-up with the password left empty does not reach the host's sign-up callable" do
+    called = false
+    with_sign_up_person(->(_controller, values) { called = true; signed_up(values) }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "", agreement: "1" }
+    end
+
+    assert_not called
+  end
+
+  test "a password sign-up with the password left empty asks the visitor for a password" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "", agreement: "1" }
+
+    assert_select "[role=alert]", text: /Enter a password to sign up/
+  end
+
+  test "a visitor who signs up with a password is sent no sign-in code" do
+    assert_no_emails do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+  end
+
+  test "a visitor who signs up with a password has a signed-in session proved by password" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    get "/proofs"
+    assert_equal [ "password" ], response.parsed_body
   end
 
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
@@ -94,6 +197,53 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=email][value='ada@example.com']"
   end
 
+  test "a password the host refuses shows the host's message on the sign-up page" do
+    with_sign_up_person(->(_controller, _values) { password_too_short }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+    end
+
+    assert_select "[role=alert]", text: /Choose a password of at least 12 characters/
+  end
+
+  test "a password the host refuses keeps the name the visitor entered" do
+    with_sign_up_person(->(_controller, _values) { password_too_short }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+    end
+
+    assert_select "input[name=name][value='Ada Lovelace']"
+  end
+
+  test "a password the host refuses keeps the email address the visitor entered" do
+    with_sign_up_person(->(_controller, _values) { password_too_short }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+    end
+
+    assert_select "input[name=email][value='ada@example.com']"
+  end
+
+  test "a password the host refuses leaves the visitor's password choice on the sign-up page" do
+    with_sign_up_person(->(_controller, _values) { password_too_short }) do
+      get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+      post css_select("form").first["action"], params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+    end
+
+    assert_select "input[type=password][name=password]"
+  end
+
+  test "a password the host refuses is not filled back in on the sign-up page" do
+    with_sign_up_person(->(_controller, _values) { password_too_short }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+    end
+
+    assert_select "input[name=password][value]", count: 0
+  end
+
+  test "the dummy app's sign-up callable refuses a password shorter than 12 characters" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+
+    assert_select "[role=alert]", text: /Choose a password of at least 12 characters/
+  end
+
   test "the sign-up page shows the agreement checkbox with the label the host configured" do
     with_configuration(sign_up_agreement_label: "I agree to the Acme terms") do
       get "/door_check/sign_up/new"
@@ -138,6 +288,21 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=email][value='ada@example.com']"
   end
 
+  test "a password sign-up without the agreement ticked does not reach the host's sign-up callable" do
+    called = false
+    with_sign_up_person(->(_controller, values) { called = true; signed_up(values) }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "0" }
+    end
+
+    assert_not called
+  end
+
+  test "a password sign-up without the agreement ticked asks the visitor to tick it on the sign-up page" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "0" }
+
+    assert_select "[role=alert]", text: /Tick the agreement to sign up/
+  end
+
   test "a ticked agreement reaches the host's sign-up callable" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
@@ -153,6 +318,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_no_match(/agree/i, door_check_rows.to_s)
   end
 
+  test "a password sign-up leaves the password in none of door_check's tables" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_no_match(/correct horse battery/, door_check_rows.to_s)
+  end
+
   private
 
   def door_check_rows
@@ -162,6 +333,10 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
   def refused
     DoorCheck::Result.new(ok: false, message: "Sign-up is closed for this team.")
+  end
+
+  def password_too_short
+    DoorCheck::Result.new(ok: false, message: "Choose a password of at least 12 characters.")
   end
 
   def signed_up(values)
