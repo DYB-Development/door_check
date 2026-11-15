@@ -13,7 +13,7 @@
                         required: true) %>
       <%= ui_link_list(rows: DoorCheck.configuration.sign_up_agreement_links.call(controller)
                                     .map { |document| { label: document.fetch(:title), href: document.fetch(:url) } }) %>
-      <%= ui_button(label: "Send") %>
+      <%= ui_button(label: "Sign up") %>
     <% end %>
   <% end %>
 <% end %>
