@@ -10,10 +10,10 @@ module DoorCheck
 
     scope :awaiting_approval, -> { where.not(number: nil).where(approved_at: nil, declined_at: nil, used_at: nil).where("expires_at > ?", Time.current) }
 
-    def self.issue(person)
+    def self.issue(person, email: nil)
       code = format("%06d", SecureRandom.random_number(1_000_000))
       token = SecureRandom.urlsafe_base64(32)
-      create!(person: person, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
+      create!(person: person, email: email, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
     end
 
     def self.issue_confirmation(person, email)

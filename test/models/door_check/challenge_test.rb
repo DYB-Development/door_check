@@ -65,5 +65,11 @@ module DoorCheck
         assert_equal challenge, Challenge.redeem_token(challenge.token, purpose: "confirm")
       end
     end
+
+    test "a sign-in challenge holds the address its code was sent to" do
+      challenge = Challenge.issue(@user, email: "ada@example.com")
+
+      assert_equal "ada@example.com", challenge.reload.email
+    end
   end
 end
