@@ -3,7 +3,7 @@
     <%= ui_alert(message: @error, type: :error) if @error %>
     <%= ui_form(action: door_check.sign_up_path(request.query_parameters)) do %>
       <%= ui_form_field(attribute: "name", label: "Name", value: params[:name], required: true, autofocus: true, autocomplete: "name") %>
-      <%= ui_form_field(attribute: "email", label: "Email", type: :email, required: true,
+      <%= ui_form_field(attribute: "email", label: "Email", type: :email, value: params[:email], required: true,
                         autocomplete: "email", autocapitalize: "none") %>
       <%= ui_button(label: "Send") %>
     <% end %>
