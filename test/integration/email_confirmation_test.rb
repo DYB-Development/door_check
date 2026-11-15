@@ -10,4 +10,12 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
   end
+
+  test "opening the confirmation link shows a page saying the address is confirmed" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    assert_select "[role=alert]", text: /Your email address is confirmed/
+  end
 end
