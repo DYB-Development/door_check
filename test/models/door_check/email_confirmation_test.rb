@@ -21,5 +21,11 @@ module DoorCheck
 
       assert EmailConfirmation.confirmed?(@user, "ada@example.com")
     end
+
+    test "a person sent a confirmation they have not used is awaiting confirmation" do
+      EmailConfirmation.for(@user).update!(email: "ada@example.com")
+
+      assert EmailConfirmation.for(@user).awaiting?
+    end
   end
 end

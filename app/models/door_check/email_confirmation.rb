@@ -11,6 +11,8 @@ module DoorCheck
       confirmation.confirmed_at.present? && confirmation.email.to_s.casecmp?(email.to_s.strip)
     end
 
+    def awaiting? = email.present? && confirmed_at.nil?
+
     def confirm(email)
       update!(email: email, confirmed_at: Time.current)
     end
