@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page and its agreement checkbox, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -58,13 +58,28 @@ door_check declares nothing for this local to document.
   link, device approval, passkey, Google, Apple or SSO. The password is the
   host's own.
 - **Sign-up page** — door_check's page where a person with no login enters a
-  name and an email. The host's sign-up callable creates the person from those
-  values and any values in the page's address, such as an invitation token, and
-  answers ok or refused with a message. On ok, door_check emails a sign-in code
-  and link and takes the person to the email code page, and entering the code
-  signs them in by email code. On refused, the page shows the message and keeps
-  the name and email. The page is off, and answers not found, unless the host
-  sets the callable and offers email codes.
+  name and an email and chooses how to sign in. The host's sign-up callable
+  creates the person from those values and any values in the page's address,
+  such as an invitation token, and answers ok or refused with a message. The
+  page is off, and answers not found, unless the host sets the callable and
+  offers email codes, passwords, or both.
+- **Sign-in choice at sign-up** — when the app offers both email codes and
+  passwords, the sign-up page shows a tab for each and opens on the emailed
+  code. When it offers one, only that one shows. The callable receives the
+  choice as `sign_in_method`, `"password"` or `"email_code"`, which may be
+  missing when the person kept the first choice.
+- **Email code sign-up** — on ok, door_check emails a sign-in code and link and
+  takes the person to the email code page, and entering the code signs them in
+  by email code.
+- **Password sign-up** — the page also asks for a password, and the callable
+  receives it as typed. The host saves the password, and door_check never
+  stores it. An empty password is refused with "Enter a password to sign up."
+  before the callable is called. On ok, door_check signs the person in with
+  the host's sign-in, records password as the proof, and goes to the app's
+  home page, with no code sent. The host filters the password from its logs,
+  since door_check adds no filter of its own.
+- **Refused sign-up** — the page shows the callable's message, keeps the name
+  and email, and leaves the password empty.
 - **Sign-up agreement** — the required checkbox on the sign-up page. Its label
   is "I agree to the Terms of Service and Privacy Policy" unless the host sets
   another, and the host may list documents, each a title and an address, shown

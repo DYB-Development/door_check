@@ -45,7 +45,7 @@ Paths, called on the engine's route proxy `door_check` from host views and
 controllers:
 
 - `door_check.new_email_sign_in_path` — the page where a person enters their email to be sent a sign-in code and a sign-in link.
-- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one and be sent a sign-in code and a sign-in link.
+- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one, then either is sent a sign-in code and a sign-in link or chooses a password and is signed in.
 - `door_check.new_passkey_sign_in_path` — the page where a person signs in with a passkey.
 - `door_check.new_approval_request_path` — the page where a person asks to be let in by approving from a device they are already signed in on.
 - `door_check.approvals_path` — the page where a signed-in person sees waiting approval requests and approves or declines them.
@@ -241,15 +241,16 @@ before building `RequireSecondStep`.
 1. Ask the developer which methods the app offers, or read the host's door_check
    initializer, and show a link only when its method is offered:
    - the email sign-in page needs `email_code`
-   - the sign-up page needs `email_code` and the host's `sign_up_person`
-     setting
+   - the sign-up page needs `email_code`, `password` or both, and the host's
+     `sign_up_person` setting
    - both passkey pages need `passkey`
    - the approval request page and the approvals page need `device_approval`
    - the authenticator page needs `authenticator_app`
    - the backup codes action needs `backup_codes`
 2. The email sign-in, passkey, approval request and backup codes pages return
    not found when their method is not offered. The sign-up page returns not
-   found unless `email_code` is offered and `sign_up_person` is set.
+   found unless `email_code`, `password` or both are offered and
+   `sign_up_person` is set.
    Values added to the sign-up path, such as
    `door_check.new_sign_up_path(invitation: token)`, reach `sign_up_person`
    with the form's name and email. The approvals page and the
