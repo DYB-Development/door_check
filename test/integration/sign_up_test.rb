@@ -55,6 +55,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_match(%r{code is \d{6}.*/email_link/}m, ActionMailer::Base.deliveries.last&.text_part&.body.to_s)
   end
 
+  test "a visitor the host signs up is taken to the screen where the code is typed" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+
+    assert_redirected_to "/door_check/email_code/new"
+  end
+
   test "typing the code emailed at sign-up signs the new person in with an email code" do
     post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
 
