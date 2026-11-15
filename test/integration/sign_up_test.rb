@@ -147,6 +147,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal [ "password" ], response.parsed_body
   end
 
+  test "a visitor who signs up with a password and asks for the confirmation email again is sent it at the address they entered" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    post "/door_check/email_confirmation"
+
+    assert_equal [ "ada@example.com" ], ActionMailer::Base.deliveries.last.to
+  end
+
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
