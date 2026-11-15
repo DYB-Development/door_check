@@ -137,6 +137,14 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
   end
 
+  test "a person who signs in with the emailed link reads as confirmed for that address" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    get emailed_link
+
+    assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
+  end
+
   private
 
   def emailed_link
