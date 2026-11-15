@@ -300,6 +300,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_no_match(/agree/i, door_check_rows.to_s)
   end
 
+  test "a password sign-up leaves the password in none of door_check's tables" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_no_match(/correct horse battery/, door_check_rows.to_s)
+  end
+
   private
 
   def door_check_rows
