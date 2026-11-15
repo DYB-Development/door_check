@@ -279,6 +279,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_not called
   end
 
+  test "a password sign-up without the agreement ticked asks the visitor to tick it on the sign-up page" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "0" }
+
+    assert_select "[role=alert]", text: /Tick the agreement to sign up/
+  end
+
   test "a ticked agreement reaches the host's sign-up callable" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
