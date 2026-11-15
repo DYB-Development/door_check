@@ -36,5 +36,13 @@ module DoorCheck
     def authenticator
       existing_authenticator&.constantize&.new
     end
+
+    def sign_up_offered?
+      sign_up_person.present? && sign_up_methods.any?
+    end
+
+    def sign_up_methods
+      %i[email_code password] & Array(offered_methods)
+    end
   end
 end

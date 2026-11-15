@@ -2,7 +2,7 @@ module DoorCheck
   class SignUpsController < ApplicationController
     SIGN_IN_METHOD_LABELS = { email_code: "Emailed code", password: "Password" }.freeze
 
-    before_action { head :not_found unless sign_up_offered? }
+    before_action { head :not_found unless DoorCheck.configuration.sign_up_offered? }
     helper_method :sign_in_method_tabs, :chosen_sign_in_method
 
     def new
@@ -58,12 +58,8 @@ module DoorCheck
       session[EmailSignInsController::CHALLENGE_KEY] = challenge.id
     end
 
-    def sign_up_offered?
-      DoorCheck.configuration.sign_up_person && sign_in_methods.any?
-    end
-
     def sign_in_methods
-      %i[email_code password] & DoorCheck.configuration.offered_methods
+      DoorCheck.configuration.sign_up_methods
     end
   end
 end
