@@ -45,4 +45,13 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_select "[role=alert]", text: /no longer works/
   end
+
+  test "a signed-in person awaiting confirmation who asks for it again is emailed a new confirmation link" do
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+
+    post "/door_check/email_confirmation"
+
+    assert_match %r{/door_check/confirm_email/}, ActionMailer::Base.deliveries.last&.text_part&.body.to_s
+  end
 end

@@ -9,6 +9,7 @@ DoorCheck::Engine.routes.draw do
   resource :email_sign_in, only: %i[new create]
   resource :email_code, only: %i[new create]
   resource :sign_up, only: %i[new create]
+  resource :email_confirmation, only: :create
   resource :approval_request, only: %i[new create show]
   resources :approvals, only: :index do
     member do
