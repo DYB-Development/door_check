@@ -70,7 +70,19 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal [ "email_code" ], response.parsed_body
   end
 
+  test "a sign-up the host refuses shows the host's message on the sign-up page" do
+    with_sign_up_person(->(_controller, _values) { refused }) do
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+    end
+
+    assert_select "[role=alert]", text: /Sign-up is closed for this team/
+  end
+
   private
+
+  def refused
+    DoorCheck::Result.new(ok: false, message: "Sign-up is closed for this team.")
+  end
 
   def signed_up(values)
     User.create!(email: values[:email])

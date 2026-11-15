@@ -6,12 +6,19 @@ module DoorCheck
     end
 
     def create
-      DoorCheck.configuration.sign_up_person.call(self, submitted_values)
+      result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
+      return refuse_sign_up(result.message) unless result.ok?
+
       send_code(params[:email].to_s.strip)
       redirect_to door_check.new_email_code_path
     end
 
     private
+
+    def refuse_sign_up(message)
+      @error = message
+      render :new, status: :unprocessable_content
+    end
 
     def submitted_values
       params.to_unsafe_h.except(:controller, :action, :authenticity_token)

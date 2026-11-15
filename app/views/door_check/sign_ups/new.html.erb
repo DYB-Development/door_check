@@ -1,5 +1,6 @@
 <%= ui_page(max_width: :md) do %>
   <%= ui_section(title: "Sign up", subtitle: "Enter your name and email address and we will send you a code and a link.") do %>
+    <%= ui_alert(message: @error, type: :error) if @error %>
     <%= ui_form(action: door_check.sign_up_path(request.query_parameters)) do %>
       <%= ui_form_field(attribute: "name", label: "Name", required: true, autofocus: true, autocomplete: "name") %>
       <%= ui_form_field(attribute: "email", label: "Email", type: :email, required: true,
