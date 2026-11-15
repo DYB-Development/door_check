@@ -8,13 +8,14 @@ module DoorCheck
     attr_writer :authenticator_issuer, :sign_up_agreement_label
     attr_accessor :person_method, :account_method, :parent_controller, :parent_mailer, :existing_authenticator, :person_accounts,
                   :find_person_by_email, :sign_in_person, :sign_out_person, :passkey_domain, :locate_ip, :stylesheet, :head_partial,
-                  :people_choose_second_step, :sign_up_person
+                  :people_choose_second_step, :sign_up_person, :sign_up_agreement_links
 
     def initialize
       @parent_controller = "::ApplicationController"
       @parent_mailer = "::ApplicationMailer"
       @stylesheet = "application"
       @people_choose_second_step = true
+      @sign_up_agreement_links = ->(_controller) { [] }
     end
 
     def offered_methods=(names)
