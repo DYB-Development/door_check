@@ -89,4 +89,21 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+
+  test "a person awaiting confirmation can open every door_check page a confirmed person can" do
+    confirmed = User.create!(email: "grace@example.com")
+    DoorCheck::EmailConfirmation.for(confirmed).confirm("grace@example.com")
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+
+    assert_equal statuses_of_door_check_pages_for(confirmed), statuses_of_door_check_pages_for(@user)
+  end
+
+  private
+
+  def statuses_of_door_check_pages_for(user)
+    post "/sign_in", params: { user_id: user.id, method_name: "password" }
+    %w[/door_check/second_step/new /door_check/authenticator/new /door_check/passkeys/new /door_check/passkey_sign_in/new
+       /door_check/email_sign_in/new /door_check/email_code/new /door_check/sign_up/new /door_check/approval_request/new
+       /door_check/approvals].map { |path| get(path) }.tap { delete "/sign_out" }
+  end
 end
