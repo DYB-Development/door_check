@@ -8,7 +8,7 @@ module DoorCheck
 
     def self.confirmed?(person, email)
       confirmation = self.for(person)
-      confirmation.confirmed_at.present? && confirmation.email == email
+      confirmation.confirmed_at.present? && confirmation.email.to_s.casecmp?(email.to_s.strip)
     end
 
     def confirm(email)

@@ -15,5 +15,11 @@ module DoorCheck
 
       assert_not EmailConfirmation.confirmed?(@user, "ada@newmail.example")
     end
+
+    test "a confirmed address the host writes in different letter case reads as confirmed" do
+      EmailConfirmation.for(@user).confirm("Ada@Example.com")
+
+      assert EmailConfirmation.confirmed?(@user, "ada@example.com")
+    end
   end
 end
