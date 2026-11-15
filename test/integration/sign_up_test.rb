@@ -31,6 +31,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=password]", count: 0
   end
 
+  test "a visitor who chooses a password is not told the sign-up page will send a code" do
+    get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+
+    assert_no_match(/send you a code/, response.body)
+  end
+
   test "the sign-up page marks the password as the visitor's choice once they choose it" do
     get "/door_check/sign_up/new", params: { sign_in_method: "password" }
 
