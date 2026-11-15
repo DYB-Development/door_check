@@ -132,6 +132,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=name][value='Ada Lovelace']"
   end
 
+  test "a sign-up without the agreement ticked keeps the email address the visitor entered" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "0" }
+
+    assert_select "input[name=email][value='ada@example.com']"
+  end
+
   private
 
   def refused
