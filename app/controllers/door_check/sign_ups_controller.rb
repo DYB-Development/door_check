@@ -47,6 +47,7 @@ module DoorCheck
       person = DoorCheck.configuration.find_person_by_email.call(email)
       DoorCheck.configuration.sign_in_person.call(self, person)
       door_check_signed_in(person, method_name: :password)
+      SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
       redirect_to "/"
     end
 

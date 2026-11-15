@@ -129,9 +129,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor who signs up with a password is sent no sign-in code" do
-    assert_no_emails do
-      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
-    end
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_empty ActionMailer::Base.deliveries.select { |mail| mail.subject == "Your sign-in code" }
+  end
+
+  test "a visitor who signs up with a password is emailed a confirmation link at the address they entered" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_match %r{/door_check/confirm_email/}, ActionMailer::Base.deliveries.find { |mail| mail.to == [ "ada@example.com" ] }&.text_part&.body.to_s
   end
 
   test "a visitor who signs up with a password has a signed-in session proved by password" do
