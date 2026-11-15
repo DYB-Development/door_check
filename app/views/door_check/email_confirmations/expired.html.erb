@@ -1,5 +1,6 @@
 <%= ui_page(max_width: :md) do %>
   <%= ui_section(title: "Confirm your email address") do %>
     <%= ui_alert(message: "This confirmation link no longer works. Links work once and stop working after 24 hours.", type: :error) %>
+    <%= ui_button(label: "Send a new confirmation email", href: door_check.email_confirmation_path(token: params[:token]), method: :post) %>
   <% end %>
 <% end %>

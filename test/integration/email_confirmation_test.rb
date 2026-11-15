@@ -65,4 +65,13 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
   end
+
+  test "a used confirmation link's page has a button to send a new confirmation email" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    assert_select "form[action='/door_check/email_confirmation?token=#{challenge.token}'] button", text: "Send a new confirmation email"
+  end
 end
