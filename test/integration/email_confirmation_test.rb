@@ -54,4 +54,15 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_match %r{/door_check/confirm_email/}, ActionMailer::Base.deliveries.last&.text_part&.body.to_s
   end
+
+  test "the earlier confirmation link still confirms the address after the email is sent again" do
+    earlier = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+    post "/door_check/email_confirmation"
+
+    get "/door_check/confirm_email/#{earlier.token}"
+
+    assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
+  end
 end
