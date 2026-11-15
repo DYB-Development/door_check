@@ -39,6 +39,17 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/door_check/sign_up/new']", text: "Create an account"
   end
 
+  test "the sign-in screen has no sign-up link when sign-up is off" do
+    sign_up_person = DoorCheck.configuration.sign_up_person
+    DoorCheck.configuration.sign_up_person = nil
+
+    get "/door_check/email_sign_in/new"
+
+    assert_select "a[href='/door_check/sign_up/new']", count: 0
+  ensure
+    DoorCheck.configuration.sign_up_person = sign_up_person
+  end
+
   test "typing the emailed code signs the person in with an email code" do
     post "/door_check/email_sign_in", params: { email: "ada@example.com" }
 
