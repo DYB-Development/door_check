@@ -45,5 +45,11 @@ module DoorCheck
         assert_nil Challenge.redeem_token(challenge.token)
       end
     end
+
+    test "a confirmation link's token is not taken as a sign-in link" do
+      challenge = Challenge.issue_confirmation(@user, "ada@example.com")
+
+      assert_nil Challenge.redeem_token(challenge.token)
+    end
   end
 end
