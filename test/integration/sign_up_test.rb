@@ -84,6 +84,17 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal({ "name" => "Ada Lovelace", "email" => "ada@example.com", "agreement" => "1" }, received)
   end
 
+  test "a password chosen at sign-up reaches the host's sign-up callable with the agreement and the other values" do
+    received = nil
+    with_sign_up_person(->(_controller, values) { received = values.to_h; signed_up(values) }) do
+      get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+      post css_select("form").first["action"], params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_equal({ "sign_in_method" => "password", "name" => "Ada Lovelace", "email" => "ada@example.com", "password" => "correct horse battery", "agreement" => "1" },
+                 received)
+  end
+
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
