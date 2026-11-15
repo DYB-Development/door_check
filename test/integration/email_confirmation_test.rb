@@ -26,4 +26,13 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_nil session[:user_id]
   end
+
+  test "a confirmation link opened a second time says it no longer works" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    assert_select "[role=alert]", text: /no longer works/
+  end
 end
