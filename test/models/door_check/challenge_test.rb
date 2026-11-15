@@ -57,5 +57,13 @@ module DoorCheck
 
       assert_nil Challenge.redeem_token(challenge.token, purpose: "confirm")
     end
+
+    test "a confirmation link still works after a sign-in link's fifteen minutes have passed" do
+      challenge = Challenge.issue_confirmation(@user, "ada@example.com")
+
+      travel 16.minutes do
+        assert_equal challenge, Challenge.redeem_token(challenge.token, purpose: "confirm")
+      end
+    end
   end
 end
