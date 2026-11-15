@@ -18,6 +18,13 @@ class SignUpTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.sign_up_person = sign_up_person
   end
 
+  test "a visitor on the sign-up page can choose between an emailed code and a password" do
+    get "/door_check/sign_up/new"
+
+    assert_equal [ [ "Emailed code", "/door_check/sign_up/new?sign_in_method=email_code" ], [ "Password", "/door_check/sign_up/new?sign_in_method=password" ] ],
+                 css_select("a[href*=sign_in_method]").map { |tab| [ tab.text.squish, tab["href"] ] }
+  end
+
   test "a visitor opens the sign-up page when the host offers passwords but not email codes" do
     with_configuration(offered_methods: %i[password email_link]) do
       get "/door_check/sign_up/new"

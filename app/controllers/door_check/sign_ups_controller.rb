@@ -1,6 +1,9 @@
 module DoorCheck
   class SignUpsController < ApplicationController
+    SIGN_IN_METHOD_LABELS = { email_code: "Emailed code", password: "Password" }.freeze
+
     before_action { head :not_found unless sign_up_offered? }
+    helper_method :sign_in_method_tabs
 
     def new
     end
@@ -16,6 +19,12 @@ module DoorCheck
     end
 
     private
+
+    def sign_in_method_tabs
+      sign_in_methods.map do |method_name|
+        { label: SIGN_IN_METHOD_LABELS.fetch(method_name), href: door_check.new_sign_up_path(request.query_parameters.merge(sign_in_method: method_name)) }
+      end
+    end
 
     def refuse_sign_up(message)
       @error = message
