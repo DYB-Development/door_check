@@ -110,6 +110,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_not called
   end
 
+  test "a password sign-up with the password left empty asks the visitor for a password" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "", agreement: "1" }
+
+    assert_select "[role=alert]", text: /Enter a password to sign up/
+  end
+
   test "a visitor who signs up with a password is sent no sign-in code" do
     assert_no_emails do
       post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
