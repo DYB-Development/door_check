@@ -31,7 +31,7 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
   test "submitting the sign-up page passes every submitted value to the host's sign-up callable" do
     received = nil
-    with_sign_up_person(->(_controller, values) { received = values.to_h; DoorCheck::Result.new(ok: true) }) do
+    with_sign_up_person(->(_controller, values) { received = values.to_h; signed_up(values) }) do
       post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
     end
 
@@ -40,7 +40,7 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
     received = nil
-    with_sign_up_person(->(_controller, values) { received = values; DoorCheck::Result.new(ok: true) }) do
+    with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
       get "/door_check/sign_up/new", params: { invitation: "inv-42/abc" }
       form_action = css_select("form").first["action"]
       post form_action, params: { name: "Ada Lovelace", email: "ada@example.com" }
@@ -49,7 +49,18 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal "inv-42/abc", received[:invitation]
   end
 
+  test "a visitor the host signs up is emailed a sign-in code and link" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+
+    assert_match(%r{code is \d{6}.*/email_link/}m, ActionMailer::Base.deliveries.last&.text_part&.body.to_s)
+  end
+
   private
+
+  def signed_up(values)
+    User.create!(email: values[:email])
+    DoorCheck::Result.new(ok: true)
+  end
 
   def with_sign_up_person(callable)
     sign_up_person = DoorCheck.configuration.sign_up_person
