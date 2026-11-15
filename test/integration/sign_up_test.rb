@@ -78,6 +78,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /Sign-up is closed for this team/
   end
 
+  test "a sign-up the host refuses keeps the name the visitor entered" do
+    with_sign_up_person(->(_controller, _values) { refused }) do
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com" }
+    end
+
+    assert_select "input[name=name][value='Ada Lovelace']"
+  end
+
   private
 
   def refused
