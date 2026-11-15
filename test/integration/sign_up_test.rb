@@ -138,6 +138,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=email][value='ada@example.com']"
   end
 
+  test "a ticked agreement reaches the host's sign-up callable" do
+    received = nil
+    with_sign_up_person(->(_controller, values) { received = values; signed_up(values) }) do
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+    end
+
+    assert_equal "1", received[:agreement]
+  end
+
   private
 
   def refused
