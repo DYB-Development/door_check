@@ -18,4 +18,12 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
 
     assert_select "[role=alert]", text: /Your email address is confirmed/
   end
+
+  test "opening the confirmation link does not sign anyone in" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+
+    get "/door_check/confirm_email/#{challenge.token}"
+
+    assert_nil session[:user_id]
+  end
 end
