@@ -10,6 +10,8 @@ module DoorCheck
     def create
       earlier = Challenge.find_by(token_digest: Challenge.digest(params[:token].to_s), purpose: "confirm") if params[:token]
       confirmation = earlier || EmailConfirmation.for(door_check_person)
+      return head(:not_found) if confirmation.email.blank?
+
       SignInMailer.confirmation(Challenge.issue_confirmation(confirmation.person, confirmation.email)).deliver_now
       render :sent
     end
