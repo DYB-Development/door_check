@@ -259,6 +259,14 @@ module DoorCheck
       assert_select "form[action='/door_check/email_confirmation'] button", text: "Send the confirmation email again"
     end
 
+    test "a person whose address is confirmed sees no button to send the confirmation email again" do
+      EmailConfirmation.for(@user).confirm("ada@example.com")
+
+      render_section
+
+      assert_select "form[action='/door_check/email_confirmation']", count: 0
+    end
+
     private
 
     def panel_under(title)
