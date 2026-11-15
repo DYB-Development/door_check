@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -37,6 +37,7 @@ trusted browsers.
 - `config.head_partial` — a host partial rendered at the end of the head of door_check's pages.
 - `config.authenticator_issuer` — the name an authenticator app shows above the account it adds during setup.
 - `config.people_choose_second_step` — whether people may require a second step on their own login, true or false.
+- `config.sign_up_person` — a lambda taking the controller and the sign-up page's values, which creates the person and returns a `DoorCheck::Result`, or nil to turn the sign-up page off.
 - `include DoorCheck::Tracking` — adds sign-in recording and the reads of proofs and the current account to the host's controller.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
@@ -151,6 +152,40 @@ trusted browsers.
      save of the account section that carries the members choice with the
      second. A refused save leaves the earlier value in place. Saved choices
      are kept, and apply again if it is set back to true.
+   - `config.sign_up_person` — nil by default, which leaves the sign-up page
+     off. Set it when people who have no login yet should create one through
+     door_check's sign-up page:
+     ```ruby
+     config.sign_up_person = lambda do |controller, values|
+       user = User.new(name: values[:name], email: values[:email])
+       if user.save
+         DoorCheck::Result.new(ok: true)
+       else
+         DoorCheck::Result.new(ok: false, message: user.errors.full_messages.to_sentence)
+       end
+     end
+     ```
+     The model and fields are examples. Ask the developer how a new person is
+     created and what refuses a sign-up. door_check calls it as
+     `sign_up_person.call(controller, values)`. `values` holds every value the
+     form sent, `name` and `email` among them, and every value in the sign-up
+     page's address, such as an invitation token. It is read by string or
+     symbol key. The lambda must create the person and return a
+     `DoorCheck::Result`: ok when the person was created, or refused with the
+     message to show on the page.
+     - The sign-up page is the engine's `new_sign_up` route, at
+       `/door_check/sign_up/new` when the engine is mounted at `/door_check`.
+       It asks for a name and an email.
+     - It answers not found unless `sign_up_person` is set and
+       `offered_methods` includes `email_code`.
+     - After an ok result, door_check finds the person with
+       `find_person_by_email`, so that lambda must find the person just
+       created. It emails them the sign-in code and link and takes them to the
+       email code page. Entering the code signs them in, with `email_code`
+       recorded as the session's proof.
+     - After a refused result, the page shows the message and keeps the name
+       and email that were entered.
+     - Linking to the page from the host is the develop local's to write.
 
 8. Add the tracking and the second-step check to the host's
    `app/controllers/application_controller.rb`, or to the controller named in
