@@ -25,6 +25,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
                  css_select("a[href*=sign_in_method]").map { |tab| [ tab.text.squish, tab["href"] ] }
   end
 
+  test "the sign-up page marks the password as the visitor's choice once they choose it" do
+    get "/door_check/sign_up/new", params: { sign_in_method: "password" }
+
+    assert_select "a[aria-current=page]", text: "Password"
+  end
+
   test "a visitor who chooses a password on the sign-up page must fill in a password field" do
     get "/door_check/sign_up/new", params: { sign_in_method: "password" }
 
