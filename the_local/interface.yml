@@ -22,6 +22,8 @@ install:
   - config.authenticator_issuer
   - config.people_choose_second_step
   - config.sign_up_person
+  - config.sign_up_agreement_label
+  - config.sign_up_agreement_links
   - include DoorCheck::Tracking
   - include DoorCheck::EntryCheck
   - before_action :door_check_check_entry
