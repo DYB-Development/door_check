@@ -33,7 +33,11 @@ module DoorCheck
     end
 
     def sign_up_offered?
-      DoorCheck.configuration.sign_up_person && DoorCheck.configuration.offered_methods.include?(:email_code)
+      DoorCheck.configuration.sign_up_person && sign_in_methods.any?
+    end
+
+    def sign_in_methods
+      %i[email_code password] & DoorCheck.configuration.offered_methods
     end
   end
 end

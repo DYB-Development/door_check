@@ -18,15 +18,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.sign_up_person = sign_up_person
   end
 
-  test "the sign-up page is not found when the host does not offer email codes" do
-    offered = DoorCheck.configuration.offered_methods
-    DoorCheck.configuration.offered_methods = %i[password email_link]
+  test "a visitor opens the sign-up page when the host offers passwords but not email codes" do
+    with_configuration(offered_methods: %i[password email_link]) do
+      get "/door_check/sign_up/new"
+    end
 
-    get "/door_check/sign_up/new"
-
-    assert_response :not_found
-  ensure
-    DoorCheck.configuration.offered_methods = offered
+    assert_response :ok
   end
 
   test "submitting the sign-up page passes every submitted value to the host's sign-up callable" do
