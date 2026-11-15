@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -28,14 +28,15 @@ theme.
 door_check declares nothing for this local to document.
 
 - The **install** local owns adding the gem, its migrations and its routes,
-  every configuration setting, the two controller additions that record sign-ins
+  every configuration setting, including the callable that creates a person
+  from the sign-up page, the two controller additions that record sign-ins
   and enforce second steps, and the two settings sections a host places on its
   settings page.
 - The **develop** local owns what a host's code calls once door_check is
   installed: recording a sign-in, reading what a session has proved, reading the
   current account, the list of known method names, the actions that change a
   rule or end a session, the result those actions return, and the paths to
-  door_check's pages.
+  door_check's pages, the sign-up page among them.
 
 ## How to use it
 
@@ -56,6 +57,14 @@ door_check declares nothing for this local to document.
 - **Sign-in method** — a way to start a session: password, email code, email
   link, device approval, passkey, Google, Apple or SSO. The password is the
   host's own.
+- **Sign-up page** — door_check's page where a person with no login enters a
+  name and an email. The host's sign-up callable creates the person from those
+  values and any values in the page's address, such as an invitation token, and
+  answers ok or refused with a message. On ok, door_check emails a sign-in code
+  and link and takes the person to the email code page, and entering the code
+  signs them in by email code. On refused, the page shows the message and keeps
+  the name and email. The page is off, and answers not found, unless the host
+  sets the callable and offers email codes.
 - **Second step** — a check asked for after sign-in: authenticator app, SMS
   code, passkey, backup codes or trusted device. A passkey can be either a
   sign-in method or a second step.
