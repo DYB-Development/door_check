@@ -3,7 +3,7 @@ module DoorCheck
     SIGN_IN_METHOD_LABELS = { email_code: "Emailed code", password: "Password" }.freeze
 
     before_action { head :not_found unless sign_up_offered? }
-    helper_method :sign_in_method_tabs
+    helper_method :sign_in_method_tabs, :chosen_sign_in_method
 
     def new
     end
@@ -19,6 +19,10 @@ module DoorCheck
     end
 
     private
+
+    def chosen_sign_in_method
+      sign_in_methods.find { |method_name| method_name.to_s == params[:sign_in_method] } || sign_in_methods.first
+    end
 
     def sign_in_method_tabs
       sign_in_methods.map do |method_name|

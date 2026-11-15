@@ -6,6 +6,9 @@
       <%= ui_form_field(attribute: "name", label: "Name", value: params[:name], required: true, autofocus: true, autocomplete: "name") %>
       <%= ui_form_field(attribute: "email", label: "Email", type: :email, value: params[:email], required: true,
                         autocomplete: "email", autocapitalize: "none") %>
+      <% if chosen_sign_in_method == :password %>
+        <%= ui_form_field(attribute: "password", label: "Password", type: :password, required: true, autocomplete: "new-password") %>
+      <% end %>
       <%= ui_form_field(attribute: "agreement", label: DoorCheck.configuration.sign_up_agreement_label, type: :checkbox, value: params[:agreement],
                         required: true) %>
       <%= ui_link_list(rows: DoorCheck.configuration.sign_up_agreement_links.call(controller)
