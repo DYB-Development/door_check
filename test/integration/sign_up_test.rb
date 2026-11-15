@@ -25,6 +25,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
                  css_select("a[href*=sign_in_method]").map { |tab| [ tab.text.squish, tab["href"] ] }
   end
 
+  test "the sign-up page offers no choice of sign-in when the app offers only email codes" do
+    with_configuration(offered_methods: %i[email_code email_link]) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_select "a[href*=sign_in_method]", count: 0
+  end
+
   test "a visitor opens the sign-up page when the host offers passwords but not email codes" do
     with_configuration(offered_methods: %i[password email_link]) do
       get "/door_check/sign_up/new"
