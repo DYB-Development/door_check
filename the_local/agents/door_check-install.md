@@ -167,26 +167,58 @@ trusted browsers.
        end
      end
      ```
+     When `password` is offered, the lambda also saves the password:
+     ```ruby
+     config.sign_up_person = lambda do |controller, values|
+       user = User.new(name: values[:name], email: values[:email])
+       user.password = values[:password] if values[:sign_in_method] == "password"
+       if user.save
+         DoorCheck::Result.new(ok: true)
+       else
+         DoorCheck::Result.new(ok: false, message: user.errors.full_messages.to_sentence)
+       end
+     end
+     ```
      The model and fields are examples. Ask the developer how a new person is
-     created and what refuses a sign-up. door_check calls it as
-     `sign_up_person.call(controller, values)`. `values` holds every value the
-     form sent, `name` and `email` among them, and every value in the sign-up
-     page's address, such as an invitation token. It is read by string or
-     symbol key. The lambda must create the person and return a
-     `DoorCheck::Result`: ok when the person was created, or refused with the
-     message to show on the page.
+     created and what refuses a sign-up. When `password` is offered, also ask
+     how the app saves a password at sign-up and what makes a password
+     invalid. door_check calls it as `sign_up_person.call(controller, values)`.
+     `values` holds every value the form sent, `name` and `email` among them,
+     and every value in the sign-up page's address, such as an invitation
+     token. It is read by string or symbol key. The lambda must create the
+     person and return a `DoorCheck::Result`: ok when the person was created,
+     or refused with the message to show on the page.
      - The sign-up page is the engine's `new_sign_up` route, at
        `/door_check/sign_up/new` when the engine is mounted at `/door_check`.
        It asks for a name and an email.
      - It answers not found unless `sign_up_person` is set and
-       `offered_methods` includes `email_code`.
-     - After an ok result, door_check finds the person with
-       `find_person_by_email`, so that lambda must find the person just
-       created. It emails them the sign-in code and link and takes them to the
-       email code page. Entering the code signs them in, with `email_code`
+       `offered_methods` includes `password`, `email_code`, or both.
+     - When both are offered, the page shows two tabs, "Emailed code" and
+       "Password", and opens on "Emailed code". When only one is offered,
+       only that one shows, with no tabs.
+     - `values[:sign_in_method]` carries the visitor's choice, `"password"` or
+       `"email_code"`. It may be missing when the visitor kept the page's
+       first choice, which is `email_code` when it is offered and `password`
+       otherwise.
+     - On the password choice the page also asks for a password, and `values`
+       carries it as typed in `values[:password]`. The host saves the
+       password. door_check never stores it.
+     - An empty password is refused on the page with "Enter a password to sign
+       up." before `sign_up_person` is called.
+     - After an ok result for the email code choice, door_check finds the
+       person with `find_person_by_email`, so that lambda must find the person
+       just created. It emails them the sign-in code and link and takes them to
+       the email code page. Entering the code signs them in, with `email_code`
        recorded as the session's proof.
+     - After an ok result for the password choice, door_check finds the person
+       with `find_person_by_email`, signs them in with `sign_in_person`,
+       records `password` as the session's proof, and redirects to `/`. No
+       sign-in code is sent.
      - After a refused result, the page shows the message and keeps the name
-       and email that were entered.
+       and email that were entered. The password field is left empty.
+     - door_check adds no log filter for the password. When `password` is
+       offered, make sure the host's `config.filter_parameters` includes
+       `:password`, or add it in `config/initializers/filter_parameter_logging.rb`.
      - The page also shows a required agreement checkbox named `agreement`.
        When it is not ticked, door_check refuses the sign-up on the same page
        with "Tick the agreement to sign up.", keeps the name and email, and
