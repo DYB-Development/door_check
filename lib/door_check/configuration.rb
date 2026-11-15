@@ -8,7 +8,7 @@ module DoorCheck
     attr_writer :authenticator_issuer
     attr_accessor :person_method, :account_method, :parent_controller, :parent_mailer, :existing_authenticator, :person_accounts,
                   :find_person_by_email, :sign_in_person, :sign_out_person, :passkey_domain, :locate_ip, :stylesheet, :head_partial,
-                  :people_choose_second_step
+                  :people_choose_second_step, :sign_up_person
 
     def initialize
       @parent_controller = "::ApplicationController"

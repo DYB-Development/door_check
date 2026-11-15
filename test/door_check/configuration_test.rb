@@ -32,4 +32,8 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
   test "the authenticator app shows the host application's name unless the host names another" do
     assert_equal Rails.application.class.module_parent_name, DoorCheck::Configuration.new.authenticator_issuer
   end
+
+  test "an app has no sign-up page unless the host sets a sign-up callable" do
+    assert_nil DoorCheck::Configuration.new.sign_up_person
+  end
 end

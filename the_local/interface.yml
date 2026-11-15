@@ -21,6 +21,7 @@ install:
   - config.head_partial
   - config.authenticator_issuer
   - config.people_choose_second_step
+  - config.sign_up_person
   - include DoorCheck::Tracking
   - include DoorCheck::EntryCheck
   - before_action :door_check_check_entry
@@ -40,6 +41,7 @@ develop:
   - DoorCheck::RemoveTrustedBrowser
   - DoorCheck::Result
   - door_check.new_email_sign_in_path
+  - door_check.new_sign_up_path
   - door_check.new_passkey_sign_in_path
   - door_check.new_approval_request_path
   - door_check.approvals_path
@@ -60,6 +62,7 @@ sources:
   - app/controllers/door_check/email_sign_ins_controller.rb
   - app/controllers/door_check/email_links_controller.rb
   - app/controllers/door_check/email_codes_controller.rb
+  - app/controllers/door_check/sign_ups_controller.rb
   - app/controllers/door_check/passkey_sign_ins_controller.rb
   - app/controllers/door_check/approval_requests_controller.rb
   - app/controllers/concerns/door_check/passkey_ceremony.rb
@@ -77,6 +80,7 @@ sources:
   - app/views/layouts/door_check/application.html.erb
   - app/views/door_check/settings/_sign_in_methods.html.erb
   - app/views/door_check/settings/_sign_in_rules.html.erb
+  - app/views/door_check/sign_ups/new.html.erb
   - test/dummy/config/initializers/door_check.rb
   - test/dummy/config/routes.rb
   - test/dummy/app/controllers/application_controller.rb

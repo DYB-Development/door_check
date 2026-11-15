@@ -1,6 +1,6 @@
 ---
 name: door_check-develop
-description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, handling the result those actions return, and linking to door_check's sign-in, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
+description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
 tools: Bash, Read, Write, Edit, Grep
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -45,6 +45,7 @@ Paths, called on the engine's route proxy `door_check` from host views and
 controllers:
 
 - `door_check.new_email_sign_in_path` — the page where a person enters their email to be sent a sign-in code and a sign-in link.
+- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one and be sent a sign-in code and a sign-in link.
 - `door_check.new_passkey_sign_in_path` — the page where a person signs in with a passkey.
 - `door_check.new_approval_request_path` — the page where a person asks to be let in by approving from a device they are already signed in on.
 - `door_check.approvals_path` — the page where a signed-in person sees waiting approval requests and approves or declines them.
@@ -228,6 +229,7 @@ before building `RequireSecondStep`.
 
 ```erb
 <%= link_to "Email me a sign-in code", door_check.new_email_sign_in_path %>
+<%= link_to "Sign up", door_check.new_sign_up_path %>
 <%= link_to "Sign in with a passkey", door_check.new_passkey_sign_in_path %>
 <%= link_to "Approve from another device", door_check.new_approval_request_path %>
 <%= link_to "Sign-in requests", door_check.approvals_path %>
@@ -239,12 +241,18 @@ before building `RequireSecondStep`.
 1. Ask the developer which methods the app offers, or read the host's door_check
    initializer, and show a link only when its method is offered:
    - the email sign-in page needs `email_code`
+   - the sign-up page needs `email_code` and the host's `sign_up_person`
+     setting
    - both passkey pages need `passkey`
    - the approval request page and the approvals page need `device_approval`
    - the authenticator page needs `authenticator_app`
    - the backup codes action needs `backup_codes`
 2. The email sign-in, passkey, approval request and backup codes pages return
-   not found when their method is not offered. The approvals page and the
+   not found when their method is not offered. The sign-up page returns not
+   found unless `email_code` is offered and `sign_up_person` is set.
+   Values added to the sign-up path, such as
+   `door_check.new_sign_up_path(invitation: token)`, reach `sign_up_person`
+   with the form's name and email. The approvals page and the
    authenticator page do not, so a link to either shown without its method
    offered leads to a working page for a method the app does not offer.
 3. The sign-in email always carries both a code and a link. The link returns
@@ -254,8 +262,8 @@ before building `RequireSecondStep`.
    an authenticator app, add a passkey and make new backup codes, each only
    when its method is offered. Add those links elsewhere only when the
    developer asks for them outside the settings page.
-5. Put the sign-in links on the host's sign-in page, for a person who is not
-   signed in. The approvals, authenticator, passkey and backup codes links are
+5. Put the sign-in and sign-up links on the host's sign-in page, for a person
+   who is not signed in. The approvals, authenticator, passkey and backup codes links are
    for a signed-in person only.
 6. Link to `backup_codes_path` with a form that sends a `POST`, such as
    `button_to`, never a plain link.
