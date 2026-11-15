@@ -1,6 +1,6 @@
 ---
 name: door_check-develop
-description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
+description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking whether a person's email address is confirmed before allowing what the host holds back, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
 tools: Bash, Read, Write, Edit, Grep
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -13,7 +13,8 @@ and do not pick for them.
 
 A Rails engine that adds sign-in methods and second steps to an app that already
 has its own users, session and sign-in page. Use this local when host code signs
-someone in, reads what a session has proved, changes a sign-in rule, ends a
+someone in, reads what a session has proved, checks whether a person's email
+address is confirmed, changes a sign-in rule, ends a
 session, removes a saved method, forgets a trusted browser, or links to a
 door_check page.
 
@@ -25,6 +26,10 @@ local has added door_check's tracking:
 - `door_check_signed_in(person, method_name:)` — records a new signed-in session for `person` on this device, records `method_name` as its first proof, and makes it this browser's door_check session.
 - `door_check_proved_by` — the current session's proofs, oldest first, as `[method_name, proved_at]` pairs with the name as a symbol, or `[]` when no one is signed in or the sign-in was never recorded.
 - `door_check_account` — the current account, read through the host's account method, or nil when the host has no account method.
+
+Email confirmation:
+
+- `DoorCheck::EmailConfirmation.confirmed?(person, email)` — true when `person`'s address was confirmed and is the same as `email`, ignoring case and surrounding spaces, and false otherwise.
 
 Method names:
 
@@ -45,7 +50,7 @@ Paths, called on the engine's route proxy `door_check` from host views and
 controllers:
 
 - `door_check.new_email_sign_in_path` — the page where a person enters their email to be sent a sign-in code and a sign-in link.
-- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one, then either is sent a sign-in code and a sign-in link or chooses a password and is signed in.
+- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one, then either is sent a sign-in code and a sign-in link or chooses a password, is signed in and is emailed a confirmation link.
 - `door_check.new_passkey_sign_in_path` — the page where a person signs in with a passkey.
 - `door_check.new_approval_request_path` — the page where a person asks to be let in by approving from a device they are already signed in on.
 - `door_check.approvals_path` — the page where a signed-in person sees waiting approval requests and approves or declines them.
@@ -91,6 +96,48 @@ proved.include?(:authenticator_app)
 
 `door_check_account` returns what the host's account method returns, so use it
 where host code needs the same account door_check checks rules against.
+
+### Hold back what an unconfirmed person may do
+
+door_check holds nothing back from a person whose email address is not
+confirmed. The host decides what to limit, such as sending invitations or
+changing billing. Ask the developer which actions to limit, then check before
+each one:
+
+```ruby
+class InvitationsController < ApplicationController
+  before_action :require_confirmed_email
+
+  private
+
+  def require_confirmed_email
+    return if DoorCheck::EmailConfirmation.confirmed?(current_user, current_user.email)
+
+    redirect_to settings_path, alert: "Confirm your email address to send invitations."
+  end
+end
+```
+
+The controller, redirect and message are examples. Pass the host's person and
+the address the host holds for them now.
+
+- After a password sign-up, door_check emails a confirmation link to the
+  address entered. The link works once and for 24 hours. Opening it confirms
+  the address and signs nobody in.
+- Using any email code or email link, at sign-up or at sign-in, also confirms
+  the address it was sent to. An email code sign-up gets no confirmation
+  email.
+- `confirmed?` compares the address door_check confirmed with the `email`
+  passed in. When the person has changed their address in the host since, it
+  returns false until the new address is confirmed by an email code or link.
+- People who existed before door_check kept confirmations read as not
+  confirmed until they use an email code or link.
+- The personal settings section shows "Send the confirmation email again" to
+  a signed-in person whose address is waiting to be confirmed. It posts to
+  door_check's own route, so the host writes no action for it. The new link
+  goes to the address door_check stored at sign-up, and the earlier link keeps
+  working until it expires. Point an unconfirmed person at the settings page
+  where the install local placed that section.
 
 ### Write the settings actions
 
