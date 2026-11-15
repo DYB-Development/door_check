@@ -45,5 +45,31 @@ module DoorCheck
         assert_nil Challenge.redeem_token(challenge.token)
       end
     end
+
+    test "a confirmation link's token is not taken as a sign-in link" do
+      challenge = Challenge.issue_confirmation(@user, "ada@example.com")
+
+      assert_nil Challenge.redeem_token(challenge.token)
+    end
+
+    test "a sign-in link's token is not taken as a confirmation link" do
+      challenge = Challenge.issue(@user)
+
+      assert_nil Challenge.redeem_token(challenge.token, purpose: "confirm")
+    end
+
+    test "a confirmation link still works after a sign-in link's fifteen minutes have passed" do
+      challenge = Challenge.issue_confirmation(@user, "ada@example.com")
+
+      travel 16.minutes do
+        assert_equal challenge, Challenge.redeem_token(challenge.token, purpose: "confirm")
+      end
+    end
+
+    test "a sign-in challenge holds the address its code was sent to" do
+      challenge = Challenge.issue(@user, email: "ada@example.com")
+
+      assert_equal "ada@example.com", challenge.reload.email
+    end
   end
 end

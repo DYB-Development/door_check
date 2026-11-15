@@ -2,6 +2,7 @@ module DoorCheck
   class Challenge < ApplicationRecord
     LIFETIME = 15.minutes
     APPROVAL_LIFETIME = 5.minutes
+    CONFIRMATION_LIFETIME = 24.hours
 
     belongs_to :person, polymorphic: true
 
@@ -9,10 +10,15 @@ module DoorCheck
 
     scope :awaiting_approval, -> { where.not(number: nil).where(approved_at: nil, declined_at: nil, used_at: nil).where("expires_at > ?", Time.current) }
 
-    def self.issue(person)
+    def self.issue(person, email: nil)
       code = format("%06d", SecureRandom.random_number(1_000_000))
       token = SecureRandom.urlsafe_base64(32)
-      create!(person: person, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
+      create!(person: person, email: email, code: code, token: token, code_digest: digest(code), token_digest: digest(token), expires_at: LIFETIME.from_now)
+    end
+
+    def self.issue_confirmation(person, email)
+      token = SecureRandom.urlsafe_base64(32)
+      create!(person: person, email: email, purpose: "confirm", token: token, token_digest: digest(token), expires_at: CONFIRMATION_LIFETIME.from_now)
     end
 
     def self.request_approval(person, device:, ip_address:)
@@ -25,8 +31,8 @@ module DoorCheck
 
     def self.digest(value) = KeyedDigest.of(value)
 
-    def self.redeem_token(token)
-      challenge = find_by(token_digest: digest(token))
+    def self.redeem_token(token, purpose: "sign_in")
+      challenge = find_by(token_digest: digest(token), purpose: purpose)
       challenge if challenge&.use
     end
 

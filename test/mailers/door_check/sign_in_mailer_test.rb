@@ -21,5 +21,13 @@ module DoorCheck
 
       assert_equal [ "hello@dummy-app.example" ], mail.from
     end
+
+    test "the confirmation email holds a link that confirms the address" do
+      challenge = Challenge.issue_confirmation(User.first, "ada@example.com")
+
+      mail = SignInMailer.confirmation(challenge)
+
+      assert_match "/door_check/confirm_email/#{challenge.token}", mail.text_part.body.to_s
+    end
   end
 end

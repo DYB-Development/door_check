@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -65,9 +65,13 @@ trusted browsers.
    bin/rails db:migrate
    ```
    This adds door_check's tables for signed-in sessions, proofs, account rules,
-   person rules, credentials, challenges and trusted devices. People and
-   accounts are referenced polymorphically, so the host's own tables are not
-   changed.
+   person rules, credentials, challenges, trusted devices and email
+   confirmations, and the email address and purpose of each challenge. People
+   and accounts are referenced polymorphically, so the host's own tables are
+   not changed. A host upgrading from an earlier door_check gets the email
+   confirmations table and the challenges' email and purpose columns from
+   these two commands. People who existed before then read as not confirmed
+   until they use an email code or link.
 
 3. Mount the engine in `config/routes.rb`:
    ```ruby
@@ -83,8 +87,8 @@ trusted browsers.
    where to store the output.
 
 5. Make sure every environment sets `config.action_mailer.default_url_options`
-   with a host, in `config/environments/*.rb`. The sign-in email carries a link
-   built from it.
+   with a host, in `config/environments/*.rb`. The sign-in email and the
+   confirmation email each carry a link built from it.
 
 6. Create `config/initializers/door_check.rb`:
    ```ruby
@@ -214,6 +218,16 @@ trusted browsers.
        with `find_person_by_email`, signs them in with `sign_in_person`,
        records `password` as the session's proof, and redirects to `/`. No
        sign-in code is sent.
+     - After an ok result for the password choice, door_check also emails a
+       confirmation link, with the subject "Confirm your email address", to
+       the address entered. The link works once and for 24 hours. Opening it
+       marks the address confirmed and signs nobody in. A confirmation link
+       cannot sign anyone in, and a sign-in link cannot confirm an address.
+       A used or expired link shows a page with a "Send a new confirmation
+       email" button, which sends a new link to the same address.
+     - The email code choice gets no confirmation email. Using any email code
+       or email link, at sign-up or at sign-in, confirms the address it was
+       sent to.
      - After a refused result, the page shows the message and keeps the name
        and email that were entered. The password field is left empty.
      - door_check adds no log filter for the password. When `password` is
@@ -248,7 +262,20 @@ trusted browsers.
      The titles and routes are examples. Ask the developer which documents to
      link and where each one is. Each hash must carry both `title` and `url`.
 
-8. Add the tracking and the second-step check to the host's
+8. Ask the developer what the app should hold back from a person whose email
+   address is not confirmed, such as sending invitations or changing billing.
+   door_check holds nothing back on its own. The host decides, by asking
+   door_check whether the person's current address is confirmed:
+   ```ruby
+   DoorCheck::EmailConfirmation.confirmed?(current_user, current_user.email)
+   ```
+   `current_user` and `email` are examples. Pass the host's person and the
+   address the host holds for them now. The answer is false when the address
+   was never confirmed or has changed since. Writing those checks is the
+   develop local's work, so hand the answers to it. When the developer wants
+   nothing held back, skip this step.
+
+9. Add the tracking and the second-step check to the host's
    `app/controllers/application_controller.rb`, or to the controller named in
    `parent_controller`:
    ```ruby
@@ -264,11 +291,11 @@ trusted browsers.
    `skip_before_action :door_check_check_entry`. A request with no signed-in
    person always passes the check.
 
-9. Record each sign-in made by the host's own sign-in page. That call is the
-   develop local's to write. Hand it to the develop local before the app goes
-   live, since a session that was never recorded meets no second-step rule.
+10. Record each sign-in made by the host's own sign-in page. That call is the
+    develop local's to write. Hand it to the develop local before the app goes
+    live, since a session that was never recorded meets no second-step rule.
 
-10. Place the two settings sections on the host's settings pages:
+11. Place the two settings sections on the host's settings pages:
     ```erb
     <%= render "door_check/settings/sign_in_methods",
                person: current_user,
@@ -304,7 +331,11 @@ trusted browsers.
     without a heading or panel around it:
     - **Sign-in methods** — the person's saved methods, with a button to set up
       an authenticator app, a passkey or new backup codes for each of those
-      that `offered_methods` includes.
+      that `offered_methods` includes. While the person's address is waiting
+      to be confirmed, it also shows a "Send the confirmation email again"
+      button. That button posts to door_check's own route, so the host adds
+      no route for it. It sends a new link to the address door_check stored at
+      sign-up, and the earlier link keeps working until it expires.
     - **Signed-in sessions** — the person's sessions that are still signed in.
     - **Trusted browsers** — shown only when `trusted_device` is offered.
     - **Second step** — the person's own second-step checkbox, or a note in its
@@ -356,6 +387,7 @@ trusted browsers.
 - After upgrading the gem, run `bin/rails door_check:install:migrations` and
   `bin/rails db:migrate` again to copy any new migrations.
 - Changing `offered_methods` needs an app restart.
-- Out of scope: recording a sign-in, reading proofs, linking to door_check's
-  pages, and the actions that change rules, end sessions or remove methods.
+- Out of scope: recording a sign-in, reading proofs, checking whether a
+  person's address is confirmed, linking to door_check's pages, and the
+  actions that change rules, end sessions or remove methods.
   Those belong to the develop local.

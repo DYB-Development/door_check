@@ -123,6 +123,28 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.offered_methods = offered
   end
 
+  test "asking for a code keeps the address the code was sent to" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    assert_equal "ada@example.com", DoorCheck::Challenge.last.email
+  end
+
+  test "a person who signs in with the emailed code reads as confirmed for that address" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    post "/door_check/email_code", params: { code: emailed_code }
+
+    assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
+  end
+
+  test "a person who signs in with the emailed link reads as confirmed for that address" do
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    get emailed_link
+
+    assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
+  end
+
   private
 
   def emailed_link

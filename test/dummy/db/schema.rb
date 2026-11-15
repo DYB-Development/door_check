@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_13_191736) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_15_233653) do
   create_table "accounts", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -42,6 +42,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_191736) do
     t.string "ip_address"
     t.datetime "approved_at"
     t.datetime "declined_at"
+    t.string "email"
+    t.string "purpose", default: "sign_in", null: false
     t.index ["person_type", "person_id"], name: "index_door_check_challenges_on_person"
     t.index ["token_digest"], name: "index_door_check_challenges_on_token_digest", unique: true
   end
@@ -60,6 +62,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_191736) do
     t.integer "sign_count"
     t.index ["external_id"], name: "index_door_check_credentials_on_external_id", unique: true
     t.index ["person_type", "person_id"], name: "index_door_check_credentials_on_person"
+  end
+
+  create_table "door_check_email_confirmations", force: :cascade do |t|
+    t.string "person_type", null: false
+    t.integer "person_id", null: false
+    t.string "email"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_type", "person_id"], name: "index_door_check_email_confirmations_on_person", unique: true
   end
 
   create_table "door_check_person_rules", force: :cascade do |t|

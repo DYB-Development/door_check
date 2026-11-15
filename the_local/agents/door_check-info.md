@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email and resend button, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -34,7 +34,8 @@ door_check declares nothing for this local to document.
   settings page.
 - The **develop** local owns what a host's code calls once door_check is
   installed: recording a sign-in, reading what a session has proved, reading the
-  current account, the list of known method names, the actions that change a
+  current account, whether a person's email address is confirmed, the list of
+  known method names, the actions that change a
   rule or end a session, the result those actions return, and the paths to
   door_check's pages, the sign-up page among them.
 
@@ -77,7 +78,32 @@ door_check declares nothing for this local to document.
   before the callable is called. On ok, door_check signs the person in with
   the host's sign-in, records password as the proof, and goes to the app's
   home page, with no code sent. The host filters the password from its logs,
-  since door_check adds no filter of its own.
+  since door_check adds no filter of its own. door_check then sends a
+  confirmation email to the address entered.
+- **Confirmation email** — the email sent after a password sign-up, with the
+  subject "Confirm your email address" and one link. The link works once and
+  for 24 hours. Opening it marks the address confirmed and signs nobody in. A
+  confirmation link cannot sign anyone in, and a sign-in link cannot confirm
+  an address. A used or expired link shows a page with a "Send a new
+  confirmation email" button, which sends a new link to the same address.
+- **Confirmed address** — an email address the person has proved they can
+  read. Opening a confirmation link confirms it, and so does using any email
+  code or email link, at sign-up or at sign-in. An email code sign-up sends no
+  confirmation email, since entering the code confirms the address. People
+  who existed before door_check kept confirmations read as not confirmed
+  until they use an email code or link.
+- **Confirmed check** — the host asks door_check whether a person is confirmed
+  by passing the person and the address the host holds for them now. The
+  answer is true only when that address was confirmed. Case and surrounding
+  spaces are ignored. A person who has changed their address since reads as
+  not confirmed. door_check holds nothing back from a person who is not
+  confirmed. The host decides what to limit, such as sending invitations or
+  changing billing.
+- **Resend button** — "Send the confirmation email again", shown in the
+  personal settings section's Sign-in methods group to a signed-in person
+  whose address is waiting to be confirmed. It sends a new link to the address
+  door_check stored at sign-up. The earlier link keeps working until it
+  expires.
 - **Refused sign-up** — the page shows the callable's message, keeps the name
   and email, and leaves the password empty.
 - **Sign-up agreement** — the required checkbox on the sign-up page. Its label
@@ -120,7 +146,8 @@ door_check declares nothing for this local to document.
 - **Personal settings section** — the section where a person sees their saved
   methods, signed-in sessions and trusted browsers, and sets their person rule.
   It shows four titled groups, each in its own panel: Sign-in methods, with the
-  buttons to add one; Signed-in sessions; Trusted browsers, left out when the
+  buttons to add one and the resend button while the person's address waits to
+  be confirmed; Signed-in sessions; Trusted browsers, left out when the
   app does not offer trusted browsers; and Second step. On a phone each table
   shows as a list and the add buttons stack at full width.
 - **Second step group** — the part of the personal settings section that holds

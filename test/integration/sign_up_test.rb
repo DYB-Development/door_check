@@ -129,9 +129,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor who signs up with a password is sent no sign-in code" do
-    assert_no_emails do
-      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
-    end
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_empty ActionMailer::Base.deliveries.select { |mail| mail.subject == "Your sign-in code" }
+  end
+
+  test "a visitor who signs up with a password is emailed a confirmation link at the address they entered" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_match %r{/door_check/confirm_email/}, ActionMailer::Base.deliveries.find { |mail| mail.to == [ "ada@example.com" ] }&.text_part&.body.to_s
   end
 
   test "a visitor who signs up with a password has a signed-in session proved by password" do
@@ -139,6 +145,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
     get "/proofs"
     assert_equal [ "password" ], response.parsed_body
+  end
+
+  test "a visitor who signs up with a password and asks for the confirmation email again is sent it at the address they entered" do
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    post "/door_check/email_confirmation"
+
+    assert_equal [ "ada@example.com" ], ActionMailer::Base.deliveries.last.to
   end
 
   test "a value in the sign-up page's address reaches the host's sign-up callable unchanged" do
@@ -171,6 +185,20 @@ class SignUpTest < ActionDispatch::IntegrationTest
 
     get "/proofs"
     assert_equal [ "email_code" ], response.parsed_body
+  end
+
+  test "a visitor who signs up with the emailed code reads as confirmed once they type it" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    post "/door_check/email_code", params: { code: ActionMailer::Base.deliveries.last.text_part.body.to_s[/code is (\d{6})/, 1] }
+
+    assert DoorCheck::EmailConfirmation.confirmed?(User.find_by(email: "ada@example.com"), "ada@example.com")
+  end
+
+  test "a visitor who signs up with the emailed code is sent no confirmation email" do
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    assert_empty ActionMailer::Base.deliveries.select { |mail| mail.subject == "Confirm your email address" }
   end
 
   test "a sign-up the host refuses shows the host's message on the sign-up page" do

@@ -42,6 +42,7 @@ develop:
   - DoorCheck::SignOutSession
   - DoorCheck::RemoveTrustedBrowser
   - DoorCheck::Result
+  - DoorCheck::EmailConfirmation.confirmed?
   - door_check.new_email_sign_in_path
   - door_check.new_sign_up_path
   - door_check.new_passkey_sign_in_path
@@ -65,6 +66,7 @@ sources:
   - app/controllers/door_check/email_links_controller.rb
   - app/controllers/door_check/email_codes_controller.rb
   - app/controllers/door_check/sign_ups_controller.rb
+  - app/controllers/door_check/email_confirmations_controller.rb
   - app/controllers/door_check/passkey_sign_ins_controller.rb
   - app/controllers/door_check/approval_requests_controller.rb
   - app/controllers/concerns/door_check/passkey_ceremony.rb
@@ -79,6 +81,7 @@ sources:
   - app/models/door_check/sign_out_session.rb
   - app/models/door_check/remove_trusted_browser.rb
   - app/models/door_check/result.rb
+  - app/models/door_check/email_confirmation.rb
   - app/views/layouts/door_check/application.html.erb
   - app/views/door_check/settings/_sign_in_methods.html.erb
   - app/views/door_check/settings/_sign_in_rules.html.erb

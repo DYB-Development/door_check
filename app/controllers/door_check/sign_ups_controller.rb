@@ -47,11 +47,13 @@ module DoorCheck
       person = DoorCheck.configuration.find_person_by_email.call(email)
       DoorCheck.configuration.sign_in_person.call(self, person)
       door_check_signed_in(person, method_name: :password)
+      EmailConfirmation.for(person).update!(email: email)
+      SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
       redirect_to "/"
     end
 
     def send_code(email)
-      challenge = Challenge.issue(DoorCheck.configuration.find_person_by_email.call(email))
+      challenge = Challenge.issue(DoorCheck.configuration.find_person_by_email.call(email), email: email)
       SignInMailer.code_and_link(challenge, to: email).deliver_now
       session[EmailSignInsController::CHALLENGE_KEY] = challenge.id
     end

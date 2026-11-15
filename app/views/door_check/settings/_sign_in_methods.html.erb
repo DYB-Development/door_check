@@ -13,6 +13,9 @@
         <% DoorCheck::SecondStep.offered_setups.each do |setup| %>
           <%= ui_button(label: setup.label, href: door_check.public_send(setup.page), method: setup.request_method, variant: :secondary, full_width: true) %>
         <% end %>
+        <% if DoorCheck::EmailConfirmation.for(person).awaiting? %>
+          <%= ui_button(label: "Send the confirmation email again", href: door_check.email_confirmation_path, method: :post, variant: :secondary, full_width: true) %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
