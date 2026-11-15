@@ -26,6 +26,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test "the sign-up page is not found when the host offers neither passwords nor email codes" do
+    with_configuration(offered_methods: %i[email_link passkey]) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_response :not_found
+  end
+
   test "submitting the sign-up page passes every submitted value to the host's sign-up callable" do
     received = nil
     with_sign_up_person(->(_controller, values) { received = values.to_h; signed_up(values) }) do
