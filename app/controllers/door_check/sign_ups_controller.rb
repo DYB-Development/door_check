@@ -20,6 +20,7 @@ module DoorCheck
     def send_code(email)
       challenge = Challenge.issue(DoorCheck.configuration.find_person_by_email.call(email))
       SignInMailer.code_and_link(challenge, to: email).deliver_now
+      session[EmailSignInsController::CHALLENGE_KEY] = challenge.id
     end
 
     def sign_up_offered?
