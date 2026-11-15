@@ -209,6 +209,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[name=email][value='ada@example.com']"
   end
 
+  test "a password the host refuses is not filled back in on the sign-up page" do
+    with_sign_up_person(->(_controller, _values) { password_too_short }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "short", agreement: "1" }
+    end
+
+    assert_select "input[name=password][value]", count: 0
+  end
+
   test "the sign-up page shows the agreement checkbox with the label the host configured" do
     with_configuration(sign_up_agreement_label: "I agree to the Acme terms") do
       get "/door_check/sign_up/new"
