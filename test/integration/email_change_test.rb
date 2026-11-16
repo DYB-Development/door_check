@@ -186,6 +186,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /This link no longer works/
   end
 
+  test "after the change is cancelled the confirmation link says it no longer works" do
+    confirmation = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+    cancel = DoorCheck::Challenge.issue_email_change_cancel(@user, "ada@new.example.com")
+
+    get "/door_check/cancel_email_change/#{cancel.token}"
+    get "/door_check/confirm_email_change/#{confirmation.token}"
+
+    assert_select "[role=alert]", text: /This link no longer works/
+  end
+
   private
 
   def refused
