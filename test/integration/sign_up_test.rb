@@ -380,6 +380,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_match(%r{code is \d{6}.*/email_link/}m, ActionMailer::Base.deliveries.find { |mail| mail.to == [ "ada@example.com" ] }&.text_part&.body.to_s)
   end
 
+  test "a password sign-up with an address that already has an account is taken to the screen where the code is typed" do
+    User.create!(email: "ada@example.com")
+
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_redirected_to "/door_check/email_code/new"
+  end
+
   private
 
   def door_check_rows
