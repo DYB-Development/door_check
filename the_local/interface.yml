@@ -25,6 +25,7 @@ install:
   - config.sign_up_agreement_label
   - config.sign_up_agreement_links
   - config.sign_up_link_on_sign_in
+  - config.email_change_confirmed
   - include DoorCheck::Tracking
   - include DoorCheck::EntryCheck
   - before_action :door_check_check_entry
@@ -70,6 +71,7 @@ sources:
   - app/controllers/door_check/email_codes_controller.rb
   - app/controllers/door_check/sign_ups_controller.rb
   - app/controllers/door_check/email_confirmations_controller.rb
+  - app/controllers/door_check/email_changes_controller.rb
   - app/controllers/door_check/passkey_sign_ins_controller.rb
   - app/controllers/door_check/approval_requests_controller.rb
   - app/controllers/concerns/door_check/passkey_ceremony.rb
@@ -91,6 +93,9 @@ sources:
   - app/views/door_check/settings/_sign_in_rules.html.erb
   - app/views/door_check/sign_ups/new.html.erb
   - app/views/door_check/email_sign_ins/new.html.erb
+  - app/views/door_check/email_changes/show.html.erb
+  - app/views/door_check/email_changes/refused.html.erb
+  - app/views/door_check/email_changes/expired.html.erb
   - test/dummy/config/initializers/door_check.rb
   - test/dummy/config/routes.rb
   - test/dummy/app/controllers/application_controller.rb

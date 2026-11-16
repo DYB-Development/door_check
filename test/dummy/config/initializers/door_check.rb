@@ -19,4 +19,8 @@ DoorCheck.configure do |config|
     User.create!(email: values[:email])
     DoorCheck::Result.new(ok: true)
   end
+  config.email_change_confirmed = lambda do |_controller, user, email|
+    user.update!(email: email)
+    DoorCheck::Result.new(ok: true)
+  end
 end
