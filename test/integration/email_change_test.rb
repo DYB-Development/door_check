@@ -85,6 +85,17 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a change whose host setting raises an error leaves the confirmed address as it was" do
+    DoorCheck::EmailConfirmation.for(@user).confirm("ada@example.com")
+    challenge = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+
+    with_email_change_confirmed(->(_controller, _person, _email) { raise "The host's database is down" }) do
+      get "/door_check/confirm_email_change/#{challenge.token}"
+    end
+
+    assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
+  end
+
   private
 
   def refused
