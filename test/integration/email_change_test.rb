@@ -177,6 +177,15 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a This wasn't me link opened a second time says it no longer works" do
+    challenge = DoorCheck::Challenge.issue_email_change_cancel(@user, "ada@new.example.com")
+
+    get "/door_check/cancel_email_change/#{challenge.token}"
+    get "/door_check/cancel_email_change/#{challenge.token}"
+
+    assert_select "[role=alert]", text: /This link no longer works/
+  end
+
   private
 
   def refused

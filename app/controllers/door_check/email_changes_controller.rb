@@ -14,6 +14,8 @@ module DoorCheck
 
     def cancel
       challenge = Challenge.redeem_token(params[:token], purpose: "cancel_email_change")
+      return render(:cancel_expired, status: :not_found) unless challenge
+
       email_change_cancelled(challenge)
       render :cancelled
     end
