@@ -1,6 +1,14 @@
 require "test_helper"
 
 class SignUpTest < ActionDispatch::IntegrationTest
+  class FailingDelivery
+    def initialize(_settings); end
+
+    def deliver!(_mail)
+      raise IOError, "The mail server refused the connection"
+    end
+  end
+
   test "a visitor opens the sign-up page and is asked for their name" do
     get "/door_check/sign_up/new"
 
@@ -476,6 +484,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_empty ActionMailer::Base.deliveries
   end
 
+  test "a visitor who signs up with a password stays signed in when the confirmation email cannot be sent" do
+    with_failing_mail do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_equal User.find_by(email: "ada@example.com").id, session[:user_id]
+  end
+
   private
 
   def door_check_rows
@@ -502,6 +518,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     yield
   ensure
     previous.each { |name, value| DoorCheck.configuration.public_send("#{name}=", value) }
+  end
+
+  def with_failing_mail
+    ActionMailer::Base.add_delivery_method :failing, FailingDelivery
+    ActionMailer::Base.delivery_method = :failing
+    yield
+  ensure
+    ActionMailer::Base.delivery_method = :test
   end
 
   def with_sign_up_person(callable)

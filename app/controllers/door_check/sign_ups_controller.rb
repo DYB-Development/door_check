@@ -71,8 +71,14 @@ module DoorCheck
       DoorCheck.configuration.sign_in_person.call(self, person)
       door_check_signed_in(person, method_name: :password)
       EmailConfirmation.for(person).update!(email: email)
-      SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
+      send_confirmation(person, email)
       redirect_to "/"
+    end
+
+    def send_confirmation(person, email)
+      SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
+    rescue StandardError
+      nil
     end
 
     def sign_in_methods
