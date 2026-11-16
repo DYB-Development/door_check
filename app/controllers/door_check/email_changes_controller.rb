@@ -14,7 +14,8 @@ module DoorCheck
 
     def email_change_confirmed(challenge)
       DoorCheck.configuration.email_change_confirmed.call(self, challenge.person, challenge.email)
-    rescue StandardError
+    rescue StandardError => error
+      Rails.error.report(error)
       Result.new(ok: false, message: NOT_CHANGED)
     end
 
