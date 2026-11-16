@@ -138,15 +138,25 @@ the address the host holds for them now.
 - `confirmed?` compares the address door_check confirmed with the `email`
   passed in. When the person has changed their address in the host since, it
   returns false until the new address is confirmed by an email code, an email
-  sign-in link, or the link `RequestEmailChange` sends to it.
+  sign-in link, the link `RequestEmailChange` sends to it, or the confirmation
+  email sent again from the settings section.
 - People who existed before door_check kept confirmations read as not
   confirmed until they use an email code or link.
 - The personal settings section shows "Send the confirmation email again" to
-  a signed-in person whose address is waiting to be confirmed. It posts to
-  door_check's own route, so the host writes no action for it. The new link
-  goes to the address door_check stored at sign-up, and the earlier link keeps
-  working until it expires. Point an unconfirmed person at the settings page
-  where the install local placed that section.
+  a signed-in person door_check has a stored address for, whenever that
+  address is not confirmed or differs from the address `person.email` returns
+  now, ignoring case and surrounding spaces. A person door_check has never
+  stored an address for, such as one who existed before door_check kept
+  confirmations, does not see it.
+- That button posts to door_check's own route, so the host writes no action
+  for it. The new link goes to the address `person.email` returns now, or to
+  the address door_check stored when the person does not answer `email`.
+  Opening it confirms that address, so `confirmed?` returns true for it.
+- Earlier confirmation links keep working until each is used or expires.
+  Opening one sent to an older address confirms that older address, which
+  leaves the button showing while the host holds a different one.
+- Point an unconfirmed person at the settings page where the install local
+  placed that section.
 
 ### Write the settings actions
 

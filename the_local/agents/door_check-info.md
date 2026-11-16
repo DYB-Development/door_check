@@ -124,9 +124,15 @@ door_check declares nothing for this local to document.
   changing billing.
 - **Resend button** — "Send the confirmation email again", shown in the
   personal settings section's Sign-in methods group to a signed-in person
-  whose address is waiting to be confirmed. It sends a new link to the address
-  door_check stored at sign-up. The earlier link keeps working until it
-  expires.
+  whose address is waiting to be confirmed. An address is waiting when
+  door_check has an address on record for the person and the address the host
+  holds for them now is not the confirmed one. That covers a password sign-up
+  never confirmed, and a confirmed person whose host address has since
+  changed. The button sends a new link to the address the host holds now, and
+  opening it confirms that address. A person door_check has no address on
+  record for sees no button. The earlier link keeps working until it expires.
+  The "Send a new confirmation email" button on a used or expired link's page
+  still sends to the address that link was for.
 - **Email change request** — the host asks door_check to change a person's
   email address to a new one. door_check emails the new address one link, with
   the subject "Confirm your new email address". The link works once and for 24
