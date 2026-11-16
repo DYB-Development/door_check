@@ -362,6 +362,16 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_not called
   end
 
+  test "an emailed-code sign-up with an address that already has an account does not reach the host's sign-up callable" do
+    User.create!(email: "ada@example.com")
+    called = false
+    with_sign_up_person(->(_controller, values) { called = true; signed_up(values) }) do
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+    end
+
+    assert_not called
+  end
+
   private
 
   def door_check_rows
