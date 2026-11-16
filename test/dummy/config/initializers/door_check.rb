@@ -23,4 +23,5 @@ DoorCheck.configure do |config|
     user.update!(email: email)
     DoorCheck::Result.new(ok: true)
   end
+  config.email_change_cancelled = ->(_controller, _user, _email) { DoorCheck::Result.new(ok: true) }
 end

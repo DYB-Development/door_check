@@ -1,0 +1,5 @@
+<%= ui_page(max_width: :md) do %>
+  <%= ui_section(title: "Email change not cancelled") do %>
+    <%= ui_alert(message: "This link no longer works. It works once, stops working after 24 hours, and stops working once the change is confirmed. If your email address was changed without you, change it back in your account settings.", type: :error) %>
+  <% end %>
+<% end %>

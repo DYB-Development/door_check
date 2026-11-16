@@ -87,6 +87,20 @@ module DoorCheck
       end
     end
 
+    test "an email change cancel link's token is taken as a cancel link" do
+      challenge = Challenge.issue_email_change_cancel(@user, "new@example.com")
+
+      assert_equal challenge, Challenge.redeem_token(challenge.token, purpose: "cancel_email_change")
+    end
+
+    test "ending a person's unused links for an address and purpose refuses those links" do
+      challenge = Challenge.issue_email_change(@user, "new@example.com")
+
+      Challenge.end_unused(@user, "new@example.com", purpose: "change_email")
+
+      assert_nil Challenge.redeem_token(challenge.token, purpose: "change_email")
+    end
+
     test "a sign-in challenge holds the address its code was sent to" do
       challenge = Challenge.issue(@user, email: "ada@example.com")
 

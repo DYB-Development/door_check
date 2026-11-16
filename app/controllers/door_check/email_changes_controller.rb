@@ -6,13 +6,29 @@ module DoorCheck
       challenge = Challenge.redeem_token(params[:token], purpose: "change_email")
       return render(:expired, status: :not_found) unless challenge
 
+      Challenge.end_unused(challenge.person, challenge.email, purpose: "cancel_email_change")
       result = email_change_confirmed(challenge)
       return refuse(result.message) unless result.ok?
 
       EmailConfirmation.for(challenge.person).confirm(challenge.email)
     end
 
+    def cancel
+      challenge = Challenge.redeem_token(params[:token], purpose: "cancel_email_change")
+      return render(:cancel_expired, status: :not_found) unless challenge
+
+      Challenge.end_unused(challenge.person, challenge.email, purpose: "change_email")
+      email_change_cancelled(challenge)
+      render :cancelled
+    end
+
     private
+
+    def email_change_cancelled(challenge)
+      DoorCheck.configuration.email_change_cancelled.call(self, challenge.person, challenge.email)
+    rescue StandardError => error
+      Rails.error.report(error)
+    end
 
     def email_change_confirmed(challenge)
       DoorCheck.configuration.email_change_confirmed.call(self, challenge.person, challenge.email)

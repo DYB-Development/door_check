@@ -43,5 +43,13 @@ module DoorCheck
 
       assert_equal "Confirm your new email address", SignInMailer.email_change_confirmation(challenge).subject
     end
+
+    test "the email change notice holds a This wasn't me link that cancels the change" do
+      challenge = Challenge.issue_email_change_cancel(User.first, "new@example.com")
+
+      mail = SignInMailer.email_change_notice(challenge, to: "ada@example.com")
+
+      assert_match "This wasn't me: http://example.com/door_check/cancel_email_change/#{challenge.token}", mail.text_part.body.to_s
+    end
   end
 end

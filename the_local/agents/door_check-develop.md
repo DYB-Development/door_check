@@ -1,6 +1,6 @@
 ---
 name: door_check-develop
-description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking whether a person's email address is confirmed before allowing what the host holds back, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, writing the action that asks to change a person's sign-in email and sends the new address a confirmation link that has the host save it once opened, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
+description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking whether a person's email address is confirmed before allowing what the host holds back, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, writing the action that asks to change a person's sign-in email and sends the new address a confirmation link that has the host save it once opened and the current address a "This wasn't me" link that cancels it, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
 tools: Bash, Read, Write, Edit, Grep
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -44,7 +44,7 @@ Rule and session actions. Each is built with `person:`, `account:` and
 - `DoorCheck::RemoveMethod` — removes the person's saved method whose id is `values[:credential_id]`.
 - `DoorCheck::SignOutSession` — signs out the person's signed-in session whose id is `values[:signed_in_session_id]`.
 - `DoorCheck::RemoveTrustedBrowser` — forgets the person's trusted browser whose id is `values[:trusted_device_id]`.
-- `DoorCheck::RequestEmailChange` — emails the address in `values[:email]` a link to confirm it as the person's new sign-in email, titled "Confirm your new email address". Opening the link has the host's email change setting save the new address.
+- `DoorCheck::RequestEmailChange` — emails the address in `values[:email]` a link to confirm it as the person's new sign-in email, titled "Confirm your new email address", and emails the person's current address a notice carrying a "This wasn't me" link that cancels the change. Opening the confirmation link has the host's email change setting save the new address.
 - `DoorCheck::Result` — `ok?` is true when the action succeeded, and `message` is the text to show the person when it did not.
 
 Paths, called on the engine's route proxy `door_check` from host views and
@@ -317,19 +317,26 @@ What the action does:
 - When `values[:email]` is missing, empty or only spaces, it sends nothing and
   returns a result whose `ok?` is false and whose `message` is
   `"Enter the new email address."`.
-- Otherwise it emails that address one link and returns a result whose `ok?`
-  is true. The link works once and for 24 hours.
-- It sends the email while the action runs. An error sending it is raised from
-  `call`, not returned in the result.
-- Each call sends a new link, and links sent by earlier calls keep working
-  until each is used or expires.
+- Otherwise it emails that address one confirmation link and returns a result
+  whose `ok?` is true. The link works once and for 24 hours.
+- It also emails a notice, with the subject "A change to your sign-in email
+  was requested", to the address `person.email` returns. The notice names the
+  new address and carries one "This wasn't me" link, which works once and for
+  24 hours. A person that does not answer `email`, or whose `email` is blank,
+  gets no notice and has no link to cancel with.
+- It sends both emails while the action runs, the confirmation first. An error
+  sending either is raised from `call`, not returned in the result. When the
+  notice fails, the confirmation email has already gone and its link works.
+- Each call sends a new pair of links. Links sent by earlier calls keep
+  working until each is used, expires, or is ended by the other link for the
+  same new address, as described below.
 - The request changes nothing about the person's current address. Until the
-  link is opened, the person still signs in with it, and
+  confirmation link is opened, the person still signs in with it, and
   `DoorCheck::EmailConfirmation.confirmed?` gives the same answer for it as
   before the request.
 - It takes `account:` but does not use it.
 
-What happens when the link is opened:
+What happens when the confirmation link is opened:
 
 - door_check calls the host's email change setting with the person and the
   new address. That setting, which the install local writes, saves the
@@ -350,9 +357,30 @@ What happens when the link is opened:
 - When the setting raises, door_check reports the error to `Rails.error` and
   shows that same general message.
 - The link is used up when it is opened, whatever the setting answers. A link
-  opened a second time, or after 24 hours, shows a page titled "Email address
-  not changed" saying the link no longer works and to ask for the change
-  again. A person who was refused asks for a new link through the host's form.
+  opened a second time, after 24 hours, or after the person cancelled the
+  change, shows a page titled "Email address not changed" saying the link no
+  longer works and to ask for the change again, and the setting is not called.
+  A person who was refused asks for a new link through the host's form.
+- Opening it also ends every unused "This wasn't me" link sent for that person
+  and that new address, whatever the setting answers.
+
+What happens when the "This wasn't me" link is opened:
+
+- door_check ends every unused confirmation link sent for that person and that
+  new address, so none of them can change the address any more.
+- door_check calls the host's email change cancelled setting with the person
+  and the new address. The install local writes that setting, and its return
+  value is ignored. When it is missing or raises, door_check reports the error
+  to `Rails.error` and the change is still cancelled.
+- The page is titled "Email change cancelled" and says the person's email
+  address stays as it was. Opening the link changes no address, marks nothing
+  confirmed and signs nobody in.
+- A link opened a second time, after 24 hours, or after the change was
+  confirmed shows a page titled "Email change not cancelled" saying the link
+  no longer works and, if the address was changed without the person, to
+  change it back in their account settings. The setting is not called.
+- door_check offers no page for changing the address back. Ask the developer
+  where in the host a person does that.
 
 ### Link to door_check's pages
 

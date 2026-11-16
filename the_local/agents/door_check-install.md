@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, whether the email sign-in page links to the sign-up page, the callable that saves a person's new email address once they open the link that confirms it, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, whether the email sign-in page links to the sign-up page, the callable that saves a person's new email address once they open the link that confirms it, the callable told when a person cancels an email change from the notice sent to their current address, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -42,6 +42,7 @@ trusted browsers.
 - `config.sign_up_agreement_links` — a lambda taking the controller and returning the documents linked under the agreement checkbox, as an array of `{ title:, url: }` hashes.
 - `config.sign_up_link_on_sign_in` — whether the email sign-in page shows a "Create an account" button linking to the sign-up page, true or false.
 - `config.email_change_confirmed` — a lambda taking the controller, the person and the new email address, which saves that address as the person's own and returns a `DoorCheck::Result`.
+- `config.email_change_cancelled` — a lambda taking the controller, the person and the new email address, called when the person cancels that change from the notice sent to their current address. Its return value is ignored.
 - `include DoorCheck::Tracking` — adds sign-in recording and the reads of proofs and the current account to the host's controller.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
@@ -90,8 +91,9 @@ trusted browsers.
 
 5. Make sure every environment sets `config.action_mailer.default_url_options`
    with a host, in `config/environments/*.rb`. The sign-in email, the
-   confirmation email and the email sent to confirm a new address each carry a
-   link built from it.
+   confirmation email, the email sent to confirm a new address and the notice
+   sent to the current address about that change each carry a link built
+   from it.
 
 6. Create `config/initializers/door_check.rb`:
    ```ruby
@@ -136,8 +138,9 @@ trusted browsers.
      the person and account methods.
    - `config.parent_mailer` — defaults to `"::ApplicationMailer"`. The host
      needs this class, or another named here, for every email door_check
-     sends: the sign-in email, the confirmation email, and the email that
-     confirms a new address.
+     sends: the sign-in email, the confirmation email, the email that
+     confirms a new address, and the notice about that change sent to the
+     current address.
    - `config.passkey_domain` — defaults to the host name of each request. Set it
      when passkeys must work across subdomains. Passkeys saved against one
      domain do not work on another, so ask before changing it on an app that
@@ -322,11 +325,45 @@ trusted browsers.
        link fails this way, so set it before the host offers people a way to
        ask for a change.
      - The link is used up when it is opened, before the lambda is called. A
-       link opened a second time, or after 24 hours, shows a page saying it no
-       longer works and to ask for the change again, and the lambda is not
-       called. A person refused once asks for a new link.
+       link opened a second time, after 24 hours, or after the person
+       cancelled the change, shows a page saying it no longer works and to ask
+       for the change again, and the lambda is not called. A person refused
+       once asks for a new link.
      - Asking for the change and writing the form for it are the develop
        local's work.
+   - `config.email_change_cancelled` — nil by default. Set it when the host
+     wants to act on a person cancelling a change to their sign-in email
+     address, such as recording it or warning an admin:
+     ```ruby
+     config.email_change_cancelled = lambda do |controller, user, email|
+       Rails.logger.info("User #{user.id} cancelled the change to #{email}")
+     end
+     ```
+     The body is an example. Ask the developer what the app should do when a
+     person cancels a change they did not ask for. door_check calls it as
+     `email_change_cancelled.call(controller, person, new_email)`, with the
+     person the change was asked for and the new address that was asked for.
+     - When a change is asked for, door_check also emails a notice, with the
+       subject "A change to your sign-in email was requested", to the address
+       the person answers `email` with. It names the new address and carries
+       a "This wasn't me" link. A person with no `email` gets no notice and
+       has no link to cancel with.
+     - door_check calls the lambda when the person opens that link. Before
+       calling it, door_check ends the unused links that confirm the change,
+       so the new address can no longer be confirmed. door_check changes no
+       address itself.
+     - The lambda's return value is ignored. After it returns, door_check
+       shows a page titled "Email change cancelled" saying "The change to
+       your email address is cancelled. Your email address stays as it
+       was.". Nobody is signed in.
+     - When the lambda raises, door_check reports the error to `Rails.error`
+       and still shows the cancelled page. While the setting is unset, every
+       cancel is reported this way, and the change is still cancelled.
+     - The link works once and for 24 hours. It also stops working once the
+       person opens the link that confirms the change, even when
+       `email_change_confirmed` refuses or raises. A link that no longer
+       works shows a page titled "Email change not cancelled", and the
+       lambda is not called.
 
 8. Ask the developer what the app should hold back from a person whose email
    address is not confirmed, such as sending invitations or changing billing.

@@ -26,6 +26,7 @@ install:
   - config.sign_up_agreement_links
   - config.sign_up_link_on_sign_in
   - config.email_change_confirmed
+  - config.email_change_cancelled
   - include DoorCheck::Tracking
   - include DoorCheck::EntryCheck
   - before_action :door_check_check_entry
@@ -96,6 +97,9 @@ sources:
   - app/views/door_check/email_changes/show.html.erb
   - app/views/door_check/email_changes/refused.html.erb
   - app/views/door_check/email_changes/expired.html.erb
+  - app/views/door_check/email_changes/cancelled.html.erb
+  - app/views/door_check/email_changes/cancel_expired.html.erb
+  - app/views/door_check/sign_in_mailer/email_change_notice.text.erb
   - test/dummy/config/initializers/door_check.rb
   - test/dummy/config/routes.rb
   - test/dummy/app/controllers/application_controller.rb
