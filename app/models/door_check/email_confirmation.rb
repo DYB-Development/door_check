@@ -6,12 +6,13 @@ module DoorCheck
       find_or_initialize_by(person: person)
     end
 
-    def self.confirmed?(person, email)
-      confirmation = self.for(person)
-      confirmation.confirmed_at.present? && confirmation.email.to_s.casecmp?(email.to_s.strip)
-    end
+    def self.confirmed?(person, email) = self.for(person).confirms?(email)
 
-    def awaiting? = email.present? && confirmed_at.nil?
+    def awaiting? = email.present? && !confirms?(current_address)
+
+    def confirms?(address) = confirmed_at.present? && email.to_s.casecmp?(address.to_s.strip)
+
+    def current_address = person.respond_to?(:email) ? person.email : email
 
     def confirm(email)
       update!(email: email, confirmed_at: Time.current)

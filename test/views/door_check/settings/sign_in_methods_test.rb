@@ -259,6 +259,15 @@ module DoorCheck
       assert_select "form[action='/door_check/email_confirmation'] button", text: "Send the confirmation email again"
     end
 
+    test "a person whose host address differs from the confirmed address sees a button to send the confirmation email again" do
+      EmailConfirmation.for(@user).confirm("ada@example.com")
+      @user.update!(email: "ada@new.example.com")
+
+      render_section
+
+      assert_select "form[action='/door_check/email_confirmation'] button", text: "Send the confirmation email again"
+    end
+
     test "a person whose address is confirmed sees no button to send the confirmation email again" do
       EmailConfirmation.for(@user).confirm("ada@example.com")
 

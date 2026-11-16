@@ -434,11 +434,15 @@ trusted browsers.
     without a heading or panel around it:
     - **Sign-in methods** — the person's saved methods, with a button to set up
       an authenticator app, a passkey or new backup codes for each of those
-      that `offered_methods` includes. While the person's address is waiting
-      to be confirmed, it also shows a "Send the confirmation email again"
-      button. That button posts to door_check's own route, so the host adds
-      no route for it. It sends a new link to the address door_check stored at
-      sign-up, and the earlier link keeps working until it expires.
+      that `offered_methods` includes. It also shows a "Send the confirmation
+      email again" button when door_check holds an address for the person and
+      the address the person answers `email` with is not confirmed. That
+      covers an address never confirmed and one the host changed after it was
+      confirmed. That button posts to door_check's own route, so the host adds
+      no route for it. It sends a new link to the address the person answers
+      `email` with now, or to the address door_check stored at sign-up when
+      the person has no `email`. Opening that link confirms the address it was
+      sent to. An earlier link keeps working until it expires.
     - **Signed-in sessions** — the person's sessions that are still signed in.
     - **Trusted browsers** — shown only when `trusted_device` is offered.
     - **Second step** — the person's own second-step checkbox, or a note in its
