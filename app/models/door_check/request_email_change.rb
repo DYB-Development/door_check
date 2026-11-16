@@ -17,6 +17,8 @@ module DoorCheck
     private
 
     def send_notice(current_email)
+      return if current_email.blank?
+
       SignInMailer.email_change_notice(Challenge.issue_email_change_cancel(@person, @values[:email]), to: current_email).deliver_now
     end
   end

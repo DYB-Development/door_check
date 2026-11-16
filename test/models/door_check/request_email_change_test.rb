@@ -27,6 +27,12 @@ module DoorCheck
       assert_includes ActionMailer::Base.deliveries.map(&:to), [ "ada@example.com" ]
     end
 
+    test "a request for a person with no current address sends only the confirmation" do
+      assert_emails 1 do
+        RequestEmailChange.new(person: User.create!(email: nil), account: nil, values: { email: "new@example.com" }).call
+      end
+    end
+
     test "an accepted request leaves the confirmed check true for the old address" do
       EmailConfirmation.for(@user).confirm("ada@example.com")
 
