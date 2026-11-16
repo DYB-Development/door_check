@@ -72,6 +72,13 @@ module DoorCheck
       assert_equal challenge, Challenge.redeem_token(challenge.token, purpose: "change_email")
     end
 
+    test "an email change link already used is refused" do
+      challenge = Challenge.issue_email_change(@user, "new@example.com")
+      Challenge.redeem_token(challenge.token, purpose: "change_email")
+
+      assert_nil Challenge.redeem_token(challenge.token, purpose: "change_email")
+    end
+
     test "an email change link is refused once 24 hours have passed" do
       challenge = Challenge.issue_email_change(@user, "new@example.com")
 
