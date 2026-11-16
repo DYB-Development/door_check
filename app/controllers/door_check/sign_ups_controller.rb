@@ -53,7 +53,8 @@ module DoorCheck
 
     def sign_up_person
       DoorCheck.configuration.sign_up_person.call(self, submitted_values)
-    rescue StandardError
+    rescue StandardError => error
+      Rails.error.report(error)
       Result.new(ok: false, message: NOT_FINISHED)
     end
 

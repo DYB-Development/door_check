@@ -444,6 +444,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /Sign-up could not be finished/
   end
 
+  test "an error raised by the host's sign-up callable is reported to the app's error reporter" do
+    assert_error_reported(RuntimeError) do
+      with_sign_up_person(->(_controller, _values) { raise "The host's database is down" }) do
+        post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+      end
+    end
+  end
+
   private
 
   def door_check_rows
