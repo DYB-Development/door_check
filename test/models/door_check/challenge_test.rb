@@ -66,6 +66,12 @@ module DoorCheck
       end
     end
 
+    test "an email change link's token is taken as an email change link" do
+      challenge = Challenge.issue_email_change(@user, "new@example.com")
+
+      assert_equal challenge, Challenge.redeem_token(challenge.token, purpose: "change_email")
+    end
+
     test "a sign-in challenge holds the address its code was sent to" do
       challenge = Challenge.issue(@user, email: "ada@example.com")
 
