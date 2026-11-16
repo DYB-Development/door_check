@@ -492,6 +492,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal User.find_by(email: "ada@example.com").id, session[:user_id]
   end
 
+  test "a person whose confirmation email could not be sent at sign-up is still offered to send it again" do
+    with_failing_mail do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert DoorCheck::EmailConfirmation.for(User.find_by(email: "ada@example.com")).awaiting?
+  end
+
   private
 
   def door_check_rows
