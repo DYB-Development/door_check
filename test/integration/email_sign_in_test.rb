@@ -69,6 +69,16 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     assert_equal [ "email_code" ], response.parsed_body
   end
 
+  test "a person who asked to change their email still signs in with their old address" do
+    DoorCheck::RequestEmailChange.new(person: @user, account: nil, values: { email: "new@example.com" }).call
+    post "/door_check/email_sign_in", params: { email: "ada@example.com" }
+
+    post "/door_check/email_code", params: { code: emailed_code }
+
+    get "/proofs"
+    assert_equal [ "email_code" ], response.parsed_body
+  end
+
   test "the code screen asks for the emailed code" do
     get "/door_check/email_code/new"
 
