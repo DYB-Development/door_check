@@ -15,5 +15,11 @@ module DoorCheck
       @link = confirm_email_change_url(token: challenge.token)
       mail to: challenge.email, subject: "Confirm your new email address"
     end
+
+    def email_change_notice(challenge, to:)
+      @new_email = challenge.email
+      @link = cancel_email_change_url(token: challenge.token)
+      mail to: to, subject: "A change to your sign-in email was requested"
+    end
   end
 end

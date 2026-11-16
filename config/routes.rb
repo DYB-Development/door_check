@@ -20,4 +20,5 @@ DoorCheck::Engine.routes.draw do
   get "email_link/:token", to: "email_links#show", as: :email_link
   get "confirm_email/:token", to: "email_confirmations#show", as: :confirm_email
   get "confirm_email_change/:token", to: "email_changes#show", as: :confirm_email_change
+  get "cancel_email_change/:token", to: "email_changes#cancel", as: :cancel_email_change
 end
