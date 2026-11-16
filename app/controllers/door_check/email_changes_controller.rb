@@ -6,6 +6,7 @@ module DoorCheck
       challenge = Challenge.redeem_token(params[:token], purpose: "change_email")
       return render(:expired, status: :not_found) unless challenge
 
+      Challenge.end_unused(challenge.person, challenge.email, purpose: "cancel_email_change")
       result = email_change_confirmed(challenge)
       return refuse(result.message) unless result.ok?
 

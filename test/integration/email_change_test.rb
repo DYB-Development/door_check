@@ -209,6 +209,18 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_not told
   end
 
+  test "after the change is confirmed the This wasn't me link says it no longer works" do
+    confirmation = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+    cancel = DoorCheck::Challenge.issue_email_change_cancel(@user, "ada@new.example.com")
+
+    with_email_change_confirmed(->(_controller, _person, _email) { accepted }) do
+      get "/door_check/confirm_email_change/#{confirmation.token}"
+    end
+    get "/door_check/cancel_email_change/#{cancel.token}"
+
+    assert_select "[role=alert]", text: /This link no longer works/
+  end
+
   private
 
   def refused
