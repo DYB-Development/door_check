@@ -388,6 +388,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/door_check/email_code/new"
   end
 
+  test "an emailed-code sign-up with an address that already has an account is taken to the screen where the code is typed" do
+    User.create!(email: "ada@example.com")
+
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    assert_redirected_to "/door_check/email_code/new"
+  end
+
   private
 
   def door_check_rows
