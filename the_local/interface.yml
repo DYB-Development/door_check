@@ -42,6 +42,7 @@ develop:
   - DoorCheck::RemoveMethod
   - DoorCheck::SignOutSession
   - DoorCheck::RemoveTrustedBrowser
+  - DoorCheck::RequestEmailChange
   - DoorCheck::Result
   - DoorCheck::EmailConfirmation.confirmed?
   - DoorCheck.configuration.sign_up_offered?
@@ -82,6 +83,7 @@ sources:
   - app/models/door_check/remove_method.rb
   - app/models/door_check/sign_out_session.rb
   - app/models/door_check/remove_trusted_browser.rb
+  - app/models/door_check/request_email_change.rb
   - app/models/door_check/result.rb
   - app/models/door_check/email_confirmation.rb
   - app/views/layouts/door_check/application.html.erb

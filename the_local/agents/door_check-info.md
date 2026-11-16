@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email and resend button, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email and resend button, a request to change a person's email address, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -38,7 +38,8 @@ door_check declares nothing for this local to document.
   installed: recording a sign-in, reading what a session has proved, reading the
   current account, whether a person's email address is confirmed, the list of
   known method names, the actions that change a
-  rule or end a session, the result those actions return, and the paths to
+  rule, end a session or request an email change, the result those actions
+  return, and the paths to
   door_check's pages, the sign-up page among them.
 
 ## How to use it
@@ -124,6 +125,13 @@ door_check declares nothing for this local to document.
   whose address is waiting to be confirmed. It sends a new link to the address
   door_check stored at sign-up. The earlier link keeps working until it
   expires.
+- **Email change request** — the host asks door_check to change a person's
+  email address to a new one. door_check emails the new address one link, with
+  the subject "Confirm your new email address". The link works once and for 24
+  hours. A blank new address is refused with "Enter the new email address." and
+  sends nothing. Requesting a change alters nothing yet: the person still signs
+  in with their current address, and the confirmed check gives the same answer
+  for it as before.
 - **Refused sign-up** — the page shows the callable's message, keeps the name
   and email, and leaves the password empty.
 - **Sign-up agreement** — the required checkbox on the sign-up page. Its label

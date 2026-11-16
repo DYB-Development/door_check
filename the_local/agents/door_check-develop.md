@@ -1,6 +1,6 @@
 ---
 name: door_check-develop
-description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking whether a person's email address is confirmed before allowing what the host holds back, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
+description: Use PROACTIVELY for recording a sign-in made by the host's own sign-in page, reading what the current session has proved and the current account, checking whether a person's email address is confirmed before allowing what the host holds back, checking sign-in method names, writing the settings actions that change a person's or an account's second-step rule, remove a saved sign-in method, sign out a session or forget a trusted browser, writing the action that asks to change a person's sign-in email and sends the new address a confirmation link, handling the result those actions return, and linking to door_check's sign-in, sign-up, approval and setup pages — MUST BE USED instead of hand-writing session tracking, second-step rules, sign-out of other devices or sign-in method records.
 tools: Bash, Read, Write, Edit, Grep
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -15,8 +15,8 @@ A Rails engine that adds sign-in methods and second steps to an app that already
 has its own users, session and sign-in page. Use this local when host code signs
 someone in, reads what a session has proved, checks whether a person's email
 address is confirmed, changes a sign-in rule, ends a
-session, removes a saved method, forgets a trusted browser, or links to a
-door_check page.
+session, removes a saved method, forgets a trusted browser, asks to change a
+person's sign-in email, or links to a door_check page.
 
 ## Interface
 
@@ -44,6 +44,7 @@ Rule and session actions. Each is built with `person:`, `account:` and
 - `DoorCheck::RemoveMethod` — removes the person's saved method whose id is `values[:credential_id]`.
 - `DoorCheck::SignOutSession` — signs out the person's signed-in session whose id is `values[:signed_in_session_id]`.
 - `DoorCheck::RemoveTrustedBrowser` — forgets the person's trusted browser whose id is `values[:trusted_device_id]`.
+- `DoorCheck::RequestEmailChange` — emails the address in `values[:email]` a link to confirm it as the person's new sign-in email, titled "Confirm your new email address".
 - `DoorCheck::Result` — `ok?` is true when the action succeeded, and `message` is the text to show the person when it did not.
 
 Paths, called on the engine's route proxy `door_check` from host views and
@@ -279,6 +280,56 @@ Ask the developer who may save the account's rules. door_check does not check
 it, so the `sign_in_rules` action must refuse anyone the host does not allow,
 before building `RequireSecondStep`.
 
+### Ask to change a person's sign-in email
+
+door_check places no form for this. The host writes the page, the route and
+the action.
+
+1. Ask the developer which host page the request starts from. Put its form on
+   a page of its own with one email field, and have it send a `PATCH` or
+   `POST` to a host route.
+2. Write the action:
+   ```ruby
+   class EmailChangesController < ApplicationController
+     def new
+     end
+
+     def create
+       result = DoorCheck::RequestEmailChange.new(person: current_user, account: door_check_account,
+                                                  values: params.permit(:email)).call
+       if result.ok?
+         redirect_to settings_path, notice: "Check your new address for a link to confirm it."
+       else
+         redirect_to new_email_change_path, alert: result.message
+       end
+     end
+   end
+   ```
+   The controller, paths and notice are examples. Pass the person from the
+   host's person method.
+3. Ask the developer whether the host refuses some addresses before calling
+   the action, such as one already used by another person or the person's
+   current address. door_check checks neither and sends the email to either.
+
+What the action does:
+
+- When `values[:email]` is missing, empty or only spaces, it sends nothing and
+  returns a result whose `ok?` is false and whose `message` is
+  `"Enter the new email address."`.
+- Otherwise it emails that address one link and returns a result whose `ok?`
+  is true. The link works once and for 24 hours.
+- It sends the email while the action runs. An error sending it is raised from
+  `call`, not returned in the result.
+- Each call sends a new link, and links sent by earlier calls keep working
+  until each is used or expires.
+- It changes nothing about the person's current address. The person still
+  signs in with it, and `DoorCheck::EmailConfirmation.confirmed?` gives the
+  same answer for it as before the request.
+- door_check does not yet handle the link. Opening it does not change the
+  person's address in door_check or in the host, so tell the developer this
+  before they offer the form to people.
+- It takes `account:` but does not use it.
+
 ### Link to door_check's pages
 
 ```erb
@@ -351,14 +402,15 @@ before building `RequireSecondStep`.
 ## Conventions
 
 - Never edit door_check's records directly. Change rules, sessions, saved methods
-  and trusted browsers through the five actions above.
-- Pass the five actions the person from the host's person method and the
+  and trusted browsers through the five settings actions above, and ask for an
+  email change only through `RequestEmailChange`.
+- Pass every action the person from the host's person method and the
   account from `door_check_account`. `RequireOwnSecondStep` decides from that
   account whether the person may choose, so passing another account gives a
   different answer than the settings section showed. `RemoveMethod`,
   `SignOutSession` and `RemoveTrustedBrowser` take `account:` but do not use it.
-- Show `result.message` whenever `ok?` is false, since `RequireSecondStep` and
-  `RequireOwnSecondStep` can both refuse a save.
+- Show `result.message` whenever `ok?` is false, since `RequireSecondStep`,
+  `RequireOwnSecondStep` and `RequestEmailChange` can each refuse.
 - `RemoveMethod`, `SignOutSession` and `RemoveTrustedBrowser` always return a
   result whose `ok?` is true. An id that does not belong to the person changes
   nothing and still returns true.
