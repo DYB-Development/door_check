@@ -4,7 +4,10 @@ module DoorCheck
   class RequestEmailChangeTest < ActiveSupport::TestCase
     include ActionMailer::TestHelper
 
-    setup { @user = User.create!(email: "ada@example.com") }
+    setup do
+      ActionMailer::Base.deliveries.clear
+      @user = User.create!(email: "ada@example.com")
+    end
 
     test "a request with a new address is accepted" do
       result = RequestEmailChange.new(person: @user, account: nil, values: { email: "new@example.com" }).call
@@ -15,7 +18,7 @@ module DoorCheck
     test "an accepted request emails the new address" do
       RequestEmailChange.new(person: @user, account: nil, values: { email: "new@example.com" }).call
 
-      assert_equal [ "new@example.com" ], ActionMailer::Base.deliveries.last&.to
+      assert_includes ActionMailer::Base.deliveries.map(&:to), [ "new@example.com" ]
     end
 
     test "an accepted request emails the person's current address a notice of the change" do
