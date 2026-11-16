@@ -191,7 +191,19 @@ trusted browsers.
      and every value in the sign-up page's address, such as an invitation
      token. It is read by string or symbol key. The lambda must create the
      person and return a `DoorCheck::Result`: ok when the person was created,
-     or refused with the message to show on the page.
+     or refused with the message to show on the page. A person it reports as
+     created must be one `find_person_by_email` finds by the address entered.
+     - When `find_person_by_email` already finds a person for the address
+       entered, door_check never calls `sign_up_person`. Whichever choice the
+       visitor made, door_check emails that existing person a sign-in code and
+       link and takes the visitor to the email code page. A visitor on the
+       password choice is not signed in.
+     - When `sign_up_person` returns ok and `find_person_by_email` then finds
+       nobody, the page shows "Sign-up could not be finished. Try again in a
+       moment.", nobody is signed in and nothing is sent.
+     - When `sign_up_person` raises, door_check reports the error to
+       `Rails.error` and the page shows "Sign-up could not be finished. Try
+       again in a moment.". Nobody is signed in and nothing is sent.
      - The sign-up page is the engine's `new_sign_up` route, at
        `/door_check/sign_up/new` when the engine is mounted at `/door_check`.
        It asks for a name and an email.
@@ -225,14 +237,16 @@ trusted browsers.
        cannot sign anyone in, and a sign-in link cannot confirm an address.
        A used or expired link shows a page with a "Send a new confirmation
        email" button, which sends a new link to the same address.
+     - When the confirmation email fails to send, door_check reports the
+       error to `Rails.error`. The person stays signed in, and the personal
+       settings section still offers to send the confirmation email again.
      - The email code choice gets no confirmation email. Using any email code
        or email link, at sign-up or at sign-in, confirms the address it was
        sent to.
      - After a refused result, the page shows the message and keeps the name
        and email that were entered. The password field is left empty.
-     - door_check adds no log filter for the password. When `password` is
-       offered, make sure the host's `config.filter_parameters` includes
-       `:password`, or add it in `config/initializers/filter_parameter_logging.rb`.
+     - door_check adds `:password` to the host's `config.filter_parameters`
+       itself, so the host adds no log filter for the password.
      - The page also shows a required agreement checkbox named `agreement`.
        When it is not ticked, door_check refuses the sign-up on the same page
        with "Tick the agreement to sign up.", keeps the name and email, and
