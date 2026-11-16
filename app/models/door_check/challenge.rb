@@ -20,7 +20,7 @@ module DoorCheck
 
     def self.issue_email_change(person, email) = replace_link(person, email, purpose: "change_email")
 
-    def self.issue_email_change_cancel(person, email) = issue_link(person, email, purpose: "cancel_email_change")
+    def self.issue_email_change_cancel(person, email) = replace_link(person, email, purpose: "cancel_email_change")
 
     def self.issue_link(person, email, purpose:)
       token = SecureRandom.urlsafe_base64(32)

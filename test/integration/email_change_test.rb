@@ -246,6 +246,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /This link no longer works/
   end
 
+  test "after a second request the first This wasn't me link says it no longer works" do
+    request_change("ada@first.example.com")
+    first = emailed_link("ada@example.com", "cancel_email_change")
+    request_change("ada@second.example.com")
+
+    get first
+
+    assert_select "[role=alert]", text: /This link no longer works/
+  end
+
   private
 
   def request_change(email)
