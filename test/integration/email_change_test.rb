@@ -256,6 +256,15 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /This link no longer works/
   end
 
+  test "after a second request its confirmation link changes the host's address" do
+    request_change("ada@first.example.com")
+    request_change("ada@second.example.com")
+
+    get emailed_link("ada@second.example.com", "confirm_email_change")
+
+    assert_equal "ada@second.example.com", @user.reload.email
+  end
+
   private
 
   def request_change(email)
