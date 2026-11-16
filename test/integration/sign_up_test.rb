@@ -352,6 +352,16 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_no_match(/correct horse battery/, door_check_rows.to_s)
   end
 
+  test "a password sign-up with an address that already has an account does not reach the host's sign-up callable" do
+    User.create!(email: "ada@example.com")
+    called = false
+    with_sign_up_person(->(_controller, values) { called = true; signed_up(values) }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_not called
+  end
+
   private
 
   def door_check_rows

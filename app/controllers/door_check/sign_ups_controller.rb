@@ -14,13 +14,15 @@ module DoorCheck
       return refuse_sign_up("Tick the agreement to sign up.") unless params[:agreement] == "1"
       return refuse_sign_up("Enter a password to sign up.") if chosen_sign_in_method == :password && params[:password].blank?
 
+      email = params[:email].to_s.strip
+      return redirect_to(door_check.new_email_code_path) if find_person(email)
+
       result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
       return refuse_sign_up(result.message) unless result.ok?
 
-      return sign_in_with_password(params[:email].to_s.strip) if chosen_sign_in_method == :password
+      return sign_in_with_password(email) if chosen_sign_in_method == :password
 
-      email = params[:email].to_s.strip
-      door_check_send_sign_in_code(DoorCheck.configuration.find_person_by_email.call(email), email)
+      door_check_send_sign_in_code(find_person(email), email)
       redirect_to door_check.new_email_code_path
     end
 
@@ -46,8 +48,12 @@ module DoorCheck
       params.to_unsafe_h.except(:controller, :action, :authenticity_token)
     end
 
+    def find_person(email)
+      DoorCheck.configuration.find_person_by_email.call(email)
+    end
+
     def sign_in_with_password(email)
-      person = DoorCheck.configuration.find_person_by_email.call(email)
+      person = find_person(email)
       DoorCheck.configuration.sign_in_person.call(self, person)
       door_check_signed_in(person, method_name: :password)
       EmailConfirmation.for(person).update!(email: email)
