@@ -14,6 +14,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_equal [ @user, "ada@new.example.com" ], received
   end
 
+  test "opening the change link does not sign anyone in" do
+    challenge = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+
+    with_email_change_confirmed(->(_controller, _person, _email) { accepted }) do
+      get "/door_check/confirm_email_change/#{challenge.token}"
+    end
+
+    assert_nil session[:user_id]
+  end
+
   private
 
   def accepted
