@@ -196,6 +196,19 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /This link no longer works/
   end
 
+  test "after the change is cancelled the confirmation link does not tell the host the change was confirmed" do
+    confirmation = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+    cancel = DoorCheck::Challenge.issue_email_change_cancel(@user, "ada@new.example.com")
+    told = false
+
+    with_email_change_confirmed(->(_controller, _person, _email) { told = true; accepted }) do
+      get "/door_check/cancel_email_change/#{cancel.token}"
+      get "/door_check/confirm_email_change/#{confirmation.token}"
+    end
+
+    assert_not told
+  end
+
   private
 
   def refused
