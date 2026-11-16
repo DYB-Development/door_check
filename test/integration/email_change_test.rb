@@ -265,6 +265,15 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_equal "ada@second.example.com", @user.reload.email
   end
 
+  test "after a second request its This wasn't me link shows the change is cancelled" do
+    request_change("ada@first.example.com")
+    request_change("ada@second.example.com")
+
+    get emailed_link("ada@example.com", "cancel_email_change")
+
+    assert_select "[role=alert]", text: /The change to your email address is cancelled/
+  end
+
   private
 
   def request_change(email)
