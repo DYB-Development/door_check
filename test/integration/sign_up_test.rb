@@ -26,6 +26,16 @@ class SignUpTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.sign_up_person = sign_up_person
   end
 
+  test "an invitation link opens the sign-up page while the sign-in page shows no sign-up link" do
+    DoorCheck.configuration.sign_up_link_on_sign_in = false
+
+    get "/door_check/sign_up/new", params: { invitation: "inv-42/abc" }
+
+    assert_select "form input[name=name]"
+  ensure
+    DoorCheck.configuration.sign_up_link_on_sign_in = true
+  end
+
   test "a visitor on the sign-up page can choose between an emailed code and a password" do
     get "/door_check/sign_up/new"
 
