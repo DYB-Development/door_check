@@ -31,6 +31,10 @@ module DoorCheck
       create!(person: person, email: email, purpose: "cancel_email_change", token: token, token_digest: digest(token), expires_at: CONFIRMATION_LIFETIME.from_now)
     end
 
+    def self.end_unused(person, email, purpose:)
+      where(person: person, email: email, purpose: purpose, used_at: nil).update_all(used_at: Time.current)
+    end
+
     def self.request_approval(person, device:, ip_address:)
       create!(person: person, number: format("%02d", SecureRandom.random_number(10..99)), device: device, ip_address: ip_address,
               expires_at: APPROVAL_LIFETIME.from_now).tap do |challenge|
