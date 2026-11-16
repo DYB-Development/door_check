@@ -34,6 +34,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@new.example.com")
   end
 
+  test "a change the host accepts shows a page saying the new address is confirmed" do
+    challenge = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+
+    with_email_change_confirmed(->(_controller, _person, _email) { accepted }) do
+      get "/door_check/confirm_email_change/#{challenge.token}"
+    end
+
+    assert_select "[role=alert]", text: /Your new email address is confirmed/
+  end
+
   private
 
   def accepted
