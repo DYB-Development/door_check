@@ -412,6 +412,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /Sign-up could not be finished/
   end
 
+  test "a password sign-up the host accepts without making a findable person does not sign the visitor in" do
+    with_sign_up_person(->(_controller, _values) { DoorCheck::Result.new(ok: true) }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_nil session[:user_id]
+  end
+
   private
 
   def door_check_rows
