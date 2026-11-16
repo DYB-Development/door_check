@@ -319,25 +319,31 @@ before building `RequireSecondStep`.
    when its method is offered. Add those links elsewhere only when the
    developer asks for them outside the settings page.
 5. Put the sign-in and sign-up links on the host's sign-in page, for a person
-   who is not signed in. door_check's own email sign-in page already shows a
+   who is not signed in. door_check's own email sign-in page shows a
    "Create an account" button linking to the sign-up page whenever
-   `DoorCheck.configuration.sign_up_offered?` is true, so add a sign-up link
-   only on the host's own pages, wrapped in
-   `<% if DoorCheck.configuration.sign_up_offered? %>`. The approvals, authenticator, passkey and backup codes links are
-   for a signed-in person only.
-6. Link to `backup_codes_path` with a form that sends a `POST`, such as
+   `DoorCheck.configuration.sign_up_offered?` is true, unless the host's
+   door_check settings turn that button off. Read the host's door_check
+   initializer to learn which. Add a sign-up link only on the host's own
+   pages, wrapped in `<% if DoorCheck.configuration.sign_up_offered? %>`. The
+   approvals, authenticator, passkey and backup codes links are for a
+   signed-in person only.
+6. Turning that button off hides it only. The sign-up page still works, so a
+   host that hides it can send people there through its own links, such as an
+   invitation built with `door_check.new_sign_up_path(invitation: token)`.
+   Ask the developer which of the host's pages should link to sign-up.
+7. Link to `backup_codes_path` with a form that sends a `POST`, such as
    `button_to`, never a plain link.
-7. When the person already has a second step set up, the authenticator, passkey
+8. When the person already has a second step set up, the authenticator, passkey
    and backup codes pages first ask for it if this session has not passed one,
    then send the person back.
-8. The authenticator page keeps showing the same secret key in this browser
+9. The authenticator page keeps showing the same secret key in this browser
    session until setup succeeds, so reloading it or entering a wrong code does
    not change the key the person already scanned. A wrong code shows an error on
    the same page and saves nothing.
-9. When the browser session no longer holds the key, such as after the person
+10. When the browser session no longer holds the key, such as after the person
    signed out and back in, saving a code sends the person back to the
    authenticator page with a new key and a warning to scan it again.
-10. A right code saves the authenticator app, counts as this session's second
+11. A right code saves the authenticator app, counts as this session's second
    step, and sends the person to the page they were on before door_check asked
    for a second step, or to `/` when there was none. The app lists the account
    under the person's email when the person responds to `email`.

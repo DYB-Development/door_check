@@ -29,7 +29,9 @@ door_check declares nothing for this local to document.
 
 - The **install** local owns adding the gem, its migrations and its routes,
   every configuration setting, including the callable that creates a person
-  from the sign-up page and the sign-up page's agreement label and links, the two controller additions that record sign-ins
+  from the sign-up page, the sign-up page's agreement label and links, and the
+  switch that hides the sign-up link on the sign-in page, the two controller
+  additions that record sign-ins
   and enforce second steps, and the two settings sections a host places on its
   settings page.
 - The **develop** local owns what a host's code calls once door_check is
@@ -65,6 +67,11 @@ door_check declares nothing for this local to document.
   page is off, and answers not found, unless the host sets the callable and
   offers email codes, passwords, or both. A person the callable reports as
   created must be one the host's find-by-email lookup finds.
+- **Sign-up link on sign-in** — the "Create an account" button on door_check's
+  email sign-in page, linking to the sign-up page. It shows while the sign-up
+  page is on, unless the host turns it off. Turning it off removes only the
+  button: the sign-up page stays on, and the host can still send people there
+  through its own links, such as an invitation.
 - **Sign-up with an existing address** — when the host's find-by-email lookup
   already finds a person for the address entered, door_check never calls the
   sign-up callable. Whichever choice the visitor made, door_check emails that

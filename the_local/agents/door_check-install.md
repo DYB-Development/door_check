@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, whether the email sign-in page links to the sign-up page, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -40,6 +40,7 @@ trusted browsers.
 - `config.sign_up_person` — a lambda taking the controller and the sign-up page's values, which creates the person and returns a `DoorCheck::Result`, or nil to turn the sign-up page off.
 - `config.sign_up_agreement_label` — the text beside the sign-up page's agreement checkbox, as a string.
 - `config.sign_up_agreement_links` — a lambda taking the controller and returning the documents linked under the agreement checkbox, as an array of `{ title:, url: }` hashes.
+- `config.sign_up_link_on_sign_in` — whether the email sign-in page shows a "Create an account" button linking to the sign-up page, true or false.
 - `include DoorCheck::Tracking` — adds sign-in recording and the reads of proofs and the current account to the host's controller.
 - `include DoorCheck::EntryCheck` — adds the second-step check to the host's controller.
 - `before_action :door_check_check_entry` — runs that check on every host request.
@@ -275,6 +276,15 @@ trusted browsers.
      ```
      The titles and routes are examples. Ask the developer which documents to
      link and where each one is. Each hash must carry both `title` and `url`.
+   - `config.sign_up_link_on_sign_in = false` — defaults to true. While it is
+     true and the sign-up page is on, the email sign-in page shows a "Create an
+     account" button under its form that opens the sign-up page. Set it to
+     false when people should reach the sign-up page only through links the
+     host sends them, such as an invitation. It removes only that button: the
+     sign-up page stays on and still opens from any link to it, with the
+     values in that link's address passed to `sign_up_person`. It has no
+     effect while the sign-up page is off. Ask the developer whether anyone
+     may sign up from the sign-in page, or only people the host invites.
 
 8. Ask the developer what the app should hold back from a person whose email
    address is not confirmed, such as sending invitations or changing billing.

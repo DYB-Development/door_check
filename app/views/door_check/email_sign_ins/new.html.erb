@@ -5,7 +5,7 @@
                         autocomplete: "email", autocapitalize: "none") %>
       <%= ui_button(label: "Send") %>
     <% end %>
-    <% if DoorCheck.configuration.sign_up_offered? %>
+    <% if DoorCheck.configuration.sign_up_offered? && DoorCheck.configuration.sign_up_link_on_sign_in %>
       <%= ui_button(label: "Create an account", href: door_check.new_sign_up_path, variant: :secondary) %>
     <% end %>
   <% end %>

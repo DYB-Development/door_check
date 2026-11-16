@@ -50,6 +50,16 @@ class EmailSignInTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.sign_up_person = sign_up_person
   end
 
+  test "the sign-in screen has no sign-up link when the host turns the link off" do
+    DoorCheck.configuration.sign_up_link_on_sign_in = false
+
+    get "/door_check/email_sign_in/new"
+
+    assert_select "a[href='/door_check/sign_up/new']", count: 0
+  ensure
+    DoorCheck.configuration.sign_up_link_on_sign_in = true
+  end
+
   test "typing the emailed code signs the person in with an email code" do
     post "/door_check/email_sign_in", params: { email: "ada@example.com" }
 
