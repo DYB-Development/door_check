@@ -396,6 +396,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/door_check/email_code/new"
   end
 
+  test "a password sign-up with an address that already has an account does not sign the visitor in" do
+    User.create!(email: "ada@example.com")
+
+    post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+
+    assert_nil session[:user_id]
+  end
+
   private
 
   def door_check_rows
