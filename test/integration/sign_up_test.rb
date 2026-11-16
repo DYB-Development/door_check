@@ -468,6 +468,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_empty ActionMailer::Base.deliveries
   end
 
+  test "a password sign-up whose host callable raises an error after making the person sends no confirmation email" do
+    with_sign_up_person(->(_controller, values) { signed_up(values); raise "The host's welcome email failed" }) do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_empty ActionMailer::Base.deliveries
+  end
+
   private
 
   def door_check_rows
