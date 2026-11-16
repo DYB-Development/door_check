@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email and resend button, a request to change a person's email address and the link that confirms it, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email and resend button, a request to change a person's email address with the link that confirms it and the notice to the current address whose link cancels it, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -31,7 +31,8 @@ door_check declares nothing for this local to document.
   every configuration setting, including the callable that creates a person
   from the sign-up page, the sign-up page's agreement label and links, and the
   switch that hides the sign-up link on the sign-in page, the callable that
-  saves a person's new email address once they open the change link, the two controller
+  saves a person's new email address once they open the change link, the
+  callable that tells the host a change was cancelled, the two controller
   additions that record sign-ins
   and enforce second steps, and the two settings sections a host places on its
   settings page.
@@ -133,6 +134,26 @@ door_check declares nothing for this local to document.
   sends nothing. Requesting a change alters nothing yet: the person still signs
   in with their current address, and the confirmed check gives the same answer
   for it as before.
+- **Email change notice** — sent with every email change request to the
+  person's current address, with the subject "A change to your sign-in email
+  was requested". It names the new address and carries one "This wasn't me"
+  link, which works once and for 24 hours. No notice is sent when the host's
+  person has no current email address.
+- **Cancelled email change** — opening the "This wasn't me" link uses it up,
+  ends the change's confirmation link, and shows "The change to your email
+  address is cancelled. Your email address stays as it was." It then calls the
+  host's cancel callable with the person and the new address, so the host can
+  record it or warn someone. The page shows the same whatever the callable
+  returns. When the callable raises, or the host set none, the error is
+  reported to `Rails.error` and the page still shows the cancellation.
+- **Change and cancel end each other** — opening the confirmation link ends the
+  "This wasn't me" link for that change, and opening the "This wasn't me" link
+  ends the confirmation link. Whichever is opened first decides, and the other
+  then shows its no-longer-works page.
+- **Used or expired cancel link** — a "This wasn't me" link opened a second
+  time, after 24 hours, or after the change was confirmed shows a page saying
+  it no longer works. It tells the person to change their address back in
+  their account settings if it was changed without them.
 - **Email change link** — opening the link from an email change request uses
   it up, then calls the host's email-change callable with the person and the
   new address. door_check never changes the address itself, and the host saves
@@ -144,8 +165,8 @@ door_check declares nothing for this local to document.
   again in a moment." when it gave none. The same general message shows when
   the callable raises, and the error is reported to `Rails.error`. The link is
   already used up, so the person asks for the change again.
-- **Used or expired email change link** — a link opened a second time, or after
-  24 hours, shows a page saying it no longer works and to ask for the change to
+- **Used or expired email change link** — a link opened a second time, after
+  24 hours, or after the change was cancelled shows a page saying it no longer works and to ask for the change to
   the email address again. Nothing is changed.
 - **Refused sign-up** — the page shows the callable's message, keeps the name
   and email, and leaves the password empty.
