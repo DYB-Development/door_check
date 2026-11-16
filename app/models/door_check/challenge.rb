@@ -42,8 +42,10 @@ module DoorCheck
 
     def self.digest(value) = KeyedDigest.of(value)
 
+    def self.for_token(token, purpose:) = find_by(token_digest: digest(token), purpose: purpose)
+
     def self.redeem_token(token, purpose: "sign_in")
-      challenge = find_by(token_digest: digest(token), purpose: purpose)
+      challenge = for_token(token, purpose: purpose)
       challenge if challenge&.use
     end
 
