@@ -22,8 +22,8 @@ module DoorCheck
 
     def email_change_cancelled(challenge)
       DoorCheck.configuration.email_change_cancelled.call(self, challenge.person, challenge.email)
-    rescue StandardError
-      nil
+    rescue StandardError => error
+      Rails.error.report(error)
     end
 
     def email_change_confirmed(challenge)
