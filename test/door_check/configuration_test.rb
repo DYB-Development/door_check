@@ -33,6 +33,10 @@ class DoorCheck::ConfigurationTest < ActiveSupport::TestCase
     assert_equal Rails.application.class.module_parent_name, DoorCheck::Configuration.new.authenticator_issuer
   end
 
+  test "the sign-in page links to sign-up unless the host turns the link off" do
+    assert DoorCheck::Configuration.new.sign_up_link_on_sign_in
+  end
+
   test "an app has no sign-up page unless the host sets a sign-up callable" do
     assert_nil DoorCheck::Configuration.new.sign_up_person
   end
