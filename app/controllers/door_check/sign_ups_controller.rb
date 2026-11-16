@@ -3,6 +3,7 @@ module DoorCheck
     include SendSignInCode
 
     SIGN_IN_METHOD_LABELS = { email_code: "Emailed code", password: "Password" }.freeze
+    NOT_FINISHED = "Sign-up could not be finished. Try again in a moment."
 
     before_action { head :not_found unless DoorCheck.configuration.sign_up_offered? }
     helper_method :sign_in_method_tabs, :chosen_sign_in_method
@@ -21,9 +22,11 @@ module DoorCheck
       result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
       return refuse_sign_up(result.message) unless result.ok?
 
-      return sign_in_with_password(email) if chosen_sign_in_method == :password
+      person = find_person(email)
+      return refuse_sign_up(NOT_FINISHED) unless person
+      return sign_in_with_password(person, email) if chosen_sign_in_method == :password
 
-      send_code(find_person(email), email)
+      send_code(person, email)
     end
 
     private
@@ -57,8 +60,7 @@ module DoorCheck
       DoorCheck.configuration.find_person_by_email.call(email)
     end
 
-    def sign_in_with_password(email)
-      person = find_person(email)
+    def sign_in_with_password(person, email)
       DoorCheck.configuration.sign_in_person.call(self, person)
       door_check_signed_in(person, method_name: :password)
       EmailConfirmation.for(person).update!(email: email)
