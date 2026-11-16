@@ -20,7 +20,7 @@ module DoorCheck
     end
 
     def refuse(message)
-      @message = message
+      @message = message.presence || NOT_CHANGED
       render :refused, status: :unprocessable_content
     end
   end
