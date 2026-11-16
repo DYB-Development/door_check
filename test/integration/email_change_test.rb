@@ -157,6 +157,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /The change to your email address is cancelled/
   end
 
+  test "a cancel whose host setting raises an error still shows the page saying the change is cancelled" do
+    challenge = DoorCheck::Challenge.issue_email_change_cancel(@user, "ada@new.example.com")
+
+    with_email_change_cancelled(->(_controller, _person, _email) { raise "The host's database is down" }) do
+      get "/door_check/cancel_email_change/#{challenge.token}"
+    end
+
+    assert_select "[role=alert]", text: /The change to your email address is cancelled/
+  end
+
   private
 
   def refused

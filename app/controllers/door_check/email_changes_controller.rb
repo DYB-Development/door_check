@@ -14,11 +14,17 @@ module DoorCheck
 
     def cancel
       challenge = Challenge.redeem_token(params[:token], purpose: "cancel_email_change")
-      DoorCheck.configuration.email_change_cancelled.call(self, challenge.person, challenge.email)
+      email_change_cancelled(challenge)
       render :cancelled
     end
 
     private
+
+    def email_change_cancelled(challenge)
+      DoorCheck.configuration.email_change_cancelled.call(self, challenge.person, challenge.email)
+    rescue StandardError
+      nil
+    end
 
     def email_change_confirmed(challenge)
       DoorCheck.configuration.email_change_confirmed.call(self, challenge.person, challenge.email)
