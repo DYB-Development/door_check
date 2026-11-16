@@ -129,6 +129,15 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /no longer works/
   end
 
+  test "a person who asks to change their email and opens the emailed link has the host's address changed" do
+    DoorCheck::RequestEmailChange.new(person: @user, account: nil, values: { email: "ada@new.example.com" }).call
+    link = ActionMailer::Base.deliveries.last.text_part.body.to_s[%r{/door_check/confirm_email_change/\S+}]
+
+    get link
+
+    assert_equal "ada@new.example.com", @user.reload.email
+  end
+
   private
 
   def refused
