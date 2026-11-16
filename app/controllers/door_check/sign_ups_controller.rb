@@ -3,6 +3,7 @@ module DoorCheck
     include SendSignInCode
 
     SIGN_IN_METHOD_LABELS = { email_code: "Emailed code", password: "Password" }.freeze
+    NOT_FINISHED = "Sign-up could not be finished. Try again in a moment."
 
     before_action { head :not_found unless DoorCheck.configuration.sign_up_offered? }
     helper_method :sign_in_method_tabs, :chosen_sign_in_method
@@ -14,14 +15,18 @@ module DoorCheck
       return refuse_sign_up("Tick the agreement to sign up.") unless params[:agreement] == "1"
       return refuse_sign_up("Enter a password to sign up.") if chosen_sign_in_method == :password && params[:password].blank?
 
-      result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
+      email = params[:email].to_s.strip
+      existing_person = find_person(email)
+      return send_code(existing_person, email) if existing_person
+
+      result = sign_up_person
       return refuse_sign_up(result.message) unless result.ok?
 
-      return sign_in_with_password(params[:email].to_s.strip) if chosen_sign_in_method == :password
+      person = find_person(email)
+      return refuse_sign_up(NOT_FINISHED) unless person
+      return sign_in_with_password(person, email) if chosen_sign_in_method == :password
 
-      email = params[:email].to_s.strip
-      door_check_send_sign_in_code(DoorCheck.configuration.find_person_by_email.call(email), email)
-      redirect_to door_check.new_email_code_path
+      send_code(person, email)
     end
 
     private
@@ -46,13 +51,34 @@ module DoorCheck
       params.to_unsafe_h.except(:controller, :action, :authenticity_token)
     end
 
-    def sign_in_with_password(email)
-      person = DoorCheck.configuration.find_person_by_email.call(email)
+    def sign_up_person
+      DoorCheck.configuration.sign_up_person.call(self, submitted_values)
+    rescue StandardError => error
+      Rails.error.report(error)
+      Result.new(ok: false, message: NOT_FINISHED)
+    end
+
+    def send_code(person, email)
+      door_check_send_sign_in_code(person, email)
+      redirect_to door_check.new_email_code_path
+    end
+
+    def find_person(email)
+      DoorCheck.configuration.find_person_by_email.call(email)
+    end
+
+    def sign_in_with_password(person, email)
       DoorCheck.configuration.sign_in_person.call(self, person)
       door_check_signed_in(person, method_name: :password)
       EmailConfirmation.for(person).update!(email: email)
-      SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
+      send_confirmation(person, email)
       redirect_to "/"
+    end
+
+    def send_confirmation(person, email)
+      SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
+    rescue StandardError => error
+      Rails.error.report(error)
     end
 
     def sign_in_methods

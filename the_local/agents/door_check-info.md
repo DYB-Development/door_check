@@ -63,7 +63,18 @@ door_check declares nothing for this local to document.
   creates the person from those values and any values in the page's address,
   such as an invitation token, and answers ok or refused with a message. The
   page is off, and answers not found, unless the host sets the callable and
-  offers email codes, passwords, or both.
+  offers email codes, passwords, or both. A person the callable reports as
+  created must be one the host's find-by-email lookup finds.
+- **Sign-up with an existing address** — when the host's find-by-email lookup
+  already finds a person for the address entered, door_check never calls the
+  sign-up callable. Whichever choice the visitor made, door_check emails that
+  existing person a sign-in code and link and takes the visitor to the email
+  code page. A visitor on the password choice is not signed in.
+- **Unfinished sign-up** — when the callable answers ok but the find-by-email
+  lookup then finds nobody, or when the callable raises, the page shows
+  "Sign-up could not be finished. Try again in a moment.". Nobody is signed in
+  and nothing is sent. An error the callable raised is reported to
+  `Rails.error`.
 - **Sign-in choice at sign-up** — when the app offers both email codes and
   passwords, the sign-up page shows a tab for each and opens on the emailed
   code. When it offers one, only that one shows. The callable receives the
@@ -77,9 +88,11 @@ door_check declares nothing for this local to document.
   stores it. An empty password is refused with "Enter a password to sign up."
   before the callable is called. On ok, door_check signs the person in with
   the host's sign-in, records password as the proof, and goes to the app's
-  home page, with no code sent. The host filters the password from its logs,
-  since door_check adds no filter of its own. door_check then sends a
-  confirmation email to the address entered.
+  home page, with no code sent. door_check adds the password to the host's
+  log filter itself. door_check then sends a confirmation email to the
+  address entered. When that email fails to send, the failure is reported to
+  `Rails.error`, the person stays signed in, and the resend button still
+  shows.
 - **Confirmation email** — the email sent after a password sign-up, with the
   subject "Confirm your email address" and one link. The link works once and
   for 24 hours. Opening it marks the address confirmed and signs nobody in. A
