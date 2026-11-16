@@ -77,8 +77,8 @@ module DoorCheck
 
     def send_confirmation(person, email)
       SignInMailer.confirmation(Challenge.issue_confirmation(person, email)).deliver_now
-    rescue StandardError
-      nil
+    rescue StandardError => error
+      Rails.error.report(error)
     end
 
     def sign_in_methods

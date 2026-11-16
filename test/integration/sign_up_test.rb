@@ -500,6 +500,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert DoorCheck::EmailConfirmation.for(User.find_by(email: "ada@example.com")).awaiting?
   end
 
+  test "a confirmation email that cannot be sent at sign-up is reported to the app's error reporter" do
+    assert_error_reported(IOError) do
+      with_failing_mail do
+        post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+      end
+    end
+  end
+
   private
 
   def door_check_rows
