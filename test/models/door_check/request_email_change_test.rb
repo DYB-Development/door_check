@@ -18,6 +18,12 @@ module DoorCheck
       assert_equal [ "new@example.com" ], ActionMailer::Base.deliveries.last&.to
     end
 
+    test "an accepted request emails the person's current address a notice of the change" do
+      RequestEmailChange.new(person: @user, account: nil, values: { email: "new@example.com" }).call
+
+      assert_includes ActionMailer::Base.deliveries.map(&:to), [ "ada@example.com" ]
+    end
+
     test "an accepted request leaves the confirmed check true for the old address" do
       EmailConfirmation.for(@user).confirm("ada@example.com")
 
