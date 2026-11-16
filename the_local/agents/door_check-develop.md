@@ -50,7 +50,7 @@ Paths, called on the engine's route proxy `door_check` from host views and
 controllers:
 
 - `door_check.new_email_sign_in_path` — the page where a person enters their email to be sent a sign-in code and a sign-in link.
-- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one, then either is sent a sign-in code and a sign-in link or chooses a password, is signed in and is emailed a confirmation link.
+- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one, then either is sent a sign-in code and a sign-in link or chooses a password, is signed in and is emailed a confirmation link. An address that already has an account is never signed up again: whatever the visitor chose, that person is emailed a sign-in code and link, the visitor is taken to the email code page, and nobody is signed in by password.
 - `door_check.new_passkey_sign_in_path` — the page where a person signs in with a passkey.
 - `door_check.new_approval_request_path` — the page where a person asks to be let in by approving from a device they are already signed in on.
 - `door_check.approvals_path` — the page where a signed-in person sees waiting approval requests and approves or declines them.
@@ -128,6 +128,9 @@ the address the host holds for them now.
 - After a password sign-up, door_check emails a confirmation link to the
   address entered. The link works once and for 24 hours. Opening it confirms
   the address and signs nobody in.
+- When that confirmation email fails to send, door_check reports the error to
+  `Rails.error`. The person stays signed in, and the personal settings
+  section still offers to send the email again.
 - Using any email code or email link, at sign-up or at sign-in, also confirms
   the address it was sent to. An email code sign-up gets no confirmation
   email.
