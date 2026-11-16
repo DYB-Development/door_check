@@ -55,6 +55,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert DoorCheck::EmailConfirmation.confirmed?(@user, "ada@example.com")
   end
 
+  test "a change the host refuses shows the host's message" do
+    challenge = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+
+    with_email_change_confirmed(->(_controller, _person, _email) { refused }) do
+      get "/door_check/confirm_email_change/#{challenge.token}"
+    end
+
+    assert_select "[role=alert]", text: /Another person already uses that email address/
+  end
+
   private
 
   def refused
