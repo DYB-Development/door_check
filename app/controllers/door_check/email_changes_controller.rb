@@ -12,7 +12,14 @@ module DoorCheck
       EmailConfirmation.for(challenge.person).confirm(challenge.email)
     end
 
+    def cancel
+      challenge = Challenge.redeem_token(params[:token], purpose: "cancel_email_change")
+      DoorCheck.configuration.email_change_cancelled.call(self, challenge.person, challenge.email)
+      render :cancelled
+    end
+
     private
+
 
     def email_change_confirmed(challenge)
       DoorCheck.configuration.email_change_confirmed.call(self, challenge.person, challenge.email)

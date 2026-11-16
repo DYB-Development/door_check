@@ -138,6 +138,17 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_equal "ada@new.example.com", @user.reload.email
   end
 
+  test "opening the This wasn't me link calls the host's cancelled setting with the person and the new address" do
+    challenge = DoorCheck::Challenge.issue_email_change_cancel(@user, "ada@new.example.com")
+    received = nil
+
+    with_email_change_cancelled(->(_controller, person, email) { received = [ person, email ]; accepted }) do
+      get "/door_check/cancel_email_change/#{challenge.token}"
+    end
+
+    assert_equal [ @user, "ada@new.example.com" ], received
+  end
+
   private
 
   def refused
@@ -154,5 +165,13 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     yield
   ensure
     DoorCheck.configuration.email_change_confirmed = email_change_confirmed
+  end
+
+  def with_email_change_cancelled(callable)
+    email_change_cancelled = DoorCheck.configuration.email_change_cancelled
+    DoorCheck.configuration.email_change_cancelled = callable
+    yield
+  ensure
+    DoorCheck.configuration.email_change_cancelled = email_change_cancelled
   end
 end
