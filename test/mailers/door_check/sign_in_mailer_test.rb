@@ -29,5 +29,19 @@ module DoorCheck
 
       assert_match "/door_check/confirm_email/#{challenge.token}", mail.text_part.body.to_s
     end
+
+    test "the email change confirmation holds a link that confirms the new address" do
+      challenge = Challenge.issue_email_change(User.first, "new@example.com")
+
+      mail = SignInMailer.email_change_confirmation(challenge)
+
+      assert_match "/door_check/confirm_email_change/#{challenge.token}", mail.text_part.body.to_s
+    end
+
+    test "the email change confirmation is titled Confirm your new email address" do
+      challenge = Challenge.issue_email_change(User.first, "new@example.com")
+
+      assert_equal "Confirm your new email address", SignInMailer.email_change_confirmation(challenge).subject
+    end
   end
 end

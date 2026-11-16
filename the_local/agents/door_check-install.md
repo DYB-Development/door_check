@@ -88,8 +88,9 @@ trusted browsers.
    where to store the output.
 
 5. Make sure every environment sets `config.action_mailer.default_url_options`
-   with a host, in `config/environments/*.rb`. The sign-in email and the
-   confirmation email each carry a link built from it.
+   with a host, in `config/environments/*.rb`. The sign-in email, the
+   confirmation email and the email sent to confirm a new address each carry a
+   link built from it.
 
 6. Create `config/initializers/door_check.rb`:
    ```ruby
@@ -133,7 +134,9 @@ trusted browsers.
      controller. That controller must include `DoorCheck::Tracking` and define
      the person and account methods.
    - `config.parent_mailer` — defaults to `"::ApplicationMailer"`. The host
-     needs this class, or another named here, for the sign-in email.
+     needs this class, or another named here, for every email door_check
+     sends: the sign-in email, the confirmation email, and the email that
+     confirms a new address.
    - `config.passkey_domain` — defaults to the host name of each request. Set it
      when passkeys must work across subdomains. Passkeys saved against one
      domain do not work on another, so ask before changing it on an app that
@@ -412,6 +415,7 @@ trusted browsers.
   `bin/rails db:migrate` again to copy any new migrations.
 - Changing `offered_methods` needs an app restart.
 - Out of scope: recording a sign-in, reading proofs, checking whether a
-  person's address is confirmed, linking to door_check's pages, and the
-  actions that change rules, end sessions or remove methods.
+  person's address is confirmed, requesting a change of a person's email
+  address, linking to door_check's pages, and the actions that change rules,
+  end sessions or remove methods.
   Those belong to the develop local.
