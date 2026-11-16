@@ -236,7 +236,53 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_not told
   end
 
+  test "after a second request the first confirmation link says it no longer works" do
+    request_change("ada@first.example.com")
+    first = emailed_link("ada@first.example.com", "confirm_email_change")
+    request_change("ada@second.example.com")
+
+    get first
+
+    assert_select "[role=alert]", text: /This link no longer works/
+  end
+
+  test "after a second request the first This wasn't me link says it no longer works" do
+    request_change("ada@first.example.com")
+    first = emailed_link("ada@example.com", "cancel_email_change")
+    request_change("ada@second.example.com")
+
+    get first
+
+    assert_select "[role=alert]", text: /This link no longer works/
+  end
+
+  test "after a second request its confirmation link changes the host's address" do
+    request_change("ada@first.example.com")
+    request_change("ada@second.example.com")
+
+    get emailed_link("ada@second.example.com", "confirm_email_change")
+
+    assert_equal "ada@second.example.com", @user.reload.email
+  end
+
+  test "after a second request its This wasn't me link shows the change is cancelled" do
+    request_change("ada@first.example.com")
+    request_change("ada@second.example.com")
+
+    get emailed_link("ada@example.com", "cancel_email_change")
+
+    assert_select "[role=alert]", text: /The change to your email address is cancelled/
+  end
+
   private
+
+  def request_change(email)
+    DoorCheck::RequestEmailChange.new(person: @user, account: nil, values: { email: email }).call
+  end
+
+  def emailed_link(to, path)
+    ActionMailer::Base.deliveries.reverse.find { |mail| mail.to == [ to ] }.text_part.body.to_s[%r{/door_check/#{path}/\S+}]
+  end
 
   def refused
     DoorCheck::Result.new(ok: false, message: "Another person already uses that email address.")

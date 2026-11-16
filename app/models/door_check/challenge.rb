@@ -18,15 +18,21 @@ module DoorCheck
 
     def self.issue_confirmation(person, email) = issue_link(person, email, purpose: "confirm")
 
-    def self.issue_email_change(person, email) = issue_link(person, email, purpose: "change_email")
+    def self.issue_email_change(person, email) = replace_link(person, email, purpose: "change_email")
 
-    def self.issue_email_change_cancel(person, email) = issue_link(person, email, purpose: "cancel_email_change")
+    def self.issue_email_change_cancel(person, email) = replace_link(person, email, purpose: "cancel_email_change")
 
     def self.issue_link(person, email, purpose:)
       token = SecureRandom.urlsafe_base64(32)
       create!(person: person, email: email, purpose: purpose, token: token, token_digest: digest(token), expires_at: CONFIRMATION_LIFETIME.from_now)
     end
     private_class_method :issue_link
+
+    def self.replace_link(person, email, purpose:)
+      where(person: person, purpose: purpose, used_at: nil).update_all(used_at: Time.current)
+      issue_link(person, email, purpose: purpose)
+    end
+    private_class_method :replace_link
 
     def self.end_unused(person, email, purpose:)
       where(person: person, email: email, purpose: purpose, used_at: nil).update_all(used_at: Time.current)
