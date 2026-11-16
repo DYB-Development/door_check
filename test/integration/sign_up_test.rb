@@ -420,6 +420,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_nil session[:user_id]
   end
 
+  test "an emailed-code sign-up the host accepts without making a findable person sends no email" do
+    with_sign_up_person(->(_controller, _values) { DoorCheck::Result.new(ok: true) }) do
+      post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+    end
+
+    assert_empty ActionMailer::Base.deliveries
+  end
+
   private
 
   def door_check_rows
