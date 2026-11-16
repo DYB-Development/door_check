@@ -19,7 +19,7 @@ module DoorCheck
       existing_person = find_person(email)
       return send_code(existing_person, email) if existing_person
 
-      result = DoorCheck.configuration.sign_up_person.call(self, submitted_values)
+      result = sign_up_person
       return refuse_sign_up(result.message) unless result.ok?
 
       person = find_person(email)
@@ -49,6 +49,12 @@ module DoorCheck
 
     def submitted_values
       params.to_unsafe_h.except(:controller, :action, :authenticity_token)
+    end
+
+    def sign_up_person
+      DoorCheck.configuration.sign_up_person.call(self, submitted_values)
+    rescue StandardError
+      Result.new(ok: false, message: NOT_FINISHED)
     end
 
     def send_code(person, email)
