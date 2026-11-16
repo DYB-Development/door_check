@@ -117,6 +117,18 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /no longer works.*Ask for the change/
   end
 
+  test "a change link opened after a day says it no longer works" do
+    challenge = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+
+    travel 25.hours do
+      with_email_change_confirmed(->(_controller, _person, _email) { accepted }) do
+        get "/door_check/confirm_email_change/#{challenge.token}"
+      end
+    end
+
+    assert_select "[role=alert]", text: /no longer works/
+  end
+
   private
 
   def refused
