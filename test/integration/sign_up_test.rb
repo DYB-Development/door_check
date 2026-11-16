@@ -372,6 +372,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_not called
   end
 
+  test "a sign-up with an address that already has an account emails that address a sign-in code and link" do
+    User.create!(email: "ada@example.com")
+
+    post "/door_check/sign_up", params: { name: "Ada Lovelace", email: "ada@example.com", agreement: "1" }
+
+    assert_match(%r{code is \d{6}.*/email_link/}m, ActionMailer::Base.deliveries.find { |mail| mail.to == [ "ada@example.com" ] }&.text_part&.body.to_s)
+  end
+
   private
 
   def door_check_rows
