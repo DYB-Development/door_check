@@ -508,6 +508,14 @@ class SignUpTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a password submitted on the sign-up page is kept out of the request log when the host app filters no password" do
+    log = with_request_log_and_no_host_password_filter do
+      post "/door_check/sign_up?sign_in_method=password", params: { name: "Ada Lovelace", email: "ada@example.com", password: "correct horse battery", agreement: "1" }
+    end
+
+    assert_no_match(/correct horse battery/, log)
+  end
+
   private
 
   def door_check_rows
@@ -534,6 +542,20 @@ class SignUpTest < ActionDispatch::IntegrationTest
     yield
   ensure
     previous.each { |name, value| DoorCheck.configuration.public_send("#{name}=", value) }
+  end
+
+  def with_request_log_and_no_host_password_filter
+    filters = Rails.application.config.filter_parameters
+    original_filters = filters.dup
+    original_logger = ActionController::Base.logger
+    log = StringIO.new
+    filters.delete(:passw)
+    ActionController::Base.logger = ActiveSupport::Logger.new(log)
+    yield
+    log.string
+  ensure
+    ActionController::Base.logger = original_logger
+    filters.replace(original_filters)
   end
 
   def with_failing_mail
