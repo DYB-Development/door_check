@@ -55,6 +55,16 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
     assert_match %r{/door_check/confirm_email/}, ActionMailer::Base.deliveries.last&.text_part&.body.to_s
   end
 
+  test "a signed-in person whose host address changed is sent the confirmation email again at the current address" do
+    DoorCheck::EmailConfirmation.for(@user).confirm("ada@example.com")
+    @user.update!(email: "ada@new.example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+
+    post "/door_check/email_confirmation"
+
+    assert_equal [ "ada@new.example.com" ], ActionMailer::Base.deliveries.last&.to
+  end
+
   test "the earlier confirmation link still confirms the address after the email is sent again" do
     earlier = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
     DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
