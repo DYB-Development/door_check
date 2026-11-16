@@ -10,7 +10,7 @@ module DoorCheck
       result = email_change_confirmed(challenge)
       return refuse(result.message) unless result.ok?
 
-      EmailConfirmation.for(challenge.person).confirm(challenge.email)
+      challenge.confirm_address
     end
 
     def cancel

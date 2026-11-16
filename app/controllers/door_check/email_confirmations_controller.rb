@@ -4,7 +4,7 @@ module DoorCheck
       challenge = Challenge.redeem_token(params[:token], purpose: "confirm")
       return render(:expired, status: :not_found) unless challenge
 
-      EmailConfirmation.for(challenge.person).confirm(challenge.email)
+      challenge.confirm_address
     end
 
     def create

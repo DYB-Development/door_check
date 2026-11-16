@@ -47,6 +47,10 @@ module DoorCheck
       challenge if challenge&.use
     end
 
+    def confirm_address
+      EmailConfirmation.for(person).confirm(email)
+    end
+
     def approve
       update!(approved_at: Time.current)
       Turbo::StreamsChannel.broadcast_refresh_to(self)
