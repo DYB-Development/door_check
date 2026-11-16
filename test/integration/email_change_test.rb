@@ -131,7 +131,7 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
 
   test "a person who asks to change their email and opens the emailed link has the host's address changed" do
     DoorCheck::RequestEmailChange.new(person: @user, account: nil, values: { email: "ada@new.example.com" }).call
-    link = ActionMailer::Base.deliveries.last.text_part.body.to_s[%r{/door_check/confirm_email_change/\S+}]
+    link = ActionMailer::Base.deliveries.reverse.find { |mail| mail.to == [ "ada@new.example.com" ] }.text_part.body.to_s[%r{/door_check/confirm_email_change/\S+}]
 
     get link
 
