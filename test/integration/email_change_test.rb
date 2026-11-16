@@ -65,6 +65,16 @@ class EmailChangeTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /Another person already uses that email address/
   end
 
+  test "a change whose host setting raises an error shows a general message" do
+    challenge = DoorCheck::Challenge.issue_email_change(@user, "ada@new.example.com")
+
+    with_email_change_confirmed(->(_controller, _person, _email) { raise "The host's database is down" }) do
+      get "/door_check/confirm_email_change/#{challenge.token}"
+    end
+
+    assert_select "[role=alert]", text: /Your email address could not be changed/
+  end
+
   private
 
   def refused
