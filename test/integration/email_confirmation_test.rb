@@ -106,6 +106,16 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
     assert_equal [ "ada@example.com" ], ActionMailer::Base.deliveries.last&.to
   end
 
+  test "a person who asks for the confirmation email again a sixth time in an hour is told to try again later" do
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+    5.times { post "/door_check/email_confirmation" }
+
+    post "/door_check/email_confirmation"
+
+    assert_select "[role=alert]", text: /Try again later/
+  end
+
   test "asking for a confirmation email with nobody signed in and no link is answered not found" do
     post "/door_check/email_confirmation"
 
