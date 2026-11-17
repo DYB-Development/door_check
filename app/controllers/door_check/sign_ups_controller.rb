@@ -36,9 +36,8 @@ module DoorCheck
     end
 
     def sign_in_method_tabs
-      sign_in_methods.map do |method_name|
-        { label: SIGN_IN_METHOD_LABELS.fetch(method_name), href: door_check.new_sign_up_path(request.query_parameters.merge(sign_in_method: method_name)),
-          current: method_name == chosen_sign_in_method }
+      [ chosen_sign_in_method, *(sign_in_methods - [ chosen_sign_in_method ]) ].map do |method_name|
+        { method_name: method_name, label: SIGN_IN_METHOD_LABELS.fetch(method_name) }
       end
     end
 

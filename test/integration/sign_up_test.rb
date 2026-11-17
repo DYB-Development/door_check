@@ -36,23 +36,29 @@ class SignUpTest < ActionDispatch::IntegrationTest
     DoorCheck.configuration.sign_up_link_on_sign_in = true
   end
 
-  test "a visitor on the sign-up page can choose between an emailed code and a password" do
+  test "a visitor on the sign-up page can choose between an emailed code and a password without reloading the page" do
     get "/door_check/sign_up/new"
 
-    assert_equal [ [ "Emailed code", "/door_check/sign_up/new?sign_in_method=email_code" ], [ "Password", "/door_check/sign_up/new?sign_in_method=password" ] ],
-                 css_select("a[href*=sign_in_method]").map { |tab| [ tab.text.squish, tab["href"] ] }
+    assert_equal [ "Emailed code", "Password" ],
+                 css_select("[data-controller=tab-switcher] button[type=button][data-action='click->tab-switcher#select']").map { |tab| tab.text.squish }
+  end
+
+  test "the name and email the visitor typed stay filled in when they switch between Password and Emailed code" do
+    get "/door_check/sign_up/new"
+
+    assert_equal %w[name email], css_select("[data-controller=tab-switcher] input").reject { |input| input.ancestors("fieldset").any? }.map { |input| input["name"] }
   end
 
   test "a visitor who has not chosen a password is not asked for one on the sign-up page" do
     get "/door_check/sign_up/new"
 
-    assert_select "input[name=password]", count: 0
+    assert_select "fieldset:not([hidden]) input[name=password]", count: 0
   end
 
   test "a visitor who chooses a password is not told the sign-up page will send a code" do
     get "/door_check/sign_up/new", params: { sign_in_method: "password" }
 
-    assert_no_match(/send you a code/, response.body)
+    assert_no_match(/send you a code/, css_select("fieldset:not([hidden])").text)
   end
 
   test "a visitor who chooses a password submits the sign-up page with a Sign up button" do
@@ -64,7 +70,7 @@ class SignUpTest < ActionDispatch::IntegrationTest
   test "the sign-up page marks the password as the visitor's choice once they choose it" do
     get "/door_check/sign_up/new", params: { sign_in_method: "password" }
 
-    assert_select "a[aria-current=page]", text: "Password"
+    assert_select "fieldset:not([hidden]) input[name=password]"
   end
 
   test "a visitor who chooses a password on the sign-up page must fill in a password field" do
