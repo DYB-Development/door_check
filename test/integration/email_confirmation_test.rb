@@ -116,6 +116,14 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]", text: /Try again later/
   end
 
+  test "a refused request for the confirmation email sends no email" do
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+    5.times { post "/door_check/email_confirmation" }
+
+    assert_no_emails { post "/door_check/email_confirmation" }
+  end
+
   test "asking for a confirmation email with nobody signed in and no link is answered not found" do
     post "/door_check/email_confirmation"
 
