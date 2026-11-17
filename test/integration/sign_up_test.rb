@@ -49,6 +49,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal %w[name email], css_select("[data-controller=tab-switcher] input").reject { |input| input.ancestors("fieldset").any? }.map { |input| input["name"] }
   end
 
+  test "each sign-in choice on the sign-up page submits which choice the visitor made" do
+    get "/door_check/sign_up/new"
+
+    assert_equal %w[email_code password], css_select("fieldset input[type=hidden][name=sign_in_method]").map { |input| input["value"] }
+  end
+
   test "a visitor who has not chosen a password is not asked for one on the sign-up page" do
     get "/door_check/sign_up/new"
 
