@@ -58,9 +58,11 @@ trusted browsers.
    ```
    bundle install
    ```
-   door_check's pages are built with keystone_ui. If the host does not already
-   have keystone_ui installed, hand that to the keystone_ui install local before
-   going on.
+   door_check's pages are built with keystone_ui 0.100.0 or later. If the host
+   does not already have keystone_ui installed, hand that to the keystone_ui
+   install local before going on. If the host's `Gemfile` holds keystone_ui
+   below 0.100.0, `bundle install` fails, so ask the developer before raising
+   that version.
 
 2. Copy and run the migrations:
    ```
@@ -232,12 +234,14 @@ trusted browsers.
      - It answers not found unless `sign_up_person` is set and
        `offered_methods` includes `password`, `email_code`, or both.
      - When both are offered, the page shows two tabs, "Emailed code" and
-       "Password", and opens on "Emailed code". When only one is offered,
-       only that one shows, with no tabs.
-     - `values[:sign_in_method]` carries the visitor's choice, `"password"` or
-       `"email_code"`. It may be missing when the visitor kept the page's
-       first choice, which is `email_code` when it is offered and `password`
-       otherwise.
+       "Password", and opens on "Emailed code". Switching tabs does not
+       reload the page, and the name and email already typed stay filled in.
+       When only one is offered, only that one shows, with no tabs.
+     - A link to the page with `sign_in_method=password` in its address opens
+       it on the "Password" tab. A refused sign-up reopens the page on the
+       tab the visitor chose.
+     - `values[:sign_in_method]` carries the visitor's choice on every
+       sign-up, `"password"` or `"email_code"`.
      - On the password choice the page also asks for a password, and `values`
        carries it as typed in `values[:password]`. The host saves the
        password. door_check never stores it.
@@ -303,6 +307,7 @@ trusted browsers.
      ```
      The titles and routes are examples. Ask the developer which documents to
      link and where each one is. Each hash must carry both `title` and `url`.
+     Each link opens in a new tab, so the sign-up page stays open.
    - `config.sign_up_link_on_sign_in = false` — defaults to true. While it is
      true and the sign-up page is on, the email sign-in page shows a "Create an
      account" button under its form that opens the sign-up page. Set it to

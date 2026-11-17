@@ -86,10 +86,12 @@ door_check declares nothing for this local to document.
   and nothing is sent. An error the callable raised is reported to
   `Rails.error`.
 - **Sign-in choice at sign-up** — when the app offers both email codes and
-  passwords, the sign-up page shows a tab for each and opens on the emailed
-  code. When it offers one, only that one shows. The callable receives the
-  choice as `sign_in_method`, `"password"` or `"email_code"`, which may be
-  missing when the person kept the first choice.
+  passwords, the sign-up page shows two tabs, "Emailed code" and "Password",
+  and opens on "Emailed code". Switching tabs does not reload the page, and the
+  name and email already typed stay filled in. A refused sign-up reopens the
+  page on the tab the person chose. When the app offers one of the two, the
+  page shows no tabs and only that choice. The callable receives the choice on
+  every sign-up as `sign_in_method`, `"password"` or `"email_code"`.
 - **Email code sign-up** — on ok, door_check emails a sign-in code and link and
   takes the person to the email code page, and entering the code signs them in
   by email code.
@@ -186,7 +188,8 @@ door_check declares nothing for this local to document.
 - **Sign-up agreement** — the required checkbox on the sign-up page. Its label
   is "I agree to the Terms of Service and Privacy Policy" unless the host sets
   another, and the host may list documents, each a title and an address, shown
-  as links under it. When it is not ticked, the page refuses the sign-up with
+  as links under it. Each link opens in a new tab, so the sign-up page stays
+  open. When it is not ticked, the page refuses the sign-up with
   "Tick the agreement to sign up.", keeps the name and email, and does not call
   the host's sign-up callable. When it is ticked, the callable receives
   `agreement` as `"1"` with the other values, and the host's own terms and

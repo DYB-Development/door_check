@@ -51,7 +51,7 @@ Paths, called on the engine's route proxy `door_check` from host views and
 controllers:
 
 - `door_check.new_email_sign_in_path` — the page where a person enters their email to be sent a sign-in code and a sign-in link.
-- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email to create one, then either is sent a sign-in code and a sign-in link or chooses a password, is signed in and is emailed a confirmation link. An address that already has an account is never signed up again: whatever the visitor chose, that person is emailed a sign-in code and link, the visitor is taken to the email code page, and nobody is signed in by password.
+- `door_check.new_sign_up_path` — the page where a person with no login enters a name and an email, picks "Emailed code" or "Password" on the same page, ticks a required agreement checkbox, and signs up. On "Emailed code" they are sent a sign-in code and a sign-in link. On "Password" they enter a password, are signed in and are emailed a confirmation link. An address that already has an account is never signed up again: whatever the visitor chose, that person is emailed a sign-in code and link, the visitor is taken to the email code page, and nobody is signed in by password.
 - `door_check.new_passkey_sign_in_path` — the page where a person signs in with a passkey.
 - `door_check.new_approval_request_path` — the page where a person asks to be let in by approving from a device they are already signed in on.
 - `door_check.approvals_path` — the page where a signed-in person sees waiting approval requests and approves or declines them.
@@ -432,7 +432,7 @@ What happens when the "This wasn't me" link is opened:
    `sign_up_person` is set.
    Values added to the sign-up path, such as
    `door_check.new_sign_up_path(invitation: token)`, reach `sign_up_person`
-   with the form's name and email. The approvals page and the
+   with the values the form sends. The approvals page and the
    authenticator page do not, so a link to either shown without its method
    offered leads to a working page for a method the app does not offer.
 3. The sign-in email always carries both a code and a link. The link returns
@@ -455,22 +455,29 @@ What happens when the "This wasn't me" link is opened:
    host that hides it can send people there through its own links, such as an
    invitation built with `door_check.new_sign_up_path(invitation: token)`.
    Ask the developer which of the host's pages should link to sign-up.
-7. Link to `backup_codes_path` with a form that sends a `POST`, such as
+7. When the app offers both `email_code` and `password`, the sign-up page
+   opens on "Emailed code". A link built with
+   `door_check.new_sign_up_path(sign_in_method: "password")` opens it on
+   "Password" instead. The visitor can still switch to the other choice on the
+   page. Ask the developer which choice each sign-up link should open on.
+   When only one of the two is offered, the page shows only that one and
+   `sign_in_method` in the link changes nothing.
+8. Link to `backup_codes_path` with a form that sends a `POST`, such as
    `button_to`, never a plain link.
-8. When the person already has a second step set up, the authenticator, passkey
+9. When the person already has a second step set up, the authenticator, passkey
    and backup codes pages first ask for it if this session has not passed one,
    then send the person back.
-9. The authenticator page keeps showing the same secret key in this browser
-   session until setup succeeds, so reloading it or entering a wrong code does
-   not change the key the person already scanned. A wrong code shows an error on
-   the same page and saves nothing.
-10. When the browser session no longer holds the key, such as after the person
-   signed out and back in, saving a code sends the person back to the
-   authenticator page with a new key and a warning to scan it again.
-11. A right code saves the authenticator app, counts as this session's second
-   step, and sends the person to the page they were on before door_check asked
-   for a second step, or to `/` when there was none. The app lists the account
-   under the person's email when the person responds to `email`.
+10. The authenticator page keeps showing the same secret key in this browser
+    session until setup succeeds, so reloading it or entering a wrong code does
+    not change the key the person already scanned. A wrong code shows an error
+    on the same page and saves nothing.
+11. When the browser session no longer holds the key, such as after the person
+    signed out and back in, saving a code sends the person back to the
+    authenticator page with a new key and a warning to scan it again.
+12. A right code saves the authenticator app, counts as this session's second
+    step, and sends the person to the page they were on before door_check asked
+    for a second step, or to `/` when there was none. The app lists the account
+    under the person's email when the person responds to `email`.
 
 ## Conventions
 
