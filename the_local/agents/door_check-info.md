@@ -1,6 +1,6 @@
 ---
 name: door_check-info
-description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email and resend button, a request to change a person's email address with the link that confirms it and the notice to the current address whose link cancels it, and the vocabulary the install and develop locals assume.
+description: Use to learn what door_check offers — the sign-in methods and second steps an app offers, the rules an account or a person sets on them, the sessions and trusted browsers a person can see and end, the sign-up page with its sign-in choice and agreement checkbox, email address confirmation with its confirmation email, resend button and resend limit, a request to change a person's email address with the link that confirms it and the notice to the current address whose link cancels it, and the vocabulary the install and develop locals assume.
 tools: Read
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -130,9 +130,16 @@ door_check declares nothing for this local to document.
   never confirmed, and a confirmed person whose host address has since
   changed. The button sends a new link to the address the host holds now, and
   opening it confirms that address. A person door_check has no address on
-  record for sees no button. The earlier link keeps working until it expires.
-  The "Send a new confirmation email" button on a used or expired link's page
-  still sends to the address that link was for.
+  record for, or whose host address is blank, sees no button. The earlier link
+  keeps working until it expires. The "Send a new confirmation email" button on
+  a used or expired link's page still sends to the address that link was for.
+- **Resend limit** — a person can ask for the confirmation email five times in
+  an hour. Both the resend button and the "Send a new confirmation email"
+  button count toward the same person's five. A sixth request in that hour
+  sends nothing and shows a page saying "You asked for the confirmation email
+  too many times. Try again later." A request with no person behind it is
+  counted by IP address instead. The count is kept in the app's cache, so an
+  app whose cache stores nothing never refuses a request.
 - **Email change request** — the host asks door_check to change a person's
   email address to a new one. door_check emails the new address one link, with
   the subject "Confirm your new email address". The link works once and for 24
