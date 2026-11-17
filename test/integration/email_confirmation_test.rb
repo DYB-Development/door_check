@@ -106,6 +106,31 @@ class EmailConfirmationTest < ActionDispatch::IntegrationTest
     assert_equal [ "ada@example.com" ], ActionMailer::Base.deliveries.last&.to
   end
 
+  test "a person who asks for the confirmation email again a sixth time in an hour is told to try again later" do
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+    5.times { post "/door_check/email_confirmation" }
+
+    post "/door_check/email_confirmation"
+
+    assert_select "[role=alert]", text: /Try again later/
+  end
+
+  test "a refused request for the confirmation email sends no email" do
+    DoorCheck::EmailConfirmation.for(@user).update!(email: "ada@example.com")
+    post "/sign_in", params: { user_id: @user.id, method_name: "password" }
+    5.times { post "/door_check/email_confirmation" }
+
+    assert_no_emails { post "/door_check/email_confirmation" }
+  end
+
+  test "a signed-out person sent a fifth email from a used link is still sent it" do
+    challenge = DoorCheck::Challenge.issue_confirmation(@user, "ada@example.com")
+    4.times { post "/door_check/email_confirmation", params: { token: challenge.token } }
+
+    assert_emails(1) { post "/door_check/email_confirmation", params: { token: challenge.token } }
+  end
+
   test "asking for a confirmation email with nobody signed in and no link is answered not found" do
     post "/door_check/email_confirmation"
 

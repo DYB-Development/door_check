@@ -94,6 +94,7 @@ sources:
   - app/views/door_check/settings/_sign_in_rules.html.erb
   - app/views/door_check/sign_ups/new.html.erb
   - app/views/door_check/email_sign_ins/new.html.erb
+  - app/views/door_check/email_confirmations/limited.html.erb
   - app/views/door_check/email_changes/show.html.erb
   - app/views/door_check/email_changes/refused.html.erb
   - app/views/door_check/email_changes/expired.html.erb

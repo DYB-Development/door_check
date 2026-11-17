@@ -147,11 +147,22 @@ the address the host holds for them now.
   address is not confirmed or differs from the address `person.email` returns
   now, ignoring case and surrounding spaces. A person door_check has never
   stored an address for, such as one who existed before door_check kept
-  confirmations, does not see it.
+  confirmations, does not see it. A person whose `email` is blank does not see
+  it either.
 - That button posts to door_check's own route, so the host writes no action
   for it. The new link goes to the address `person.email` returns now, or to
-  the address door_check stored when the person does not answer `email`.
-  Opening it confirms that address, so `confirmed?` returns true for it.
+  the address door_check stored when the person does not answer `email` at
+  all. Opening it confirms that address, so `confirmed?` returns true for it.
+- door_check sends the confirmation email again at most five times in an hour
+  for each person. That button and the "Send a new confirmation email" button
+  on a used or expired confirmation link's page count toward the same limit. A
+  sixth request sends nothing and shows a page saying "You asked for the
+  confirmation email too many times. Try again later.". The host writes
+  nothing for this, and cannot change the number or the hour.
+- The limit is counted in the host's Rails cache, which the install local sets
+  up. Under a cache that keeps nothing, such as development without
+  `bin/rails dev:cache`, no request is refused. Hand a question about the
+  cache to the install local.
 - Earlier confirmation links keep working until each is used or expires.
   Opening one sent to an older address confirms that older address, which
   leaves the button showing while the host holds a different one.

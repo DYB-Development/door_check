@@ -27,5 +27,12 @@ module DoorCheck
 
       assert EmailConfirmation.for(@user).awaiting?
     end
+
+    test "a person whose host email is blank is not awaiting confirmation" do
+      EmailConfirmation.for(@user).update!(email: "ada@example.com")
+      @user.update!(email: "")
+
+      assert_not EmailConfirmation.for(@user).awaiting?
+    end
   end
 end
