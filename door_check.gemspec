@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", ">= 7.1"
-  spec.add_dependency "keystone_ui", ">= 0.50"
+  spec.add_dependency "keystone_ui", ">= 0.100.0"
   spec.add_dependency "rotp", ">= 6.0"
   spec.add_dependency "rqrcode", ">= 2.0"
   spec.add_dependency "webauthn", ">= 3.0"

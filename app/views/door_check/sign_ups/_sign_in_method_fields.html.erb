@@ -1,0 +1,6 @@
+<%= hidden_field_tag "sign_in_method", method_name.to_s, id: nil %>
+<% if method_name == :password %>
+  <%= ui_form_field(attribute: "password", label: "Password", type: :password, required: true, autocomplete: "new-password") %>
+<% else %>
+  <%= ui_paragraph(text: "We will send you a code and a link.") %>
+<% end %>
