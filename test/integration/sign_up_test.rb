@@ -313,6 +313,15 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Terms of Service", "/terms" ], [ "Privacy Policy", "/privacy" ] ], css_select("form a").map { |link| [ link.text.squish, link["href"] ] }
   end
 
+  test "the agreement's documents open in a new tab so the visitor keeps the sign-up page" do
+    links = ->(_controller) { [ { title: "Terms of Service", url: "/terms" }, { title: "Privacy Policy", url: "/privacy" } ] }
+    with_configuration(sign_up_agreement_links: links) do
+      get "/door_check/sign_up/new"
+    end
+
+    assert_equal [ [ "_blank", "noopener" ] ] * 2, css_select("form a").map { |link| [ link["target"], link["rel"] ] }
+  end
+
   test "a sign-up without the agreement ticked does not reach the host's sign-up callable" do
     called = false
     with_sign_up_person(->(_controller, values) { called = true; signed_up(values) }) do

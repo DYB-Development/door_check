@@ -12,7 +12,7 @@
       <%= ui_form_field(attribute: "agreement", label: DoorCheck.configuration.sign_up_agreement_label, type: :checkbox, value: params[:agreement],
                         required: true) %>
       <%= ui_link_list(rows: DoorCheck.configuration.sign_up_agreement_links.call(controller)
-                                    .map { |document| { label: document.fetch(:title), href: document.fetch(:url) } }) %>
+                                    .map { |document| { label: document.fetch(:title), href: document.fetch(:url) } }, new_tab: true) %>
       <%= ui_button(label: "Sign up") %>
     <% end %>
   <% end %>
