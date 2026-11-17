@@ -298,6 +298,12 @@ class SignUpTest < ActionDispatch::IntegrationTest
     assert_select "input[type=checkbox][name=agreement] + label", text: "I agree to the Acme terms"
   end
 
+  test "the browser will not submit the sign-up page until the agreement is ticked" do
+    get "/door_check/sign_up/new"
+
+    assert_select "input[type=checkbox][name=agreement][required]"
+  end
+
   test "the sign-up page links to each document the host configured for the agreement" do
     links = ->(_controller) { [ { title: "Terms of Service", url: "/terms" }, { title: "Privacy Policy", url: "/privacy" } ] }
     with_configuration(sign_up_agreement_links: links) do
