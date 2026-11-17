@@ -1,6 +1,6 @@
 ---
 name: door_check-install
-description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, whether the email sign-in page links to the sign-up page, the callable that saves a person's new email address once they open the link that confirms it, the callable told when a person cancels an email change from the notice sent to their current address, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
+description: Use to hook door_check into a project — adding the gem, copying its migrations, mounting its routes, setting up the cache that counts confirmation email requests, configuring the offered methods and the host's person, account, sign-in and sign-out hooks, the parent controller and mailer, the passkey domain, the IP lookup, the stylesheet and head partial, the name shown in authenticator apps, whether people may choose their own second step, the callable that creates a person from the sign-up page, the sign-up page's agreement label and the documents linked under it, whether the email sign-in page links to the sign-up page, the callable that saves a person's new email address once they open the link that confirms it, the callable told when a person cancels an email change from the notice sent to their current address, the confirmation email sent after a password sign-up and what the app holds back from a person whose address is not confirmed, adding the sign-in tracking and second-step check to the host's controller, and placing the two settings sections.
 tools: Bash, Read, Edit
 scope: sign-in — the sign-in methods and second steps an app offers, each account narrows, and each person chooses from
 ---
@@ -95,7 +95,21 @@ trusted browsers.
    sent to the current address about that change each carry a link built
    from it.
 
-6. Create `config/initializers/door_check.rb`:
+6. Check `config.cache_store` in each `config/environments/*.rb`. door_check
+   lets a person ask for the confirmation email five times in an hour, and
+   counts those requests in the host's Rails cache.
+   - Under `:null_store` nothing is counted, so no request is ever refused.
+     Rails sets `:null_store` in development unless caching is turned on with
+     `bin/rails dev:cache`.
+   - Under `:memory_store` each server process keeps its own count, so a host
+     running several processes lets a person ask more than five times.
+   - A store shared by every process, such as `:solid_cache_store`,
+     `:redis_cache_store` or `:mem_cache_store`, applies the limit as stated.
+
+   Ask the developer which store production uses when it is not a shared one.
+   door_check adds no cache setting of its own.
+
+7. Create `config/initializers/door_check.rb`:
    ```ruby
    DoorCheck.configure do |config|
      config.offered_methods = %i[password email_code email_link device_approval passkey authenticator_app backup_codes trusted_device]
@@ -126,7 +140,7 @@ trusted browsers.
    - **`find_person_by_email`** is required when `email_code`, `email_link` or
      `device_approval` is offered.
 
-7. Add the optional settings only when the developer wants them:
+8. Add the optional settings only when the developer wants them:
    - `config.existing_authenticator = "StoredAuthenticator"` — when the host
      already has an authenticator app or backup codes of its own. The class is
      built with no arguments and must answer `set_up?(person)`, true when the
@@ -245,6 +259,12 @@ trusted browsers.
        cannot sign anyone in, and a sign-in link cannot confirm an address.
        A used or expired link shows a page with a "Send a new confirmation
        email" button, which sends a new link to the same address.
+     - That button and the settings section's "Send the confirmation email
+       again" button count toward the same limit of five requests per person
+       in an hour, kept in the cache step 6 checks. A sixth request sends
+       nothing and shows a page saying "You asked for the confirmation email
+       too many times. Try again later.". A request with no person behind it
+       is counted by IP address.
      - When the confirmation email fails to send, door_check reports the
        error to `Rails.error`. The person stays signed in, and the personal
        settings section still offers to send the confirmation email again.
@@ -365,7 +385,7 @@ trusted browsers.
        works shows a page titled "Email change not cancelled", and the
        lambda is not called.
 
-8. Ask the developer what the app should hold back from a person whose email
+9. Ask the developer what the app should hold back from a person whose email
    address is not confirmed, such as sending invitations or changing billing.
    door_check holds nothing back on its own. The host decides, by asking
    door_check whether the person's current address is confirmed:
@@ -378,27 +398,27 @@ trusted browsers.
    develop local's work, so hand the answers to it. When the developer wants
    nothing held back, skip this step.
 
-9. Add the tracking and the second-step check to the host's
-   `app/controllers/application_controller.rb`, or to the controller named in
-   `parent_controller`:
-   ```ruby
-   class ApplicationController < ActionController::Base
-     include DoorCheck::Tracking
-     include DoorCheck::EntryCheck
+10. Add the tracking and the second-step check to the host's
+    `app/controllers/application_controller.rb`, or to the controller named in
+    `parent_controller`:
+    ```ruby
+    class ApplicationController < ActionController::Base
+      include DoorCheck::Tracking
+      include DoorCheck::EntryCheck
 
-     before_action :door_check_check_entry
-   end
-   ```
-   door_check's own pages skip the check. Ask the developer whether any host
-   controller, such as the sign-in page, should also skip it with
-   `skip_before_action :door_check_check_entry`. A request with no signed-in
-   person always passes the check.
+      before_action :door_check_check_entry
+    end
+    ```
+    door_check's own pages skip the check. Ask the developer whether any host
+    controller, such as the sign-in page, should also skip it with
+    `skip_before_action :door_check_check_entry`. A request with no signed-in
+    person always passes the check.
 
-10. Record each sign-in made by the host's own sign-in page. That call is the
+11. Record each sign-in made by the host's own sign-in page. That call is the
     develop local's to write. Hand it to the develop local before the app goes
     live, since a session that was never recorded meets no second-step rule.
 
-11. Place the two settings sections on the host's settings pages:
+12. Place the two settings sections on the host's settings pages:
     ```erb
     <%= render "door_check/settings/sign_in_methods",
                person: current_user,
@@ -438,11 +458,14 @@ trusted browsers.
       email again" button when door_check holds an address for the person and
       the address the person answers `email` with is not confirmed. That
       covers an address never confirmed and one the host changed after it was
-      confirmed. That button posts to door_check's own route, so the host adds
-      no route for it. It sends a new link to the address the person answers
-      `email` with now, or to the address door_check stored at sign-up when
-      the person has no `email`. Opening that link confirms the address it was
-      sent to. An earlier link keeps working until it expires.
+      confirmed. A person whose `email` is blank sees no button. That button
+      posts to door_check's own route, so the host adds no route for it. It
+      sends a new link to the address the person answers `email` with now, or
+      to the address door_check stored at sign-up when the person does not
+      answer `email` at all. Opening that link confirms the address it was
+      sent to. An earlier link keeps working until it expires. A sixth press
+      within an hour sends nothing and shows the "Try again later." page
+      described under `sign_up_person`.
     - **Signed-in sessions** — the person's sessions that are still signed in.
     - **Trusted browsers** — shown only when `trusted_device` is offered.
     - **Second step** — the person's own second-step checkbox, or a note in its
@@ -493,6 +516,8 @@ trusted browsers.
   needs adding to the host's `config/importmap.rb`.
 - After upgrading the gem, run `bin/rails door_check:install:migrations` and
   `bin/rails db:migrate` again to copy any new migrations.
+- After upgrading to a door_check with the confirmation email limit, run step 6
+  again for each environment.
 - Changing `offered_methods` needs an app restart.
 - Out of scope: recording a sign-in, reading proofs, checking whether a
   person's address is confirmed, requesting a change of a person's email
