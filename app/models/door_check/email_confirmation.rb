@@ -8,7 +8,7 @@ module DoorCheck
 
     def self.confirmed?(person, email) = self.for(person).confirms?(email)
 
-    def awaiting? = email.present? && !confirms?(current_address)
+    def awaiting? = email.present? && current_address.present? && !confirms?(current_address)
 
     def confirms?(address) = confirmed_at.present? && email.to_s.casecmp?(address.to_s.strip)
 
